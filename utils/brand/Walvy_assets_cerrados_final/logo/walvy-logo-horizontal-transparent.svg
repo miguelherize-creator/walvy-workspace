@@ -1,0 +1,14 @@
+<svg width="1400" height="360" viewBox="0 0 1400 360" xmlns="http://www.w3.org/2000/svg">
+<defs>
+      <linearGradient id="lg2" x1="0" y1="0" x2="1" y2="1">
+        <stop offset="0" stop-color="#1B6B73"/>
+        <stop offset="1" stop-color="#103F43"/>
+      </linearGradient>
+    </defs>
+<g transform="translate(64,54)">
+ <path d="M34 54L78 194L120 118L162 194L206 54" fill="none" stroke="url(#lg2)" stroke-width="20" stroke-linecap="round" stroke-linejoin="round"/>
+ <path d="M62 216C78 228 98 234 120 234C142 234 162 228 178 216" fill="none" stroke="#EE8D78" stroke-width="12" stroke-linecap="round"/>
+</g>
+<text x="320" y="172" font-family="Aptos, Arial, sans-serif" font-size="126" font-weight="700" fill="#103F43" letter-spacing="-1.5">Walvy</text>
+<text x="324" y="230" font-family="Aptos, Arial, sans-serif" font-size="40" font-weight="600" letter-spacing="0.3" fill="#54757A">recupera el control de tu mes</text>
+</svg>

@@ -1,0 +1,315 @@
+# Walvy — Toggle Light/Dark Theme
+**Prompt de ejecución para Rork AI — versión optimizada**
+
+---
+
+## CONTEXTO DEL PROYECTO
+
+**App:** Walvy — finanzas personales (React Native / Expo 54, TypeScript, Expo Router 6).
+**Paquetes frontend:** Bun. Imports con alias `@/`. Patrón de contexto: `@nkzw/create-context-hook`.
+
+### Estado actual del código (lo que YA existe — no recrear)
+
+- `constants/colors.ts` — exporta `default colors` (solo modo claro, sin variante dark)
+- `constants/theme.ts` — exporta `spacing`, `borderRadius`, `fontSize`, re-exporta `colors`
+- `store/AuthProvider.tsx` — patrón `createContextHook` de `@nkzw/create-context-hook`; referencia obligatoria para el nuevo provider
+- `app/_layout.tsx` — `Stack` con `contentStyle: { backgroundColor: "#F7F1E8" }` (literal hardcodeado — debe reemplazarse)
+- `app/profile.tsx` — pantalla existente (Etapa 2); aquí se añade el toggle
+- `@react-native-async-storage/async-storage` — instalado (usado en `services/notificationPrefsService.ts`)
+- `react-native` — `useColorScheme` disponible sin instalación adicional
+
+**No existe:** ningún ThemeProvider, ThemeContext, hook `useTheme`, ni paleta dark.
+
+---
+
+## DISEÑO — Paleta dark de Walvy (fuente de verdad nueva)
+
+Derivada de la paleta light existente. **No inventar hex fuera de estas dos tablas.**
+
+| Token | Light (`colors`) | Dark (`darkColors`) |
+|-------|-----------------|---------------------|
+| `bg` | `#F7F1E8` | `#1B2529` |
+| `card` | `#FFFFFF` | `#243035` |
+| `modal` | `#FFFFFF` | `#243035` |
+| `inputBg` | `#FFFFFF` | `#2C3B42` |
+| `border` | `#CDECE2` | `#2E4A52` |
+| `textPrimary` | `#1F2A33` | `#F0EBE2` |
+| `textSecondary` | `#5A6B73` | `#A3B3BB` |
+| `deepTeal` | `#103F43` | `#1A5B62` |
+| `oceanTeal` | `#1B6B73` | `#2A8C97` |
+| `mintSoft` | `#CDECE2` | `#1E3D44` |
+| `coral` | `#EE8D78` | `#EE8D78` |
+| `red` | `#D94452` | `#E05565` |
+| `yellow` | `#E5A82E` | `#E5A82E` |
+| `green` | `#3DA66D` | `#4ABD7E` |
+| `white` | `#FFFFFF` | `#FFFFFF` |
+| `black` | `#000000` | `#000000` |
+
+---
+
+## ALCANCE — exactamente esto, nada más
+
+| # | Artefacto | Acción |
+|---|-----------|--------|
+| 1 | `constants/colors.ts` | Añadir `export const darkColors` con la paleta dark de la tabla anterior. No tocar el `export default colors`. |
+| 2 | `store/ThemeProvider.tsx` | CREAR provider + hook `useTheme` (patrón `createContextHook`) |
+| 3 | `app/_layout.tsx` | Envolver con `ThemeProvider`; sustituir `"#F7F1E8"` hardcodeado por `theme.bg` reactivo |
+| 4 | `app/profile.tsx` | Añadir fila de toggle (Switch) en la sección "Cuenta" |
+
+**No modificar ningún otro archivo existente.** No refactorizar pantallas para consumir `useTheme` salvo las explícitamente listadas.
+
+---
+
+## BLOQUE 1 — `constants/colors.ts`
+
+Añadir al final del archivo (después del `export default colors`):
+
+```ts
+export const darkColors: typeof colors = {
+  bg: "#1B2529",
+  card: "#243035",
+  modal: "#243035",
+  inputBg: "#2C3B42",
+  border: "#2E4A52",
+  textPrimary: "#F0EBE2",
+  textSecondary: "#A3B3BB",
+  deepTeal: "#1A5B62",
+  oceanTeal: "#2A8C97",
+  mintSoft: "#1E3D44",
+  coral: "#EE8D78",
+  red: "#E05565",
+  yellow: "#E5A82E",
+  green: "#4ABD7E",
+  white: "#FFFFFF",
+  black: "#000000",
+};
+```
+
+`typeof colors` garantiza paridad de tokens en tiempo de compilación.
+
+---
+
+## BLOQUE 2 — `store/ThemeProvider.tsx` (CREAR)
+
+### Contrato del hook
+
+```ts
+type ColorMode = 'light' | 'dark' | 'system'
+
+interface ThemeContext {
+  colorMode: ColorMode          // preferencia guardada ('system' = seguir SO)
+  isDark: boolean               // valor resuelto (usado para renderizar)
+  theme: typeof colors          // objeto de colores activo (light o dark)
+  toggleTheme: () => void       // alterna light ↔ dark (si era 'system', fija el opuesto del SO)
+  setColorMode: (mode: ColorMode) => void  // fija modo explícito
+}
+```
+
+### Implementación
+
+```ts
+import createContextHook from '@nkzw/create-context-hook'
+import AsyncStorage from '@react-native-async-storage/async-storage'
+import { useCallback, useEffect, useMemo, useState } from 'react'
+import { useColorScheme } from 'react-native'
+import colors from '@/constants/colors'
+import { darkColors } from '@/constants/colors'
+
+const STORAGE_KEY = 'walvy_theme_mode'
+
+export const [ThemeProvider, useTheme] = createContextHook(() => {
+  const systemScheme = useColorScheme()                    // 'light' | 'dark' | null
+  const [colorMode, setColorModeState] = useState<ColorMode>('system')
+  const [hydrated, setHydrated] = useState(false)
+
+  // Cargar preferencia persistida
+  useEffect(() => {
+    AsyncStorage.getItem(STORAGE_KEY).then((stored) => {
+      if (stored === 'light' || stored === 'dark' || stored === 'system') {
+        setColorModeState(stored)
+      }
+      setHydrated(true)
+    })
+  }, [])
+
+  const isDark = useMemo(() => {
+    if (colorMode === 'system') return systemScheme === 'dark'
+    return colorMode === 'dark'
+  }, [colorMode, systemScheme])
+
+  const theme = isDark ? darkColors : colors
+
+  const setColorMode = useCallback((mode: ColorMode) => {
+    setColorModeState(mode)
+    AsyncStorage.setItem(STORAGE_KEY, mode)
+  }, [])
+
+  const toggleTheme = useCallback(() => {
+    // Si está en 'system', fija el modo opuesto al actual del SO
+    const next = isDark ? 'light' : 'dark'
+    setColorMode(next)
+  }, [isDark, setColorMode])
+
+  return useMemo(
+    () => ({ colorMode, isDark, theme, toggleTheme, setColorMode, hydrated }),
+    [colorMode, isDark, theme, toggleTheme, setColorMode, hydrated]
+  )
+})
+```
+
+### Reglas de implementación
+- `hydrated` evita flash antes de leer AsyncStorage; `_layout.tsx` puede mostrar `null` o el splash hasta que sea `true`.
+- `useColorScheme` de `react-native` se llama dentro del hook — no duplicar en consumidores.
+- No usar `useReducer` ni Redux; el `useState` par `colorMode` + `useMemo` de resolución es suficiente.
+
+---
+
+## BLOQUE 3 — `app/_layout.tsx` (MODIFICAR)
+
+### Cambios exactos
+
+1. Importar `ThemeProvider` y `useTheme`:
+   ```ts
+   import { ThemeProvider, useTheme } from '@/store/ThemeProvider'
+   ```
+
+2. Extraer `RootLayoutNav` a un componente separado que consume `useTheme`:
+   ```tsx
+   function RootLayoutNav() {
+     const { theme } = useTheme()
+     return (
+       <Stack
+         screenOptions={{
+           headerShown: false,
+           contentStyle: { backgroundColor: theme.bg },
+           animation: 'fade',
+         }}
+       >
+         <Stack.Screen name="index" />
+         <Stack.Screen name="login" />
+         <Stack.Screen name="register" />
+         <Stack.Screen name="forgot-password" />
+         <Stack.Screen name="change-password" />
+         <Stack.Screen name="dashboard" />
+         <Stack.Screen name="profile" />
+         <Stack.Screen name="notification-settings" />
+         <Stack.Screen name="financial-profile" />
+         <Stack.Screen name="financial-goal" />
+       </Stack>
+     )
+   }
+   ```
+
+3. Añadir `ThemeProvider` envolviendo `AuthProvider`:
+   ```tsx
+   export default function RootLayout() {
+     useEffect(() => { void SplashScreen.hideAsync() }, [])
+
+     return (
+       <QueryClientProvider client={queryClient}>
+         <GestureHandlerRootView style={{ flex: 1 }}>
+           <ThemeProvider>
+             <AuthProvider>
+               <RootLayoutNav />
+             </AuthProvider>
+           </ThemeProvider>
+         </GestureHandlerRootView>
+       </QueryClientProvider>
+     )
+   }
+   ```
+
+**Orden de providers obligatorio:** `QueryClientProvider > GestureHandlerRootView > ThemeProvider > AuthProvider > RootLayoutNav`
+
+---
+
+## BLOQUE 4 — `app/profile.tsx` (MODIFICAR)
+
+Añadir en la sección "Cuenta", antes del ítem "Alertas y notificaciones":
+
+```tsx
+import { useTheme } from '@/store/ThemeProvider'
+import { Switch } from 'react-native'
+
+// dentro del componente:
+const { isDark, toggleTheme, theme } = useTheme()
+
+// fila del toggle:
+<View style={styles.row}>
+  <Text style={[styles.rowLabel, { color: theme.textPrimary }]}>
+    Modo oscuro
+  </Text>
+  <Switch
+    value={isDark}
+    onValueChange={toggleTheme}
+    trackColor={{ false: theme.border, true: theme.oceanTeal }}
+    thumbColor={theme.white}
+  />
+</View>
+```
+
+**Reglas de diseño:**
+- `trackColor.true` → `theme.oceanTeal`
+- `trackColor.false` → `theme.border`
+- `thumbColor` → `theme.white`
+- Ningún hex literal. Importar `{ spacing }` desde `@/constants/theme` para márgenes.
+- El toggle va en la sección "Cuenta" (junto a los items de navegación), no en "Sesión".
+
+---
+
+## CÓMO CONSUMIR `useTheme` (patrón para futuras pantallas)
+
+```tsx
+// En cualquier pantalla/componente:
+import { useTheme } from '@/store/ThemeProvider'
+import { spacing, borderRadius, fontSize } from '@/constants/theme'
+
+export default function MyScreen() {
+  const { theme } = useTheme()
+
+  return (
+    <View style={{ flex: 1, backgroundColor: theme.bg, padding: spacing.lg }}>
+      <Text style={{ color: theme.textPrimary, fontSize: fontSize.lg }}>
+        Título
+      </Text>
+    </View>
+  )
+}
+```
+
+**Nunca** importar `colors` directamente en pantallas nuevas; usar `theme` del hook.
+Las pantallas existentes NO deben tocarse — solo las del alcance de este prompt.
+
+---
+
+## ARCHIVOS A CREAR / MODIFICAR
+
+| Acción | Archivo |
+|--------|---------|
+| MODIFICAR | `constants/colors.ts` — añadir `export const darkColors` |
+| CREAR | `store/ThemeProvider.tsx` |
+| MODIFICAR | `app/_layout.tsx` — ThemeProvider + `theme.bg` reactivo |
+| MODIFICAR | `app/profile.tsx` — fila Switch modo oscuro |
+
+---
+
+## CRITERIOS DE ACEPTACIÓN (QA manual)
+
+- [ ] El Switch en `profile.tsx` alterna el fondo de todas las pantallas entre Warm Sand (`#F7F1E8`) y Dark (`#1B2529`).
+- [ ] Al cerrar y reabrir la app, la preferencia de tema persiste (AsyncStorage `walvy_theme_mode`).
+- [ ] Con `colorMode: 'system'`, el tema sigue automáticamente la configuración del SO.
+- [ ] `toggleTheme` desde `'system'` fija el modo opuesto al actual (no regresa a `'system'`).
+- [ ] `setColorMode('system')` restaura el seguimiento del SO.
+- [ ] Ningún hex literal aparece en los archivos nuevos o modificados.
+- [ ] `bun run lint` pasa sin errores nuevos.
+- [ ] El `Stack` en `_layout.tsx` usa `theme.bg` y no el string `"#F7F1E8"`.
+
+---
+
+## FUERA DE ALCANCE
+
+- Adaptar pantallas existentes (`login`, `register`, `dashboard`, etc.) a `useTheme` — se hace en etapas posteriores.
+- Animación de transición al cambiar tema.
+- Tema por pantalla individual.
+- Preferencia de tema sincronizada con el backend.
+- Fuentes custom / `fontFamily` — ya documentado como pendiente en `theme.ts`.

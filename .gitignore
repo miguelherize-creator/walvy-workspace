@@ -1,0 +1,21 @@
+# Sub-repos con su propio control de versiones
+Backend/
+Frontend/
+
+# Editor
+.vscode/
+.idea/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Node (por si hay scripts en utils)
+node_modules/
+
+# Env files
+.env
+.env.local
+
+# Logs
+*.log

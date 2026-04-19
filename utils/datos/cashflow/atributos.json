@@ -1,0 +1,38 @@
+ transactions = [
+    {
+    "id": "uuid",
+    "movimiento": "Ingreso", 
+    "tipo": "Variable",
+    "origenId": "inv_01",
+    "categoriaId": "cat_inv",
+    "subcategoriaId": "sub_dolares",
+    "monto": 100000,
+    "fecha": "2026-03-30",
+    "descripcion": "Compra de dólares"
+  }
+]
+  origenes = [
+    { "id": "cc", "nombre": "Cuenta Corriente" },
+    { "id": "lc", "nombre": "Línea de Crédito" },
+    { "id": "tc", "nombre": "Tarjeta de Crédito" },
+    { "id": "inv_01", "nombre": "Inversiones" }
+  ]
+
+  categorias = [
+    { "id": "cat_hogar", "nombre": "Hogar" },
+    { "id": "cat_inv", "nombre": "Inversiones" },
+    { "id": "cat_ent", "nombre": "Entretenimiento" }
+  ]
+
+subcategorias = [
+  {
+    "id": "sub_dolares",
+    "nombre": "Compra dólares",
+    "categoriaId": "cat_inv"
+  },
+  {
+    "id": "sub_super",
+    "nombre": "Alimentación - Supermercado",
+    "categoriaId": "cat_hogar"
+  }
+]

@@ -1,0 +1,37 @@
+# Blueprint de ejemplo para Render: API Docker + PostgreSQL.
+# Docs: https://render.com/docs/blueprint-spec
+#
+# Tras el primer deploy, revisa en el dashboard las variables sensibles
+# (p. ej. PASSWORD_RESET_URL_TEMPLATE, CORS_ORIGIN).
+
+databases:
+  - name: walvy-db
+    plan: free
+    databaseName: walvy
+
+services:
+  - type: web
+    name: walvy-api
+    runtime: docker
+    dockerfilePath: ./backend/Dockerfile
+    dockerContext: ./backend
+    plan: free
+    envVars:
+      - key: NODE_ENV
+        value: production
+      - key: DATABASE_URL
+        fromDatabase:
+          name: walvy-db
+          property: connectionString
+      - key: JWT_SECRET
+        generateValue: true
+      - key: JWT_EXPIRES_IN
+        value: 15m
+      - key: REFRESH_EXPIRES_DAYS
+        value: '7'
+      - key: PASSWORD_RESET_EXPIRES_MINUTES
+        value: '60'
+      - key: PASSWORD_RESET_URL_TEMPLATE
+        sync: false
+      - key: CORS_ORIGIN
+        sync: false
