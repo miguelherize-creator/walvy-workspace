@@ -8,7 +8,7 @@ Cada archivo describe los flujos principales de cada módulo: actores, precondic
 
 | Archivo | Módulo | Tablas principales |
 |---------|--------|-------------------|
-| [uc-modulo-1-auth-onboarding.md](uc-modulo-1-auth-onboarding.md) | M1 — Auth y Onboarding | `users`, `refresh_tokens`, `password_reset_tokens`, `biometric_preferences`, `onboarding_state` |
+| [uc-modulo-1-auth-onboarding.md](uc-modulo-1-auth-onboarding.md) | M1 — Auth y Onboarding | `users`, `refresh_tokens`, `password_reset_tokens`, `email_verification_tokens`, `biometric_preferences`, `onboarding_state` |
 | [uc-modulo-2-perfil.md](uc-modulo-2-perfil.md) | M2 — Perfil y Configuración | `user_financial_profile`, `user_goals`, `alert_preferences` |
 | [uc-modulo-3-home.md](uc-modulo-3-home.md) | M3 — Home y Motivación | `financial_health_snapshots`, `gamification_events`, `user_gamification_stats`, `user_score_history`, `recommendation_events` |
 | [uc-modulo-4-deudas.md](uc-modulo-4-deudas.md) | M4 — Motor de Deudas | `debts`, `debt_snowball_plan`, `statement_imports`, `import_line_items`, `movement_classification_suggestions` |
@@ -22,12 +22,13 @@ Cada archivo describe los flujos principales de cada módulo: actores, precondic
 ## Casos de uso por módulo
 
 ### M1 — Auth y Onboarding
-- UC-01: Registro de usuario
-- UC-02: Login con email y contraseña
-- UC-03: Refresh de token (sesión persistente)
-- UC-04: Recuperar contraseña por email
-- UC-05: Activar autenticación biométrica
-- UC-06: Completar onboarding paso a paso
+- UC-01: Registro con formulario unificado
+- UC-02: Verificar correo electrónico (código 6 dígitos)
+- UC-03: Login con identificador flexible (email / RUT / username)
+- UC-04: Refresh de token (sesión persistente)
+- UC-05: Recuperar contraseña por email
+- UC-06: Activar autenticación biométrica
+- UC-07: Completar onboarding paso a paso
 
 ### M2 — Perfil y Configuración
 - UC-01: Configurar perfil financiero

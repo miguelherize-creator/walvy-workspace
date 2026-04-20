@@ -101,7 +101,7 @@ Permitir alta rápida para llegar al primer valor.
 Crear cuenta sin pasos innecesarios y avanzar al onboarding.
 
 **Definición funcional detallada:**
-Formulario corto: nombre, RUT o correo, contraseña y aceptación mínima de términos.
+Formulario unificado: nombre, apellido, RUT (opcional), correo electrónico, contraseña, confirmación de contraseña, aceptación de términos y aceptación de política de privacidad. Siempre se envía código de verificación al correo inmediatamente tras el registro.
 
 **UX / UI:**
 1 pantalla o wizard corto; validaciones simples; no pedir datos financieros aún.
