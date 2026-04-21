@@ -1,6 +1,6 @@
 // =============================================================================
 // Walvy MVP — Esquema DBML completo
-// Generado: 2026-04-13 | Actualizado: 2026-04-19 | Basado en análisis de todos los módulos (M1–M9)
+// Generado: 2026-04-13 | Actualizado: 2026-04-20 | Basado en análisis de todos los módulos (M1–M9)
 // =============================================================================
 // Grupos de tablas:
 //   G1  Core Identity & Auth             Módulo 1  (+email_verification_tokens)
@@ -17,6 +17,7 @@
 //   G12 Salud Financiera & Recomend.     Módulos 3, 8
 //   G13 IA & Soporte                     Módulo 8
 //   G14 Administración                   Módulo 9
+//   G15 Suscripciones & Pasarela de Pago Transversal (Flow.cl)
 //   R   Roadmap / Post-MVP               (marcadas explícitamente)
 // =============================================================================
 
@@ -146,6 +147,26 @@ Enum recommendation_context {
 Enum admin_role {
   super_admin [note: 'Acceso completo al backoffice']
   operator    [note: 'Lectura + configuración acotada']
+}
+
+Enum subscription_status {
+  trialing  [note: 'Período de prueba gratuito']
+  active    [note: 'Suscripción vigente y al día']
+  past_due  [note: 'Pago fallido — en período de gracia antes de expirar']
+  cancelled [note: 'Cancelada por el usuario; acceso hasta fin del período']
+  expired   [note: 'Período terminado sin renovación exitosa']
+}
+
+Enum payment_order_status {
+  pending   [note: 'Orden creada en Flow, esperando que el usuario pague']
+  paid      [note: 'Pago confirmado por el webhook de Flow']
+  rejected  [note: 'Rechazado por el banco o por Flow']
+  cancelled [note: 'Cancelado por el usuario antes de completar el pago']
+  expired   [note: 'Token de Flow expiró sin que se completara el pago']
+}
+
+Enum payment_provider {
+  flow [note: 'Flow.cl — pasarela de pagos chilena']
 }
 
 // ─────────────────────────────────────────────
@@ -943,6 +964,77 @@ Table report_snapshots {
 }
 
 // ─────────────────────────────────────────────
+// G15 — Suscripciones & Pasarela de Pago   [Transversal — Flow.cl]
+// ─────────────────────────────────────────────
+
+Table subscription_plans {
+  id                    uuid        [pk]
+  name                  text        [not null, note: 'Nombre visible (ej: "Free", "Pro")']
+  slug                  text        [not null, unique, note: 'Identificador interno (ej: "free", "pro_monthly", "pro_annual")']
+  price                 numeric     [not null, note: '0 para el plan gratuito']
+  currency              text        [not null, note: 'CLP']
+  billing_interval_days int         [note: '30=mensual, 365=anual. null = sin renovación (free/lifetime)']
+  features              jsonb       [not null, note: 'Lista de features habilitados en este plan']
+  is_active             boolean     [not null, note: 'false = plan retirado, no se muestran nuevas suscripciones']
+  created_at            timestamptz [not null]
+  updated_at            timestamptz [not null]
+
+  Note: '''
+  [G15] Catálogo de planes disponibles. Gestionado desde el backoffice (M9).
+  features: array de strings con claves de funcionalidad (ej: ["import_pdf", "ai_assistant", "unlimited_debts"]).
+  Índice: slug (unique).
+  '''
+}
+
+Table subscriptions {
+  id                   uuid                [pk]
+  user_id              uuid                [not null, unique, note: 'Relación 1:1 — un usuario tiene una suscripción activa a la vez']
+  plan_id              uuid                [not null]
+  status               subscription_status [not null]
+  current_period_start date                [not null]
+  current_period_end   date                [note: 'null = plan gratuito sin vencimiento']
+  cancelled_at         timestamptz         [note: 'null = no cancelada; la suscripción sigue activa hasta current_period_end']
+  created_at           timestamptz         [not null]
+  updated_at           timestamptz         [not null]
+
+  Note: '''
+  [G15] Suscripción vigente del usuario.
+  Al confirmarse un payment_order → status=active, se actualizan current_period_start/end.
+  Al cancelar: cancelled_at=NOW(), status=cancelled, acceso hasta current_period_end.
+  Al vencer sin renovación exitosa: status=expired.
+  Índice: user_id (unique), (plan_id, status), (status, current_period_end) para job de expiración.
+  '''
+}
+
+Table payment_orders {
+  id                   uuid                  [pk]
+  user_id              uuid                  [not null]
+  subscription_id      uuid                  [note: 'null si el pago no está aún ligado a una suscripción activa']
+  plan_id              uuid                  [not null, note: 'Snapshot del plan comprado — inmutable']
+  amount               numeric               [not null]
+  currency             text                  [not null, note: 'CLP']
+  provider             payment_provider      [not null]
+  status               payment_order_status  [not null]
+  commerce_order       text                  [not null, unique, note: 'Referencia interna enviada a Flow. Formato: "WALVY-{uuid}". Inmutable.']
+  flow_token           text                  [unique, note: 'Token retornado por Flow al crear la orden. Usado para construir la URL de pago.']
+  flow_order           text                  [note: 'Número de orden asignado por Flow tras el pago']
+  provider_response    jsonb                 [note: 'Respuesta completa del webhook de Flow. null mientras status=pending.']
+  created_at           timestamptz           [not null]
+  updated_at           timestamptz           [not null]
+
+  Note: '''
+  [G15] Registro de cada intento de pago contra Flow.
+  Flujo completo:
+    1. Backend llama POST /payment/create en Flow → guarda flow_token, status=pending.
+    2. Frontend redirige al usuario a https://sandbox.flow.cl/app/pay?token={flow_token}.
+    3. Flow llama al webhook del backend → se actualiza status + provider_response.
+    4. Si paid → se activa/renueva la subscriptions del usuario.
+  commerce_order: clave idempotente propia — permite reconciliar si Flow envía el webhook dos veces.
+  Índices: (user_id, created_at DESC), commerce_order (unique), flow_token (unique).
+  '''
+}
+
+// ─────────────────────────────────────────────
 // ROADMAP — Post-MVP (no implementar en V1)
 // ─────────────────────────────────────────────
 
@@ -1059,6 +1151,12 @@ TableGroup g14_admin {
   report_snapshots
 }
 
+TableGroup g15_subscriptions {
+  subscription_plans
+  subscriptions
+  payment_orders
+}
+
 // ─────────────────────────────────────────────
 // REFERENCIAS (FK)
 // ─────────────────────────────────────────────
@@ -1147,3 +1245,10 @@ Ref: app_config.updated_by_admin_id > admin_users.id
 Ref: admin_audit_log.admin_id > admin_users.id
 Ref: audit_log.user_id > users.id
 Ref: report_snapshots.generated_by_admin_id > admin_users.id
+
+// G15 — Suscripciones & Pasarela de Pago
+Ref: subscriptions.user_id - users.id
+Ref: subscriptions.plan_id > subscription_plans.id
+Ref: payment_orders.user_id > users.id
+Ref: payment_orders.subscription_id > subscriptions.id
+Ref: payment_orders.plan_id > subscription_plans.id
