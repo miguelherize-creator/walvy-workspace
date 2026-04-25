@@ -124,22 +124,44 @@ export default ProfileScreen;
 
 ### Paleta (no inventar hex fuera de esta tabla sin actualizar `colors.ts`)
 
-| Token | Hex | Uso |
-|--------|-----|-----|
-| `bg` | `#F7F1E8` | Fondo principal (Warm Sand) |
-| `card` / `modal` / `inputBg` | `#FFFFFF` | Superficies elevadas |
-| `border` | `#CDECE2` | Bordes suaves (Mint Soft) |
-| `textPrimary` | `#1F2A33` | Texto principal (Graphite) |
-| `textSecondary` | `#5A6B73` | Texto secundario |
-| `deepTeal` | `#103F43` | Marca / profundidad |
-| `oceanTeal` | `#1B6B73` | Primario accionable (botones, links fuertes) |
-| `mintSoft` | `#CDECE2` | Aire / divisores suaves |
-| `coral` | `#EE8D78` | **Único acento cálido llamativo** (CTAs especiales, un solo foco por pantalla) |
-| `red` / `yellow` / `green` | `#D94452` / `#E5A82E` / `#3DA66D` | Estados semánticos (error / aviso / éxito) |
-| `cardTextPrimary` | `#1F2A33` (light & dark) | Texto principal sobre tarjetas — usar dentro de cards para garantizar contraste en dark mode |
-| `cardTextSecondary` | `#5A6B73` (light & dark) | Texto secundario sobre tarjetas — íconos chevron, subtítulos en cards |
-| `cardTextMuted` | `#666666` (light & dark) | Hints / placeholder text dentro de tarjetas |
-| `navBar` | light `#FCF8F4` / dark `#103F43` | Fondo barra inferior del dashboard |
+> Fuente de verdad: Figma Design System v1.0 — node 2533:1056
+
+#### Light Mode
+
+| Token | Hex | Uso (sección DS) |
+|--------|-----|------------------|
+| `bg` | `#FAF9F6` | Fondo principal — Color Palette / Background |
+| `card` / `modal` / `inputBg` | `#FFFFFF` | Superficies elevadas — Color Palette / Container |
+| `border` | `#E5E7EB` | Divisores y bordes — Cards & Components |
+| `inputBorder` | `#D1D5DB` | Borde de campos de texto |
+| `textHeading` | `#103F43` | H1 (30px) / H2 (24px) / H3 (20px) — Typography |
+| `textPrimary` | `#374151` | Body Regular 16px — Typography |
+| `textSecondary` | `#4B5563` | Body Small 14px — Typography |
+| `textMuted` | `#6B7280` | Caption 12px / hints — Typography |
+| `cardTextPrimary` | `#374151` | Texto principal dentro de tarjetas |
+| `cardTextSecondary` | `#4B5563` | Texto secundario dentro de tarjetas |
+| `cardTextMuted` | `#6B7280` | Hints dentro de tarjetas |
+| `navBar` | `#FAF9F6` | Fondo barra de navegación inferior |
+| `deepTeal` | `#103F43` | Primary — botones, headers, íconos activos — Buttons |
+| `oceanTeal` | `#1B6B73` | Mid teal (variantes, gradientes) |
+| `mintSoft` | `#CDECE2` | Accent — bg botón secundario, badges de íconos — Buttons |
+| `coral` | `#EE8D78` | **Único acento cálido** (un foco por pantalla) |
+| `red` / `yellow` / `green` | `#D94452` / `#E5A82E` / `#16A34A` | Error / aviso / éxito (transacciones positivas) |
+
+#### Dark Mode
+
+| Token | Hex / rgba | Uso (sección DS) |
+|--------|------------|------------------|
+| `bg` | `#0D191A` | Fondo dark — Color Palette / Dark / Background |
+| `card` / `modal` / `inputBg` | `#162A2C` | Container dark — Color Palette / Dark / Container |
+| `border` | `#1E3538` | Borde sutil en dark |
+| `inputBorder` | `#2A4548` | Borde de campos en dark |
+| `textPrimary` | `rgba(205,236,226,0.8)` | Main Text 80% — Figma Dark Mode |
+| `textSecondary` | `rgba(205,236,226,0.55)` | Secundario |
+| `textMuted` | `rgba(205,236,226,0.35)` | Caption / hints |
+| `cardTextPrimary` | `rgba(205,236,226,0.8)` | Texto en tarjetas dark |
+| `navBar` | `#0D191A` | Barra inferior dark |
+| `deepTeal` | `#103F43` | Botón primario + badge de ícono dark |
 
 ### Reglas de uso
 
