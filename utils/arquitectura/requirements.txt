@@ -1,0 +1,8 @@
+# Dependencias para generar diagramas de arquitectura
+# Instalar con: pip install -r requirements.txt
+#
+# También requiere Graphviz en el sistema:
+#   macOS:   brew install graphviz
+#   Ubuntu:  sudo apt-get install graphviz
+#   Windows: https://graphviz.org/download/  → agregar al PATH
+diagrams>=0.23.4

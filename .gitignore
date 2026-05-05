@@ -19,3 +19,15 @@ node_modules/
 
 # Logs
 *.log
+*.pyc
+__pycache__/
+*.pyo
+*.pyd
+*.so
+*.egg
+*.egg-info/
+dist/
+build/
+venv/
+.env/
+.venv/
