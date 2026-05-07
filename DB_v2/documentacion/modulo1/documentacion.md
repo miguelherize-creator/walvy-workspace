@@ -257,8 +257,11 @@ Tabla central de usuarios. Combina autenticación local (Walvy) con capacidades 
 | `auth_provider` | VARCHAR(50) NULL | `google`, `apple`, `auth0` |
 | `auth_provider_user_id` | VARCHAR(200) NULL | ID en el proveedor externo |
 | `identifier_type` | VARCHAR(20) | `email`, `rut`, `username` |
-| `full_name` | VARCHAR(200) NULL | |
-| `username` | VARCHAR(80) NULL | |
+| `full_name` | VARCHAR(200) NULL | Nombre completo para mostrar |
+| `username` | VARCHAR(80) UNIQUE NULL | Alias visible del usuario |
+| `avatar_url` | VARCHAR(500) NULL | URL de la foto de perfil (S3/storage) |
+| `notification_email` | VARCHAR(320) NULL | Email de notificaciones (puede diferir del login) |
+| `notification_email_verified_at` | TIMESTAMPTZ NULL | NULL hasta confirmar el nuevo email de notificaciones |
 | `document_type_id` | BIGINT NULL FK → document_type | |
 | `document_number` | VARCHAR(50) NULL | |
 | `country_id` | BIGINT NOT NULL FK → country | |
@@ -282,6 +285,7 @@ Tabla central de usuarios. Combina autenticación local (Walvy) con capacidades 
 **Índices:**
 - `idx_app_user_email (email) WHERE email IS NOT NULL`
 - `idx_app_user_role (role_id)`
+- `idx_app_user_username (username) WHERE username IS NOT NULL`
 
 ---
 

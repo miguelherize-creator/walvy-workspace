@@ -225,8 +225,11 @@ CREATE TABLE IF NOT EXISTS app_user (
   identifier_type  VARCHAR(20)  NOT NULL DEFAULT 'email'
                    CHECK (identifier_type IN ('email','rut','username')),
   -- Perfil básico
-  full_name        VARCHAR(200) NULL,
-  username         VARCHAR(80)  NULL,
+  full_name              VARCHAR(200) NULL,
+  username               VARCHAR(80)  NULL UNIQUE,
+  avatar_url             VARCHAR(500) NULL,
+  notification_email     VARCHAR(320) NULL,        -- Email de notificaciones (puede diferir del login)
+  notification_email_verified_at TIMESTAMPTZ NULL, -- NULL hasta que el usuario confirme el nuevo email
   -- Documento (normalizado, no hardcodeado como RUT)
   document_type_id BIGINT       NULL REFERENCES document_type(document_type_id),
   document_number  VARCHAR(50)  NULL,
@@ -258,6 +261,7 @@ CREATE TABLE IF NOT EXISTS app_user (
 );
 CREATE INDEX IF NOT EXISTS idx_app_user_role ON app_user(role_id);
 CREATE INDEX IF NOT EXISTS idx_app_user_email ON app_user(email) WHERE email IS NOT NULL;
+CREATE INDEX IF NOT EXISTS idx_app_user_username ON app_user(username) WHERE username IS NOT NULL;
 CREATE TRIGGER trg_app_user_updated_at BEFORE UPDATE ON app_user
   FOR EACH ROW EXECUTE FUNCTION set_updated_at();
 

@@ -1,7 +1,7 @@
 # Módulo 1 — Casos de Uso
 
 **Módulo:** Identidad, Autenticación y Acceso  
-**Fuente de verdad MVP:** `utils/organizacion/docs/MVP_Walvy_VF_10032026_alineado_estrategia - Alcance MVP.csv` — Módulo 1 (Enrolamiento y onboarding)
+**Fuente de verdad MVP:** `MVP_Walvy_VF_10032026_alineado_estrategia - Alcance MVP.csv` — Módulo 1 (Enrolamiento y onboarding)
 
 **Actores:**
 - **Usuario** — persona que usa la app Walvy (iOS/Android/Web)
@@ -185,7 +185,7 @@
 ## CU-05 — Verificar email
 
 **Actor principal:** Usuario  
-**Precondiciones:** El usuario se registró. No se usa link/deep link porque la app no tiene página web de respaldo.
+**Precondiciones:** El usuario se registró.
 
 ### Flujo principal
 
@@ -407,4 +407,3 @@
 | CU-09 | Suspender usuario | Administrador | RF-09 | ✅ |
 | CU-10 | Gestionar configuración global | Administrador | RF-11, RNF-08 | ✅ |
 | CU-11 | Agregar estado sin deploy | Administrador | RF-09, RF-11 | ✅ |
-| — | Registrarse con Google / Apple / Facebook | — | — | ❌ Post-MVP |
