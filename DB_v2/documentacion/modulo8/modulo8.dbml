@@ -1,0 +1,77 @@
+// Módulo 8 — Asistente IA · Layer 16
+// CSV Módulo 8 — Estado MVP: ✅ Incluido
+
+// ─────────────────────────────────────────────────────
+// Referencias externas
+// ─────────────────────────────────────────────────────
+
+Table app_user [note: 'Módulo 1 · Layer 4'] {
+  user_id uuid [pk]
+}
+
+// ─────────────────────────────────────────────────────
+// Layer 16 — Asistente IA y Soporte
+// ─────────────────────────────────────────────────────
+
+Table ai_conversations {
+  id         uuid        [pk, default: `gen_random_uuid()`]
+  user_id    uuid        [not null, ref: > app_user.user_id]
+  title      text        [null, note: 'Auto-generado desde el primer mensaje']
+  created_at timestamptz [not null, default: `now()`]
+  updated_at timestamptz [not null, default: `now()`]
+
+  indexes {
+    (user_id, updated_at) [name: 'idx_ac_user_updated', note: 'DESC']
+  }
+}
+
+Table ai_messages {
+  id              uuid        [pk, default: `gen_random_uuid()`]
+  conversation_id uuid        [not null, ref: > ai_conversations.id]
+  role            varchar(10) [not null, note: "user | assistant | system"]
+  content         text        [not null]
+  token_usage     jsonb       [null, note: '{"input_tokens": 500, "output_tokens": 200}']
+  created_at      timestamptz [not null, default: `now()`]
+
+  indexes {
+    (conversation_id, created_at) [name: 'idx_am_conv_created', note: 'ASC — orden cronológico']
+  }
+}
+
+Table ai_tool_invocations {
+  id         uuid        [pk, default: `gen_random_uuid()`]
+  message_id uuid        [not null, ref: > ai_messages.id]
+  tool_name  text        [not null, note: 'Ej: get_monthly_summary, list_debts, search_faq']
+  args       jsonb       [null]
+  result     jsonb       [null]
+  created_at timestamptz [not null, default: `now()`]
+
+  indexes {
+    message_id [name: 'idx_ati_message_id']
+  }
+}
+
+Table ai_context_snapshots {
+  id                uuid        [pk, default: `gen_random_uuid()`]
+  conversation_id   uuid        [not null, ref: > ai_conversations.id]
+  snapshot_date     date        [not null]
+  financial_summary jsonb       [not null, default: `'{}'`]
+  created_at        timestamptz [not null, default: `now()`]
+
+  indexes {
+    conversation_id [name: 'idx_acs_conversation']
+  }
+}
+
+Table faq_articles {
+  id         uuid        [pk, default: `gen_random_uuid()`]
+  slug       text        [not null, unique]
+  title      text        [not null]
+  body       text        [not null]
+  locale     text        [not null, default: 'es']
+  tags       "text[]"    [null]
+  sort_order int         [not null, default: 0]
+  is_active  boolean     [not null, default: true]
+  created_at timestamptz [not null, default: `now()`]
+  updated_at timestamptz [not null, default: `now()`]
+}

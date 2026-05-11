@@ -1,0 +1,133 @@
+// Módulo 4 — Motor de Deudas (Bola de Nieve) · Layer 11
+// CSV Módulo 4 — Estado MVP: ✅ Incluido
+
+// ─────────────────────────────────────────────────────
+// Referencias externas
+// ─────────────────────────────────────────────────────
+
+Table app_user [note: 'Módulo 1 · Layer 4'] {
+  user_id uuid [pk]
+}
+
+Table currency [note: 'Módulo 1 · Layer 1'] {
+  currency_id bigint [pk]
+}
+
+Table status [note: 'Módulo 1 · Layer 1 — dominio: debt'] {
+  status_id bigint [pk]
+}
+
+Table user_financial_instrument [note: 'Módulo 5 · Layer 7'] {
+  financial_instrument_id uuid [pk]
+}
+
+Table financial_movement [note: 'Módulo 5 · Layer 9'] {
+  movement_id uuid [pk]
+}
+
+// ─────────────────────────────────────────────────────
+// Layer 11 — Deudas
+// ─────────────────────────────────────────────────────
+
+Table debt {
+  debt_id                   uuid          [pk, default: `gen_random_uuid()`]
+  user_id                   uuid          [not null, ref: > app_user.user_id]
+  name                      varchar(200)  [not null]
+  creditor_label            text          [null]
+  debt_type                 varchar(20)   [not null, note: "consumer | mortgage | credit_card | line | other"]
+  debt_source_type          varchar(20)   [null, note: "bank | retail | person | other"]
+  principal_initial         decimal       [null]
+  current_balance           decimal       [not null]
+  currency_id               bigint        [not null, ref: > currency.currency_id]
+  apr_annual                decimal       [null]
+  interest_rate_pct         decimal       [null]
+  minimum_payment           decimal       [null]
+  installments_total        int           [null]
+  installments_remaining    int           [null]
+  due_day                   int           [null, note: '1–31']
+  next_due_date             date          [null]
+  estimated_payoff_date     date          [null]
+  released_cashflow_amount  decimal       [null]
+  financial_instrument_id   uuid          [null, ref: > user_financial_instrument.financial_instrument_id]
+  snowball_priority         int           [null, note: '1 = mayor prioridad en Bola de Nieve']
+  debt_status_id            bigint        [not null, ref: > status.status_id, note: "Dominio: debt — active | paused | settled | written_off"]
+  metadata                  jsonb         [not null, default: `'{}'`]
+  deleted_at                timestamptz   [null]
+  created_at                timestamptz   [not null, default: `now()`]
+  updated_at                timestamptz   [not null, default: `now()`]
+
+  indexes {
+    (user_id, debt_status_id) [name: 'idx_debt_user_status', note: 'WHERE deleted_at IS NULL']
+    (user_id, snowball_priority) [name: 'idx_debt_user_snowball', note: 'ASC — WHERE deleted_at IS NULL']
+  }
+}
+
+Table debt_schedules {
+  id                uuid    [pk, default: `gen_random_uuid()`]
+  debt_id           uuid    [not null, ref: > debt.debt_id]
+  installment_no    int     [not null]
+  due_date          date    [not null]
+  planned_principal decimal [null]
+  planned_interest  decimal [null]
+  created_at        timestamptz [not null, default: `now()`]
+
+  indexes {
+    debt_id [name: 'idx_ds_debt_id']
+  }
+}
+
+Table debt_payments {
+  id          uuid        [pk, default: `gen_random_uuid()`]
+  debt_id     uuid        [not null, ref: > debt.debt_id]
+  paid_at     timestamptz [not null]
+  amount      decimal     [not null, note: '> 0 — inmutable']
+  movement_id uuid        [null, ref: > financial_movement.movement_id]
+  notes       text        [null]
+  created_at  timestamptz [not null, default: `now()`]
+
+  indexes {
+    (debt_id, paid_at) [name: 'idx_dp_debt_paid', note: 'DESC']
+  }
+}
+
+Table debt_attachments {
+  id                uuid        [pk, default: `gen_random_uuid()`]
+  user_id           uuid        [not null, ref: > app_user.user_id]
+  debt_id           uuid        [null, ref: > debt.debt_id]
+  storage_key       text        [not null]
+  mime_type         text        [null]
+  original_filename text        [null]
+  uploaded_at       timestamptz [not null, default: `now()`]
+  parsed_summary    jsonb       [null, note: 'Resultado del OCR. Ej: {"balance": 450000}']
+
+  indexes {
+    debt_id [name: 'idx_da_debt_id']
+  }
+}
+
+Table debt_payoff_simulation {
+  simulation_id         uuid        [pk, default: `gen_random_uuid()`]
+  user_id               uuid        [not null, ref: > app_user.user_id]
+  start_date            date        [not null]
+  extra_monthly_payment decimal     [not null, default: 0]
+  initial_lump_sum      decimal     [not null, default: 0]
+  simulation_status     varchar(20) [not null, note: "draft | active | archived"]
+  created_at            timestamptz [not null, default: `now()`]
+  updated_at            timestamptz [not null, default: `now()`]
+
+  indexes {
+    (user_id, created_at) [name: 'idx_dps_user_created', note: 'DESC']
+  }
+}
+
+Table debt_payoff_schedule {
+  schedule_id                      uuid    [pk, default: `gen_random_uuid()`]
+  simulation_id                    uuid    [not null, ref: > debt_payoff_simulation.simulation_id]
+  debt_id                          uuid    [not null, ref: > debt.debt_id]
+  sequence_order                   int     [not null, note: '> 0 — orden de liquidación']
+  estimated_months_to_close        int     [not null]
+  estimated_close_date             date    [null]
+  released_cashflow_after_close    decimal [not null, default: 0]
+  created_at                       timestamptz [not null, default: `now()`]
+  updated_at                       timestamptz [not null, default: `now()`]
+}

@@ -1,0 +1,240 @@
+// Módulo 5 — Catálogos · Ingesta · Movimientos (Layers 7, 8, 9)
+// CSV Módulo 5 — Estado MVP: ✅ Incluido
+
+// ─────────────────────────────────────────────────────
+// Referencias externas
+// ─────────────────────────────────────────────────────
+
+Table app_user [note: 'Módulo 1 · Layer 4'] {
+  user_id uuid [pk]
+}
+
+Table country [note: 'Módulo 1 · Layer 1'] {
+  country_id bigint [pk]
+}
+
+Table currency [note: 'Módulo 1 · Layer 1'] {
+  currency_id bigint [pk]
+}
+
+Table status [note: 'Módulo 1 · Layer 1'] {
+  status_id bigint [pk]
+}
+
+// ─────────────────────────────────────────────────────
+// Layer 7 — Catálogos Financieros
+// ─────────────────────────────────────────────────────
+
+Table financial_institution {
+  financial_institution_id uuid        [pk, default: `gen_random_uuid()`]
+  name                     varchar(200) [not null]
+  country_id               bigint      [not null, ref: > country.country_id]
+  institution_type         varchar(20) [not null, note: "bank | wallet | retail | broker | cooperative | other"]
+  contact_email            varchar(320) [null]
+  contact_phone            varchar(40)  [null]
+  has_api                  boolean     [not null, default: false]
+  api_base_url             varchar(500) [null, note: 'Obligatorio si has_api = true']
+  api_notes                text        [null]
+  is_active                boolean     [not null, default: true]
+  created_at               timestamptz [not null, default: `now()`]
+  updated_at               timestamptz [not null, default: `now()`]
+}
+
+Table user_financial_instrument {
+  financial_instrument_id  uuid         [pk, default: `gen_random_uuid()`]
+  user_id                  uuid         [not null, ref: > app_user.user_id]
+  financial_institution_id uuid         [null, ref: > financial_institution.financial_institution_id]
+  instrument_type          varchar(30)  [not null, note: "checking_account | credit_card | debit_card | cash | credit_line | investment | loan | other"]
+  instrument_name          varchar(120) [not null]
+  monthly_cost             decimal      [null]
+  benefits_notes           text         [null]
+  is_active                boolean      [not null, default: true]
+  created_at               timestamptz  [not null, default: `now()`]
+  updated_at               timestamptz  [not null, default: `now()`]
+
+  indexes {
+    user_id [name: 'idx_ufi_user']
+  }
+}
+
+Table cashflow_node {
+  cashflow_node_id    uuid        [pk, default: `gen_random_uuid()`]
+  name                varchar(120) [not null]
+  node_type           varchar(20)  [not null, note: "origin | destination | instrument | third_party | pocket"]
+  is_liquidity_source boolean     [not null, default: false]
+  is_internal_node    boolean     [not null, default: false]
+  owner_user_id       uuid        [null, ref: > app_user.user_id, note: 'NULL = nodo del sistema']
+  is_active           boolean     [not null, default: true]
+  created_at          timestamptz [not null, default: `now()`]
+  updated_at          timestamptz [not null, default: `now()`]
+}
+
+Table category {
+  category_id             uuid        [pk, default: `gen_random_uuid()`]
+  parent_category_id      uuid        [null, ref: > category.category_id]
+  name                    varchar(120) [not null]
+  is_leaf                 boolean     [not null, default: true]
+  icon                    text        [null]
+  color                   text        [null]
+  owner_user_id           uuid        [null, ref: > app_user.user_id, note: 'NULL = sistema']
+  governance_scope        varchar(20)  [not null, default: 'system', note: "system | user | suggested | approved"]
+  sort_order              int         [not null, default: 0]
+  is_active               boolean     [not null, default: true]
+  replaced_by_category_id uuid        [null, ref: > category.category_id]
+  created_at              timestamptz [not null, default: `now()`]
+  updated_at              timestamptz [not null, default: `now()`]
+
+  indexes {
+    parent_category_id [name: 'idx_category_parent']
+  }
+}
+
+Table ant_expense_rules {
+  id          uuid    [pk, default: `gen_random_uuid()`]
+  user_id     uuid    [not null, ref: > app_user.user_id]
+  max_amount  decimal [null]
+  category_id uuid    [null, ref: > category.category_id]
+  is_active   boolean [not null, default: true]
+  created_at  timestamptz [not null, default: `now()`]
+  updated_at  timestamptz [not null, default: `now()`]
+
+  indexes {
+    user_id [name: 'idx_aer_user_id']
+  }
+}
+
+// ─────────────────────────────────────────────────────
+// Layer 8 — Pipeline de Ingesta
+// ─────────────────────────────────────────────────────
+
+Table file_upload {
+  file_upload_id        uuid        [pk, default: `gen_random_uuid()`]
+  user_id               uuid        [not null, ref: > app_user.user_id]
+  source_type           varchar(20) [not null, note: "document | manual | integration"]
+  provider              varchar(80) [null, note: 'Ej: bank_santander_cl, csv_generic, fintoc']
+  storage_path          varchar(800) [not null]
+  original_filename     varchar(255) [not null]
+  mime_type             varchar(120) [null]
+  file_status_id        bigint      [not null, ref: > status.status_id, note: "Dominio: file_upload — pending | processing | processed | failed"]
+  records_total         int         [null]
+  records_success       int         [null]
+  records_failed        int         [null]
+  error_summary         text        [null]
+  error_details_path    varchar(800) [null]
+  uploaded_at           timestamptz [not null, default: `now()`]
+  processing_started_at timestamptz [null]
+  processed_at          timestamptz [null]
+  correlation_id        varchar(120) [null]
+  created_at            timestamptz [not null, default: `now()`]
+  updated_at            timestamptz [not null, default: `now()`]
+
+  indexes {
+    (user_id, uploaded_at) [name: 'idx_file_upload_user_uploaded', note: 'DESC']
+  }
+}
+
+Table import_line_items {
+  id                 uuid        [pk, default: `gen_random_uuid()`]
+  file_upload_id     uuid        [not null, ref: > file_upload.file_upload_id]
+  row_index          int         [null]
+  raw_row            jsonb       [null]
+  normalized         jsonb       [null]
+  user_review_status varchar(20) [not null, default: 'pending', note: "pending | accepted | rejected | edited"]
+  created_at         timestamptz [not null, default: `now()`]
+  updated_at         timestamptz [not null, default: `now()`]
+
+  indexes {
+    (file_upload_id, user_review_status) [name: 'idx_ili_upload_status']
+  }
+}
+
+Table movement_classification_suggestions {
+  id               uuid         [pk, default: `gen_random_uuid()`]
+  user_id          uuid         [not null, ref: > app_user.user_id]
+  import_line_id   uuid         [null, ref: > import_line_items.id]
+  suggested_target varchar(20)  [not null, note: "debt_plan | bills_payable | transaction"]
+  confidence       decimal      [null, note: '0.000–1.000']
+  rule_matched     text         [null]
+  user_decision    varchar(15)  [null, note: "accepted | ignored | corrected"]
+  decided_at       timestamptz  [null]
+  created_at       timestamptz  [not null, default: `now()`]
+
+  indexes {
+    user_id [name: 'idx_mcs_user_id']
+  }
+}
+
+// ─────────────────────────────────────────────────────
+// Layer 9 — Movimientos (fuente de verdad)
+// ─────────────────────────────────────────────────────
+
+Table financial_movement {
+  movement_id               uuid         [pk, default: `gen_random_uuid()`]
+  user_id                   uuid         [not null, ref: > app_user.user_id]
+  operation_date            date         [not null]
+  posted_at                 timestamptz  [null]
+  raw_description           text         [not null]
+  bank_description          text         [null]
+  movement_direction        varchar(3)   [not null, note: "in | out"]
+  amount_in                 decimal      [not null, default: 0]
+  amount_out                decimal      [not null, default: 0]
+  currency_id               bigint       [not null, ref: > currency.currency_id]
+  category_id               uuid         [null, ref: > category.category_id]
+  category_leaf_id          uuid         [null, ref: > category.category_id]
+  classification_method     varchar(10)  [not null, default: 'manual', note: "auto | manual | assisted | inherited"]
+  classification_confidence decimal      [null, note: '0–100']
+  is_ant_expense            boolean      [not null, default: false]
+  cashflow_origin_id        uuid         [null, ref: > cashflow_node.cashflow_node_id]
+  cashflow_destination_id   uuid         [null, ref: > cashflow_node.cashflow_node_id]
+  financial_institution_id  uuid         [null, ref: > financial_institution.financial_institution_id]
+  payment_instrument_type   varchar(15)  [null, note: "cash | debit | credit | transfer | other"]
+  financial_instrument_id   uuid         [null, ref: > user_financial_instrument.financial_instrument_id]
+  source_type               varchar(20)  [not null, note: "document | manual | integration"]
+  source_reference          varchar(200) [null]
+  source_fingerprint        varchar(200) [null, note: 'Hash para deduplicación']
+  potential_duplicate_flag  boolean      [not null, default: false]
+  file_upload_id            uuid         [null, ref: > file_upload.file_upload_id]
+  movement_status_id        bigint       [not null, ref: > status.status_id, note: "Dominio: movement — active | pending_review | voided"]
+  deleted_at                timestamptz  [null]
+  created_at                timestamptz  [not null, default: `now()`]
+  updated_at                timestamptz  [not null, default: `now()`]
+
+  indexes {
+    (user_id, operation_date) [name: 'idx_fin_mov_user_date', note: 'DESC — WHERE deleted_at IS NULL']
+    (user_id, category_id, operation_date) [name: 'idx_fin_mov_user_cat_date', note: 'WHERE category_id IS NOT NULL AND deleted_at IS NULL']
+  }
+}
+
+Table movement_review_queue {
+  review_id        uuid     [pk, default: `gen_random_uuid()`]
+  user_id          uuid     [not null, ref: > app_user.user_id]
+  movement_id      uuid     [not null, ref: > financial_movement.movement_id]
+  review_reason    varchar(30) [not null, note: "uncategorized | possible_duplicate | instrument_conflict | loan_ambiguity | ant_expense_check | other"]
+  priority_level   smallint [not null, default: 3, note: '1=urgente · 5=informativo']
+  review_status_id bigint   [not null, ref: > status.status_id, note: "Dominio: review_queue — pending | resolved | skipped"]
+  resolved_at      timestamptz [null]
+  created_at       timestamptz [not null, default: `now()`]
+  updated_at       timestamptz [not null, default: `now()`]
+
+  indexes {
+    (user_id, review_status_id, priority_level, created_at) [name: 'idx_review_queue_user_status_priority', note: 'DESC']
+  }
+}
+
+Table movement_classification_history {
+  classification_history_id uuid        [pk, default: `gen_random_uuid()`]
+  movement_id               uuid        [not null, ref: > financial_movement.movement_id]
+  old_category_id           uuid        [null, ref: > category.category_id]
+  new_category_id           uuid        [null, ref: > category.category_id]
+  old_leaf_id               uuid        [null, ref: > category.category_id]
+  new_leaf_id               uuid        [null, ref: > category.category_id]
+  change_reason             varchar(120) [null]
+  changed_by                uuid        [null, ref: > app_user.user_id]
+  changed_at                timestamptz [not null, default: `now()`]
+  created_at                timestamptz [not null, default: `now()`]
+  updated_at                timestamptz [not null, default: `now()`]
+
+  indexes {
+    (movement_id, changed_at) [name: 'idx_class_hist_movement_time', note: 'DESC']
+  }
+}

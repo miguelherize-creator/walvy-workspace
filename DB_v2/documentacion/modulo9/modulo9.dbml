@@ -1,0 +1,70 @@
+// Módulo 9 — Administración y Auditoría · Layer 17
+// CSV Módulo 9 — Estado MVP: ✅ Incluido
+
+// ─────────────────────────────────────────────────────
+// Referencias externas
+// ─────────────────────────────────────────────────────
+
+Table app_user [note: 'Módulo 1 · Layer 4'] {
+  user_id uuid [pk]
+}
+
+// ─────────────────────────────────────────────────────
+// Layer 17 — Administración y Auditoría
+// ─────────────────────────────────────────────────────
+
+Table admin_users {
+  id            uuid        [pk, default: `gen_random_uuid()`]
+  email         text        [not null, unique]
+  password_hash text        [not null, note: 'Bcrypt']
+  name          text        [not null]
+  role          varchar(15) [not null, default: 'operator', note: "super_admin | operator"]
+  is_active     boolean     [not null, default: true]
+  last_login_at timestamptz [null]
+  created_at    timestamptz [not null, default: `now()`]
+  updated_at    timestamptz [not null, default: `now()`]
+}
+
+Table admin_audit_log {
+  id          uuid        [pk, default: `gen_random_uuid()`]
+  admin_id    uuid        [null, ref: > admin_users.id, note: 'NULL = acción automática del sistema']
+  action      text        [not null, note: 'Ej: UPDATE_GAMIFICATION_RULE, DEACTIVATE_USER']
+  entity      text        [not null, note: 'Tabla/entidad afectada']
+  entity_id   uuid        [null]
+  before_data jsonb       [null]
+  after_data  jsonb       [null]
+  created_at  timestamptz [not null, default: `now()`]
+
+  indexes {
+    (admin_id, created_at) [name: 'idx_aal_admin_created', note: 'DESC']
+    (entity, entity_id) [name: 'idx_aal_entity']
+  }
+}
+
+Table audit_log {
+  id         uuid        [pk, default: `gen_random_uuid()`]
+  user_id    uuid        [null, ref: > app_user.user_id, note: 'NULL = acción del sistema']
+  action     text        [not null, note: 'Ej: DELETE_DEBT, CHANGE_NOTIFICATION_EMAIL']
+  entity     text        [not null]
+  entity_id  uuid        [null]
+  diff       jsonb       [null]
+  created_at timestamptz [not null, default: `now()`]
+
+  indexes {
+    (user_id, created_at) [name: 'idx_al_user_created', note: 'DESC']
+  }
+}
+
+Table report_snapshots {
+  id                    uuid        [pk, default: `gen_random_uuid()`]
+  report_type           text        [not null, note: 'Ej: monthly_active_users, churn_rate, revenue_mrr']
+  period_start          date        [not null]
+  period_end            date        [not null]
+  payload               jsonb       [not null, default: `'{}'`]
+  generated_at          timestamptz [not null, default: `now()`]
+  generated_by_admin_id uuid        [null, ref: > admin_users.id]
+
+  indexes {
+    (report_type, period_start) [name: 'idx_rs_report_type', note: 'DESC']
+  }
+}

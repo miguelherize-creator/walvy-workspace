@@ -1,0 +1,125 @@
+// Módulo 10 — Monetización · Layer 13
+// CSV Módulo 10 — Estado MVP: ✅ Incluido
+
+// ─────────────────────────────────────────────────────
+// Referencias externas
+// ─────────────────────────────────────────────────────
+
+Table app_user [note: 'Módulo 1 · Layer 4'] {
+  user_id uuid [pk]
+}
+
+Table country [note: 'Módulo 1 · Layer 1'] {
+  country_id bigint [pk]
+}
+
+Table currency [note: 'Módulo 1 · Layer 1'] {
+  currency_id bigint [pk]
+}
+
+Table status [note: 'Módulo 1 · Layer 1 — dominio: subscription / payment_method'] {
+  status_id bigint [pk]
+}
+
+Table company [note: 'ModuloB2B · Layer 5'] {
+  company_id uuid [pk]
+}
+
+// ─────────────────────────────────────────────────────
+// Layer 13 — Monetización
+// ─────────────────────────────────────────────────────
+
+Table plan {
+  plan_id        uuid        [pk, default: `gen_random_uuid()`]
+  code           varchar(50) [not null, unique, note: "monthly | annual | free"]
+  name_es        varchar(120) [not null]
+  billing_period varchar(10) [null, note: "monthly | annual — NULL para free"]
+  is_active      boolean     [not null, default: true]
+  created_at     timestamptz [not null, default: `now()`]
+  updated_at     timestamptz [not null, default: `now()`]
+}
+
+Table plan_price {
+  plan_price_id uuid    [pk, default: `gen_random_uuid()`]
+  plan_id       uuid    [not null, ref: > plan.plan_id]
+  country_id    bigint  [not null, ref: > country.country_id]
+  currency_id   bigint  [not null, ref: > currency.currency_id]
+  price_amount  decimal [not null, note: '>= 0']
+  valid_from    date    [not null]
+  valid_to      date    [null, note: 'NULL = precio vigente. CHECK valid_to > valid_from']
+  is_active     boolean [not null, default: true]
+  created_at    timestamptz [not null, default: `now()`]
+  updated_at    timestamptz [not null, default: `now()`]
+
+  indexes {
+    (plan_id, country_id, currency_id) [unique, name: 'uq_plan_price_active', note: 'WHERE is_active = true AND valid_to IS NULL']
+  }
+}
+
+Table payment_method {
+  payment_method_id           uuid        [pk, default: `gen_random_uuid()`]
+  owner_type                  varchar(10) [not null, note: "USER | COMPANY"]
+  user_id                     uuid        [null, ref: > app_user.user_id]
+  company_id                  uuid        [null, ref: > company.company_id]
+  provider                    varchar(50) [not null, note: 'stripe | mercadopago | flow']
+  provider_customer_ref       varchar(120) [null]
+  provider_payment_method_ref varchar(120) [not null]
+  card_brand                  varchar(30) [null]
+  card_last4                  varchar(4)  [null]
+  card_exp_month              smallint    [null, note: '1–12']
+  card_exp_year               smallint    [null, note: '2000–2100']
+  is_default                  boolean     [not null, default: false]
+  payment_method_status_id    bigint      [not null, ref: > status.status_id, note: "Dominio: payment_method — active | expired | revoked"]
+  created_at                  timestamptz [not null, default: `now()`]
+  updated_at                  timestamptz [not null, default: `now()`]
+}
+
+Table subscription {
+  subscription_id          uuid        [pk, default: `gen_random_uuid()`]
+  user_id                  uuid        [not null, ref: > app_user.user_id]
+  company_id               uuid        [null, ref: > company.company_id, note: 'Solo si origin = B2B']
+  origin                   varchar(3)  [not null, note: "B2B | B2C"]
+  plan_id                  uuid        [not null, ref: > plan.plan_id]
+  plan_price_id            uuid        [null, ref: > plan_price.plan_price_id]
+  billed_amount            decimal     [null, note: 'Snapshot inmutable del precio facturado']
+  billed_currency_id       bigint      [null, ref: > currency.currency_id]
+  subscription_status_id   bigint      [not null, ref: > status.status_id, note: "Dominio: subscription — active | cancelled | expired | paused"]
+  starts_at                timestamptz [not null, default: `now()`]
+  ends_at                  timestamptz [null, note: 'NULL = sin expiración (hasta cancelación)']
+  provider                 varchar(50) [not null, default: 'manual']
+  external_subscription_ref varchar(120) [null]
+  external_payment_ref     varchar(120) [null]
+  renew_at                 timestamptz [null]
+  cancelled_at             timestamptz [null]
+  is_gift                  boolean     [not null, default: false]
+  gift_sender_name         varchar(120) [null]
+  gift_sender_email        varchar(320) [null]
+  gift_recipient_email     varchar(320) [null]
+  gift_message             varchar(250) [null]
+  gift_token               varchar(120) [null, unique]
+  gift_redeemed_at         timestamptz [null]
+  created_at               timestamptz [not null, default: `now()`]
+  updated_at               timestamptz [not null, default: `now()`]
+}
+
+Table payment_order {
+  id                 uuid        [pk, default: `gen_random_uuid()`]
+  user_id            uuid        [not null, ref: > app_user.user_id]
+  subscription_id    uuid        [null, ref: > subscription.subscription_id]
+  commerce_order     text        [not null, unique, note: 'Idempotencia ante webhooks duplicados']
+  provider           varchar(50) [not null]
+  provider_token     text        [null]
+  provider_order_ref text        [null]
+  amount             decimal     [not null, note: '> 0']
+  currency_id        bigint      [not null, ref: > currency.currency_id]
+  status             varchar(20) [not null, default: 'pending', note: "pending | paid | failed | expired | refunded"]
+  provider_response  jsonb       [null, note: 'Respuesta completa del webhook']
+  paid_at            timestamptz [null]
+  created_at         timestamptz [not null, default: `now()`]
+  updated_at         timestamptz [not null, default: `now()`]
+
+  indexes {
+    (user_id, created_at) [name: 'idx_po_user_created', note: 'DESC']
+    provider_token [name: 'idx_po_provider_token', note: 'WHERE provider_token IS NOT NULL']
+  }
+}
