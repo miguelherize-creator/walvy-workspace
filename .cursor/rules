@@ -1,0 +1,214 @@
+# Cursor Rules — Proyecto Walvy
+
+## Stack
+- Backend: NestJS 10, TypeORM, PostgreSQL
+- Frontend: Expo 54 (React Native), TanStack Query, TypeScript
+- Monorepo: backend en `MVP-CheckApp/`, frontend en `CheckApp-Mobile/`
+
+---
+
+## ARQUITECTURA FRONTEND — Feature-First
+
+### Estructura obligatoria por feature
+
+```
+src/features/<feature>/
+  ├── api/        # Llamadas HTTP (solo fetch/axios, sin lógica de negocio)
+  ├── hooks/      # TanStack Query hooks (useQuery, useMutation)
+  ├── data/       # Datos mock, constantes, tipos de la feature
+  └── ui/         # Componentes React Native (solo presentación)
+```
+
+### Reglas de capas frontend
+
+- **NO poner lógica de negocio en `ui/`** — los componentes solo renderizan, no calculan
+- **NO importar features entre sí directamente** — usar contextos compartidos en `src/shared/` o `src/common/`
+- Los hooks en `hooks/` son la única capa que puede llamar a funciones de `api/`
+- Los componentes en `ui/` solo reciben props y llaman hooks de la misma feature
+- Usar `@/` como alias para `src/` en todas las importaciones
+- Dentro de una feature, usar **rutas relativas** (`../hooks/useFoo`) en lugar de `@/features/foo/hooks/useFoo`
+- Crear barrel exports (`index.ts`) en cada feature para exponer solo lo necesario
+
+### Alias de importación
+
+```typescript
+// Correcto: importar otra feature desde un hook propio
+import { useCategories } from '@/features/cashflow/hooks/useCategories';
+
+// Correcto: dentro de la misma feature usar rutas relativas
+import { fetchTransactions } from '../api/transactions.api';
+
+// INCORRECTO: importar desde ui/ directamente
+import { TransactionItem } from '@/features/cashflow/ui/TransactionItem';
+// Solo los barrel exports de una feature son importables desde fuera
+```
+
+---
+
+## ARQUITECTURA BACKEND — Module-per-feature
+
+### Estructura obligatoria por módulo
+
+```
+src/<module>/
+  ├── <module>.module.ts
+  ├── <module>.controller.ts    # Solo maneja HTTP: recibe, delega, retorna
+  ├── <module>.service.ts       # Toda la lógica de negocio aquí
+  ├── entities/
+  │   └── <entity>.entity.ts
+  └── dto/
+      ├── create-<entity>.dto.ts
+      └── update-<entity>.dto.ts
+```
+
+### Reglas de capas backend
+
+- **NO poner lógica de negocio en los controllers** — el controller solo llama `service.method()` y retorna
+- **NO validar datos en los services** — usar DTOs con `class-validator` decoradores
+- **NO acceder a repositories desde controllers** — solo desde services
+- Los guards (`@UseGuards`) van en el controller, no en el service
+- Usar `toPublic()` en entities para serializar respuestas, nunca exponer la entity raw
+
+---
+
+## CONVENCIONES DE NAMING
+
+### Backend
+
+| Elemento | Convención | Ejemplo |
+|----------|------------|---------|
+| Archivos | kebab-case | `budget-period.entity.ts` |
+| Clases | PascalCase | `BudgetPeriodService` |
+| Métodos | camelCase | `createBudgetPeriod()` |
+| Columnas DB | snake_case | `created_at`, `user_id` |
+| Rutas HTTP | kebab-case | `/budget/periods/:id/lines` |
+| Enums TS | UPPER_SNAKE_CASE en valores | `OnboardingStep.EMAIL_VERIFICATION` |
+| Enums DB | snake_case en valores | `'email_verification'` |
+
+### Frontend
+
+| Elemento | Convención | Ejemplo |
+|----------|------------|---------|
+| Archivos componentes | PascalCase | `TransactionItem.tsx` |
+| Archivos hooks/api | camelCase | `useTransactions.ts`, `transactions.api.ts` |
+| Componentes | PascalCase | `<TransactionItem />` |
+| Hooks | camelCase con prefijo `use` | `useCreateTransaction` |
+| Tipos/Interfaces | PascalCase | `TransactionDto`, `CreateTransactionInput` |
+
+---
+
+## SEGURIDAD — Reglas obligatorias
+
+- **NUNCA exponer `passwordHash`** en ninguna respuesta HTTP — usar siempre `toPublic()` o un DTO explícito
+- **NUNCA exponer tokens JWT o refresh tokens** en logs ni en respuestas que no sean las de login/refresh
+- **NUNCA retornar la entity TypeORM raw** — siempre mapear a un DTO o usar `toPublic()`
+- Todos los endpoints (excepto los marcados explícitamente como públicos) requieren `@UseGuards(JwtAuthGuard)`
+- Los endpoints admin requieren además el `RbacGuard` con el permiso correspondiente
+
+---
+
+## VALIDACIONES — Backend
+
+- **Validar SIEMPRE en DTOs con `class-validator`**, nunca validar manualmente en services
+- Usar `@IsNotEmpty()` en campos requeridos, `@IsOptional()` en opcionales
+- Para enums: usar `@IsEnum(NombreEnum)` con el enum TypeScript definido
+- Para UUIDs: usar `@IsUUID()`
+- Para emails: usar `@IsEmail()`
+- Para montos: usar `@IsNumber()` + `@IsPositive()`
+- Para fechas: usar `@IsDateString()`
+- **NUNCA** agregar `@IsString()` en campos que deberían tener validación más específica
+
+---
+
+## CÓDIGO COMPARTIDO — src/common/
+
+- **NUNCA modificar archivos en `src/common/` sin revisar el impacto global** — estos afectan toda la aplicación
+- `AllExceptionsFilter` es global — cambios en su formato de error rompen el contrato con el frontend
+- `decimalToNumber` transformer — si se modifica, verificar todos los campos Decimal en entidades
+- Antes de modificar: buscar todos los archivos que importan el elemento a modificar
+
+---
+
+## ELIMINACIÓN DE ARCHIVOS
+
+- **NUNCA eliminar un archivo existente sin verificar primero todas sus referencias**
+- Usar búsqueda en el proyecto completo (ej: `grep -r "NombreArchivo"`) antes de eliminar
+- Si un archivo tiene referencias, primero actualizar todas las referencias y luego eliminar
+- Si una entidad TypeORM tiene datos en producción, **no eliminar la entidad ni sus columnas** sin una migración
+
+---
+
+## MÓDULOS NUEVOS — Backend
+
+- **No crear un módulo backend nuevo sin antes crear (o verificar) su spec en `specs/`**
+- Verificar que el módulo no esté listado como deuda técnica en los archivos de tareas (`tasks.md`)
+- Si existe una tarea de deuda técnica para ese módulo, seguir las instrucciones ahí documentadas
+- Al crear un módulo nuevo: registrarlo en `AppModule` y crear su spec si no existe
+
+---
+
+## UI/UX — PALETA DE COLORES
+
+Los colores deben seguir estrictamente la paleta definida para Walvy:
+
+| Token | Valor hex | Uso |
+|-------|-----------|-----|
+| `deepTeal` | `#103F43` | Color primario, headers, botones principales |
+| `oceanTeal` | `#1B6B73` | Color secundario, elementos interactivos |
+| `mintSoft` | `#CDECE2` | Fondos suaves, chips, badges |
+| `coral` | `#EE8D78` | Alertas, acentos, CTAs de énfasis |
+
+### Reglas de UI
+
+- **NO usar colores neón** ni ningún color fuera de la paleta definida
+- **NO usar `#FF0000` ni rojo puro** para errores — usar el coral `#EE8D78` o una variante oscura
+- Los colores de estado (éxito, warning, error) deben ser variantes de la paleta, no colores estándar de Bootstrap
+- Antes de agregar un nuevo color: consultar con el diseñador o verificar en el sistema de diseño
+
+---
+
+## ANTES DE IMPLEMENTAR — Checklist
+
+Antes de comenzar la implementación de cualquier feature o fix:
+
+1. ¿Existe un archivo `spec.md` en `specs/<modulo>/` que describa el comportamiento esperado?
+2. ¿La tarea está listada en `tasks.md` del módulo correspondiente?
+3. ¿Hay deuda técnica activa (`M1-DT-XX`, `M2-DT-XX`) que bloquee o afecte lo que vas a implementar?
+4. ¿Hay dependencias con otros módulos que no estén implementados aún?
+
+Si la respuesta a (1) es no: **crear la spec antes de implementar**.
+
+---
+
+## TESTS — Convenciones
+
+### Backend (Jest)
+
+- Usar `uniqueEmail()` helper para generar emails únicos y evitar conflictos entre tests
+- Mockear el servicio de email con `MockMailService` — **nunca enviar emails reales en tests**
+- Desactivar `ThrottlerGuard` en el módulo de test (`ThrottlerModule.forRoot([{ limit: 0, ttl: 0 }])` o mock)
+- Los tests unitarios van en `<archivo>.spec.ts` junto al archivo que testean
+- Los tests e2e van en `test/<modulo>/<modulo>.e2e-spec.ts`
+
+### Frontend (Jest + React Native Testing Library)
+
+- Mockear llamadas HTTP con `msw` o jest mocks — no hacer llamadas reales en tests
+- Los componentes UI se testean con props explícitas, no dependiendo de contexto global
+- Usar datos de `mock-*.data.ts` de la feature en los tests del componente
+
+---
+
+## NÚMEROS Y MONTOS
+
+- Los campos `Decimal` en TypeORM **siempre** deben tener el transformer `decimalToNumber` para retornar `number` en lugar de `string`
+- Los montos en Chile son en **CLP** (pesos chilenos), sin decimales en la mayoría de los casos
+- Al formatear montos en el frontend: usar `Intl.NumberFormat('es-CL', { style: 'currency', currency: 'CLP' })`
+- En los DTOs backend, los montos se reciben como `number` y se almacenan como `Decimal` en PostgreSQL
+
+---
+
+## ONBOARDING — Notas importantes
+
+- El campo `currentStep` debe ser siempre un valor del enum `OnboardingStep` — no strings libres
+- Los checkpoints (`biometricPrompted`, `importAttempted`, `financialProfileCompleted`, `minDocThresholdMet`) tienen activadores específicos — ver `specs/onboarding/spec.md`
+- **NO modificar la lógica de auto-completado** sin revisar `specs/onboarding/plan.md` y alinear con el cliente
