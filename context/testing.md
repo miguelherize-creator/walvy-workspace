@@ -53,7 +53,7 @@ npm run test:e2e -- --testPathPattern=auth          # solo auth
 
 ## 2. E2E UI — Playwright sobre Expo Web
 
-**Ubicación:** `e2e/` (raíz del monorepo, al nivel de Backend/ y Frontend/)  
+**Ubicación:** `workspace/walvy-workspace/e2e/`  
 **Runner:** Playwright + Chromium  
 **Suites:** login, register, dashboard, forgot-password, navigation
 
@@ -68,7 +68,7 @@ cd e2e && cross-env E2E_MODE=api npm test
 ```
 
 El frontend arranca automáticamente en `:8081` (Expo Web).  
-En modo FULL, el backend también arranca desde `../Backend/MVP-CheckApp`.
+En modo FULL, el backend también arranca desde `../../../Backend/MVP-CheckApp`.
 
 ### Variables de entorno
 
@@ -82,7 +82,7 @@ En modo FULL, el backend también arranca desde `../Backend/MVP-CheckApp`.
 ### Estructura
 
 ```
-e2e/
+workspace/walvy-workspace/e2e/
 ├── playwright.config.ts
 ├── package.json
 ├── tsconfig.json
@@ -156,7 +156,7 @@ bun run test features/auth
 ```bash
 npm run build          # TypeScript sin errores
 npm run test:e2e       # Supertest e2e (DB efímera)
-cd e2e && npm test     # Playwright mock mode
+cd workspace/walvy-workspace/e2e && npm test     # Playwright mock mode
 ```
 
 Un PR no debe mergearse si algún step falla.

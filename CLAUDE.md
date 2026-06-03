@@ -16,8 +16,9 @@ Invoca el agente correcto según el tipo de trabajo. Cada uno carga su contexto 
 | `/walvy-backend` | Sonnet | Backend Engineer | NestJS, módulos, DTOs, entities, endpoints, DB queries |
 | `/walvy-db` | Sonnet | DB Engineer | Schema PostgreSQL, tablas, migrations, entities TypeORM, queries |
 | `/walvy-frontend` | Sonnet | Frontend Engineer | React Native, features, hooks, screens, Expo Router |
-| `/walvy-design` | Sonnet | Design Engineer | UI pixel-perfect, design tokens, paleta, componentes |
+| `/walvy-design` | Sonnet | Design Engineer | UI pixel-perfect (Builder): Figma → código RN |
 | `/walvy-qa` | Sonnet | QA Engineer | Tests, criterios de aceptación, checklist de features |
+| `/walvy-qa-visual` | Sonnet | UI Visual QA Reviewer | Auditoría pixel-perfect contra Figma (NO genera código — solo reporta) — ver [`skills/ui-visual-qa-reviewer.md`](skills/ui-visual-qa-reviewer.md) |
 | `/walvy-arch` | Opus | Software Architect | ADRs, decisiones cross-cutting, estructura de módulos |
 | `/walvy-ai` | Opus | AI Module Engineer | Sprint 8, LLM integration, asistente financiero |
 | `/walvy-think` | Opus | Analista Senior | Nuevo requerimiento, trade-offs, plan antes de implementar |
@@ -40,6 +41,7 @@ Todos los agentes parten de estos archivos:
 | [`context/specs/`](context/specs/) | Contrato de cada módulo (endpoints, flujos, checklist) |
 | [`context/testing.md`](context/testing.md) | Estrategia de testing, patrones E2E, deuda de tests |
 | [`context/mvp-scope.csv`](context/mvp-scope.csv) | Fuente de verdad del alcance MVP (Excel exportado) |
+| [`context/qa-audits/`](context/qa-audits/) | Reportes pixel-perfect generados por `/walvy-qa-visual` — uno por pantalla por iteración |
 
 ---
 
@@ -66,7 +68,7 @@ Todos los agentes parten de estos archivos:
 | Frontend | `Frontend/rork-checkapp/expo/` |
 | DB Schema | `Backend/MVP-CheckApp/DB/schema.sql` |
 | Design tokens | `Frontend/rork-checkapp/expo/constants/colors.ts` + `theme.ts` |
-| E2E Playwright | `e2e/` (raíz, al nivel de Backend/ y Frontend/) |
+| E2E Playwright | `workspace/walvy-workspace/e2e/` |
 | Brand assets | `workspace/walvy-workspace/assets/brand/` |
 
 ---
@@ -85,5 +87,5 @@ bun run start-web
 # Tests
 npm run test:e2e        # backend E2E (Supertest)
 bun run test            # frontend unit
-cd e2e && npm test      # E2E UI Playwright (mock mode)
+cd workspace/walvy-workspace/e2e && npm test   # E2E UI Playwright (mock mode)
 ```

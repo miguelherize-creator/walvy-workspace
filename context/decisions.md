@@ -63,3 +63,69 @@ Registro de decisiones técnicas y de producto. Orden cronológico. No borrar �
   - `username` en tabla `app_user` es handle opcional, se configura desde perfil (no en registro).
   - Eliminar `identifierType` y flujo 'email_collection'. Onboarding siempre arranca en 'email_verification'.
 - **Consecuencias:** `JwtPayload` cambia `username` → `email`. Password regex actualizado para exigir carácter especial. `DB/schema.sql` sincronizado.
+
+## [2026-05-31] LoginScreen — 3 modos según estado de usuario guardado
+- **Contexto:** El Figma original definía solo 2 estados (firstTime / savedUser) pero faltaba el flujo biométrico-only sin ingreso de password.
+- **Decisión:** `LoginScreen.tsx` implementa 3 modos via `LoginMode = "firstTime" | "savedUserBiometric" | "savedUserPassword"`:
+  - **`firstTime`** (Figma 3470:6974): email + password. Default si no hay usuario guardado.
+  - **`savedUserBiometric`** (Figma 3470:7080): solo botón "Entrar" + biometría. Default si `canUseBiometric === true`. Link "Ingresar con clave" cambia a `savedUserPassword`.
+  - **`savedUserPassword`** (Figma 3470:7098): solo password card. Default si hay `savedEmail` pero no biometría. Link "Cambiar de usuario" vuelve a `firstTime` (ver ADR siguiente).
+- **Detección de modo inicial:**
+  ```tsx
+  const initialMode: LoginMode = canUseBiometric
+    ? "savedUserBiometric"
+    : effectiveEmail
+    ? "savedUserPassword"
+    : "firstTime";
+  ```
+- **Archivos:** `features/auth/ui/LoginScreen.tsx`, `features/auth/hooks/useLoginForm.ts`
+
+## [2026-05-31] Persistencia de email para savedUser mode (LAST_USER_EMAIL_KEY)
+- **Contexto:** Bug recurrente: `user.email` viene vacío de `/users/me` aunque haya sesión activa con biometría. Esto rompía el flujo "savedUserPassword" (Figma 3470:7098) porque el hook necesita email para enviar al backend.
+- **Decisión:** Persistir el email del último usuario logueado en SecureStore (`LAST_USER_EMAIL_KEY = "walvy_last_user_email"`). Exponer `savedEmail` desde `AuthProvider` como fallback de `user.email`.
+- **Reglas de limpieza:**
+  - **Persistir** tras `login()` y `register()` exitosos
+  - **Mantener** en logout soft (con biometría activa)
+  - **Borrar** en logout hard (`logout({ forceComplete: true })`) — usado por "Cambiar de usuario"
+- **Email "efectivo"** = `user?.email || savedEmail || ""` en todo lugar donde antes se leía `user.email` directo.
+- **Archivos:** `store/AuthProvider.tsx`, `features/auth/hooks/useLoginForm.ts`, `features/auth/ui/LoginScreen.tsx`
+
+## [2026-05-31] Divergencia consciente Figma: link "Cambiar de usuario"
+- **Contexto:** Figma original `3470:7098` (Login con usuario guardado) **NO incluía** opción para cambiar de usuario. Esto dejaba al usuario atrapado en el device si olvidaba el password (sin alternativa que reinstalar la app). Apps fintech chilenas (BancoEstado, BCI, Banco de Chile) siempre tienen esta opción.
+- **Acción inicial:** Se eliminaron los links "Cambiar de usuario" y "Entrar con Face ID" del código (eran extras no diseñados, audit `login-saved-user.md` los marcaba como "elementos extra").
+- **Decisión revertida (con Figma actualizado):** Designer aprobó añadir el link en Figma `4425:5268` y `4425:5301`. Se reincorporó como link terciario (SemiBold 16px `#177E96` underline) entre el botón "Entrar a mi cuenta" y "¿Necesitas recuperar tu contraseña?".
+- **Comportamiento técnico:** El handler `handleChangeUser` muestra confirmación nativa (`Alert.alert`) con mensaje destructivo y, al confirmar:
+  1. `logout({ forceComplete: true })` — limpia tokens + savedEmail + desactiva biometría
+  2. `setMode("firstTime")` — vuelve al estado limpio
+  3. Reset de inputs (email, password)
+- **Visibilidad:** Solo en `savedUser` modes (biometric + password). NO en `firstTime`.
+- **Archivos:** `features/auth/ui/LoginScreen.tsx`, `store/AuthProvider.tsx` (opción `forceComplete` en `logout()`)
+
+## [2026-06-01] Prompt biométrico — texto agnóstico por limitación del OS
+- **Contexto:** Figma `3470:7138` muestra una modal custom "Acceso rápido — Usa tu huella para ingresar a Walvy" con botón "Volver". El prompt nativo de biometría (Android Knox / iOS Face ID) **NO es customizable** visualmente — el OS controla la apariencia por seguridad. Solo se puede modificar texto (`promptMessage`, `cancelLabel`, `fallbackLabel`).
+- **Iteraciones del texto:**
+  1. Hardcoded "Usa tu huella" → bug: en Samsung con huella+rostro mostraba texto incorrecto si user elegía "Rostro" tab
+  2. Detección dinámica: "Usa tu huella o rostro" → redundante con texto del OS ("Escanee su huella digital")
+  3. **Final:** "Usa el método de autenticación para ingresar a Walvy" — agnóstico, no se solapa con el texto del OS
+- **Decisión:** El `promptMessage` no menciona el método específico (huella/rostro/Face ID). El OS ya lo indica visualmente y textualmente. `cancelLabel: "Volver"` (match Figma). `fallbackLabel: "Ingresar con clave"` (match link de LoginScreen).
+- **Archivos:** `services/biometrics.ts` función `authenticate()`
+
+## [2026-06-01] Reorganización de assets/images por categoría
+- **Contexto:** `expo/assets/images/` tenía 89 archivos planos sin estructura: logos duplicados (`walvy_logo - copia.png`), iconos sueltos, mascotas en `/assets/` raíz, basura legacy. Imposible saber qué imagen usar sin grep.
+- **Decisión:** Estructura por categorías:
+  ```
+  expo/assets/images/
+  ├── brand/         # logos, isotipos, avatares, app-icon
+  ├── mascots/       # personaje Walvy (en uso actual)
+  ├── onboarding/    # slides 1→4-2
+  ├── icons/         # iconos UI (light + dark variants con sufijo -dark)
+  ├── decorative/    # backgrounds, cards, splash
+  └── _unused/       # legacy sin uso actual (revisar con equipo de diseño)
+  ```
+- **Convenciones:**
+  - **kebab-case** en inglés (`profile-dark.png` no `perfil_1_mo.png`)
+  - **Dark variants** con sufijo `-dark` (no `_mo`)
+  - **WebP** preferido sobre PNG para logos (mejor calidad/peso en mobile)
+- **Eliminados:** 9 archivos basura confirmados (duplicados con sufijos "copia", "(2)", "_22", hashes opacos).
+- **Pendiente:** revisar `_unused/` (32 archivos) con equipo de diseño antes de eliminar.
+- **Archivos:** `expo/assets/images/`, READMEs por carpeta documentando convenciones.

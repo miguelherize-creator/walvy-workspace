@@ -1,0 +1,82 @@
+Parte 1 — Registro hasta Choose Alias
+
+  /register
+  ├── Campos: email, RUT, password, acceptTerms, acceptPrivacy
+  ├── Validación: RUT inline bajo el campo (rojo en blur)
+  ├── POST /auth/register → 201
+  │     400 validación → mensaje bajo el campo
+  │     409 email existe → AuthMessageBox global
+  └── → /(auth)/verify-code  (email como param)
+
+  /(auth)/verify-code
+  ├── 6 dígitos OTP enviado al correo al registrar
+  ├── POST /auth/email-verification/confirm { email, code }
+  │     400 incorrecto     → mensaje real del backend + CTA reenviar
+  │     400 expirado       → mensaje + limpia input + habilita reenvío
+  │     400 intentos agot. → mensaje + limpia input + habilita reenvío
+  │     401                → router.replace("/login")
+  │     429 reenvío        → "Demasiados reenvíos. Espera unos minutos."
+  └── → /(auth)/biometric-setup  (solo si username == null)
+      → /(tabs)             (si ya tiene username — re-verificación)
+
+  /(auth)/biometric-setup
+  ├── PATCH /auth/biometric { enabled: true/false, method? }
+  │     401 → router.replace("/login")
+  │     400/404 → continúa igual (biometría es opcional)
+  ├── PATCH /auth/onboarding/step { currentStep: "profile_basic" }
+  │     401 → router.replace("/login")
+  │     400/404 → continúa igual
+  ├── "Activar acceso rápido" → enableBiometric() local + API → choose-alias
+  └── "Omitir y continuar"   → API con enabled:false         → choose-alias
+
+  /(auth)/choose-alias
+  ├── Campos: nombre, apellido, alias (username)
+  ├── PATCH /users/profile { firstName?, lastName?, username }
+  │     400 campos vacíos → validado client-side antes
+  │     401               → router.replace("/login")
+  │     404               → mensaje genérico
+  ├── PATCH /auth/onboarding/step { currentStep: "welcome" }
+  │     401 → router.replace("/login")
+  │     otro error → se ignora (perfil ya se guardó)
+  └── → /(auth)/onboarding  (slides de bienvenida)
+
+  ---
+  Parte 2 — Onboarding hasta Dashboard
+
+  /(auth)/onboarding
+  ├── 4 slides de bienvenida (sin llamadas API)
+  └── "¡Comencemos!" → /(auth)/onboarding-doc
+
+  /(auth)/onboarding-doc
+  ├── Al montar:
+  │   PATCH /auth/onboarding/step { currentStep: "document_upload", resumeSurface: "onboarding" }
+  │     401 → router.replace("/login")
+  ├── Selección de archivos PDF (máx 15) — solo local, sin API
+  ├── "Analizar" (con docs)  → /(auth)/onboarding-analysis  (docs como param)
+  └── "Más tarde"            → PATCH step { resumeSurface: "home" } → /(tabs)
+
+  /(auth)/onboarding-analysis
+  ├── Pantalla presentacional — muestra docs seleccionados y preview de detección
+  ├── "Comenzar diagnóstico" → /(auth)/onboarding-analyzing
+  └── "Continuar más tarde"  → PATCH step { resumeSurface: "home" } → /(tabs)
+
+  /(auth)/onboarding-analyzing
+  ├── Al subir el primer PDF:
+  │   POST upload → uploadCartola()
+  │     401 → router.replace("/login")
+  │     otro error → pantalla de error con mensaje
+  │
+  ├── Al upload exitoso:
+  │   PATCH /auth/onboarding/step { currentStep: "document_processing", importAttempted: true }
+  │   Polling GET /imports/:id cada 2s (máx 60 intentos)
+  │     status "parsed"  → uploadStep = 2 → navega a onboarding-first-ready
+  │     status "failed"  → pantalla de error con mensaje
+  │     timeout 60 polls → pantalla de error
+  │
+  ├── "Continúo más tarde"       → PATCH step { resumeSurface: "home" } → /(tabs)
+  └── Modal demora "Avisarme..." → PATCH step { resumeSurface: "home" } → /(tabs)
+
+  /(auth)/onboarding-first-ready
+  └── Clic en cualquier tab → /(tabs)/*  (home, movimientos, metas, etc.)
+
+  /(tabs)  ← DASHBOARD ✅

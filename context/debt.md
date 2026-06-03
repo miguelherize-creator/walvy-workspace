@@ -37,6 +37,43 @@ Formato: `ID — Descripción — Estado — Bloqueante`
   3. `currentStep` acepta strings libres sin validación `@IsIn([...])`
 - **Qué falta:** Validar paso final con producto. Revisar si `financialProfileCompleted` sigue siendo condición. Añadir `@IsIn()` al DTO.
 
+### M1-FE-01 — `user.email` vacío en savedUser mode
+- **Detectado:** 2026-05-31
+- **Estado:** ⚠️ Workaround aplicado, falta investigar backend
+- **Síntomas:** `GET /users/me` devuelve user con `email: null` o `email: ""` aunque el usuario tenga sesión activa. Esto rompía `savedUserPassword` mode en LoginScreen (necesita email para enviar al backend al hacer login con password).
+- **Workaround actual:** Persistencia local en SecureStore `LAST_USER_EMAIL_KEY` (ver [`decisions.md`](decisions.md) entrada 2026-05-31). `LoginScreen` y `useLoginForm` usan `effectiveEmail = user.email || savedEmail`.
+- **Qué falta:** Debug en backend de `/users/me` para verificar por qué `email` no se devuelve. Probable causa: query/serializer omite el campo. Una vez corregido, el workaround puede mantenerse como capa de resiliencia pero el bug principal estará resuelto.
+- **Archivos:** `Backend/MVP-CheckApp/src/users/users.controller.ts` o `users.service.ts` (revisar response shape de `getMe()`)
+
+### M1-FE-02 — `user.firstName` vacío en savedUser mode
+- **Detectado:** 2026-05-31
+- **Estado:** ⚠️ Workaround aplicado (Patrón C fallback)
+- **Síntomas:** Mismo problema que M1-FE-01 pero con `firstName`. El saludo personalizado "¡Hola Juancho!" no aparece (cae al genérico "Te damos la bienvenida").
+- **Workaround actual:** Patrón C en LoginScreen — usar parte del email antes del `@` capitalizada como display name cuando `firstName` falta. Función `capitalize(email.split("@")[0])`.
+- **Qué falta:** Mismo debug que M1-FE-01 — verificar que `/users/me` devuelve `firstName` completo. Lógica de cascada (Patrón C) puede mantenerse como fallback defensivo.
+- **Archivos:** `features/auth/ui/LoginScreen.tsx` (función `displayName`)
+
+### M1-FE-03 — Contrato `/auth/reset-password` no documentado en spec
+- **Detectado:** 2026-05-31
+- **Estado:** ⚠️ Resuelto en runtime, falta actualizar spec
+- **Síntomas:** El frontend enviaba `{ token, newPassword }` pero el backend espera `{ email, code, newPassword }`. Resultaba en errores `property token should not exist`, `El correo es obligatorio`, `El código es obligatorio`, `newPassword must be a string`.
+- **Causa raíz:** `context/specs/authentication.md` documenta el endpoint pero no el shape exacto del payload de `/auth/reset-password`. El frontend asumía un opaque `token` cuando en realidad el backend espera el código OTP de 6 dígitos + email para validar.
+- **Resolución:**
+  - Actualizado `api/types/auth.ts` → `ResetPasswordPayload = { email, code, newPassword }`
+  - Actualizado `authRepository.resetPassword(email, code, newPassword)`
+  - El URL param `token` (que es el code OTP) se mapea correctamente
+- **Qué falta:** Actualizar `context/specs/authentication.md` para documentar el shape exacto del payload de `/auth/reset-password` y evitar que ocurra de nuevo en futuros refactors.
+- **Archivos involucrados:** `api/types/auth.ts`, `features/auth/data/authRepository.ts`, `features/auth/hooks/useResetPasswordForm.ts`, `api/mocks/authMock.ts`
+
+### M1-FE-04 — Touch targets bajo el mínimo recomendado (44px)
+- **Detectado:** 2026-05-30 (auditorías QA pixel-perfect)
+- **Estado:** ⚠️ Cumple Figma pero falla guidelines de accesibilidad
+- **Síntomas:** Botones primarios usan `h-40` (Figma) y links subrayados usan `h-24`. Apple HIG y Material Design recomiendan **mínimo 44px**.
+- **Pantallas afectadas:** Login, Register, VerifyCode, BiometricSetup, ChooseAlias, ResetPassword, ForgotPassword (todas las pantallas auth).
+- **Workaround disponible:** `hitSlop={{ top: 12, bottom: 12, left: 8, right: 8 }}` en `Pressable` extiende el área táctil SIN modificar el aspecto visual. Ya aplicado parcialmente en algunos links.
+- **Qué falta:** Aplicar `hitSlop` a TODOS los links/botones que estén por debajo de 44px. Considerar crear componente `<AuthLink>` y `<AuthButton>` que incluyan `hitSlop` por default.
+- **Referencia:** Ver auditorías en `context/qa-audits/auth/` — todas mencionan este issue como Severidad Media.
+
 ---
 
 ## Módulo 2 — Perfil y Configuración
