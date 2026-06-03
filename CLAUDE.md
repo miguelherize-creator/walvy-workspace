@@ -14,6 +14,7 @@ Invoca el agente correcto según el tipo de trabajo. Cada uno carga su contexto 
 |---------|--------|--------|---------------|
 | `/walvy-find` | Haiku | Buscador | Lookup rápido: archivo, endpoint, tabla, token, símbolo |
 | `/walvy-backend` | Sonnet | Backend Engineer | NestJS, módulos, DTOs, entities, endpoints, DB queries |
+| `/walvy-db` | Sonnet | DB Engineer | Schema PostgreSQL, tablas, migrations, entities TypeORM, queries |
 | `/walvy-frontend` | Sonnet | Frontend Engineer | React Native, features, hooks, screens, Expo Router |
 | `/walvy-design` | Sonnet | Design Engineer | UI pixel-perfect, design tokens, paleta, componentes |
 | `/walvy-qa` | Sonnet | QA Engineer | Tests, criterios de aceptación, checklist de features |
@@ -32,8 +33,13 @@ Todos los agentes parten de estos archivos:
 | [`context/stack.md`](context/stack.md) | Stack tecnológico, versiones, package managers |
 | [`context/architecture.md`](context/architecture.md) | Capas del sistema, módulos, sprint status |
 | [`context/conventions.md`](context/conventions.md) | Naming, patrones de código, seguridad |
-| [`context/db-schema.md`](context/db-schema.md) | 19 layers, tablas clave, patrones DB |
-| [`context/mvp-scope.md`](context/mvp-scope.md) | Sprint status, deudas técnicas, próximos pasos |
+| [`context/db/`](context/db/) | Schema completo por módulo (M1-M10 + B2B) — M1-M2 producción, M3-M10 referencia |
+| [`context/mvp-scope.md`](context/mvp-scope.md) | Sprint status, próximos pasos |
+| [`context/decisions.md`](context/decisions.md) | 16 ADRs — por qué tomamos cada decisión |
+| [`context/debt.md`](context/debt.md) | Deuda técnica activa con cadena de bloqueos |
+| [`context/specs/`](context/specs/) | Contrato de cada módulo (endpoints, flujos, checklist) |
+| [`context/testing.md`](context/testing.md) | Estrategia de testing, patrones E2E, deuda de tests |
+| [`context/mvp-scope.csv`](context/mvp-scope.csv) | Fuente de verdad del alcance MVP (Excel exportado) |
 
 ---
 
@@ -58,9 +64,10 @@ Todos los agentes parten de estos archivos:
 |------|------|
 | Backend | `Backend/MVP-CheckApp/src/` |
 | Frontend | `Frontend/rork-checkapp/expo/` |
-| DB Schema | `workspace/walvy-workspace/legacy/DB_v2/schema.sql` |
+| DB Schema | `Backend/MVP-CheckApp/DB/schema.sql` |
 | Design tokens | `Frontend/rork-checkapp/expo/constants/colors.ts` + `theme.ts` |
-| Docs legacy | `workspace/walvy-workspace/legacy/` |
+| E2E Playwright | `e2e/` (raíz, al nivel de Backend/ y Frontend/) |
+| Brand assets | `workspace/walvy-workspace/assets/brand/` |
 
 ---
 
@@ -76,6 +83,7 @@ cd Frontend/rork-checkapp/expo && bun run start
 bun run start-web
 
 # Tests
-npm run test:e2e        # backend E2E
+npm run test:e2e        # backend E2E (Supertest)
 bun run test            # frontend unit
+cd e2e && npm test      # E2E UI Playwright (mock mode)
 ```
