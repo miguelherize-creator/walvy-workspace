@@ -65,6 +65,34 @@ Formato: `ID — Descripción — Estado — Bloqueante`
 - **Qué falta:** Actualizar `context/specs/authentication.md` para documentar el shape exacto del payload de `/auth/reset-password` y evitar que ocurra de nuevo en futuros refactors.
 - **Archivos involucrados:** `api/types/auth.ts`, `features/auth/data/authRepository.ts`, `features/auth/hooks/useResetPasswordForm.ts`, `api/mocks/authMock.ts`
 
+### M1-FE-05 — Asset HD del splash con canal alpha
+- **Detectado:** 2026-06-03
+- **Estado:** ✅ Resuelto 2026-06-03 — Lottie 380×380 vectorial con fondo transparente nativo
+- **Síntomas originales:** El asset `Walvy_Splash_animado.webm` inicial era:
+  - **150×150 px** → resolución muy baja (upscale 5.7x → pixelado)
+  - **`pix_fmt=yuv420p`** → sin canal alpha → se renderizaba como cuadrado opaco negro
+- **Resolución:** El Designer entregó `Walvy_Splash_animado.json` (Lottie, LottieFiles toolkit, 380×380, ~320 KB). Vectorial, alpha nativo, sin pixelado en ningún tamaño.
+- **Cambios aplicados:**
+  - Añadido `lottie-react-native@7.3.8` (`bun add lottie-react-native`)
+  - Asset movido a `assets/images/decorative/walvy-splash-animated.json`
+  - `SplashScreen.tsx` ahora usa `<LottieView autoPlay loop resizeMode="contain" />` en vez del `<Image>` con GIF / `<VideoView>` con MP4
+  - Eliminadas dependencias internas de `expo-video` en el splash (el paquete sigue instalado por si se necesita en otra pantalla)
+- **Archivos legacy a limpiar (opcional):**
+  - `assets/images/decorative/splash.gif` (376 KB) — ya no se referencia
+  - `assets/images/decorative/walvy-splash-animated.mp4` (69 KB) — ya no se referencia
+
+### M1-FE-06 — Mascot del modal "Te ayudamos a recuperar el acceso" pendiente de reemplazo
+- **Detectado:** 2026-06-03
+- **Estado:** ⚠️ Asset placeholder en uso — esperando nueva versión del Designer
+- **Síntomas:** El modal de soporte en `/forgot-password` ("Te ayudamos a recuperar el acceso → escríbenos a soporte@walvy.cl") usa actualmente `assets/images/mascots/walvy-recuperar-acceso.png` (castor con hoodie verde sosteniéndose la cabeza, rodeado de billetes y monedas). El Designer indicó que esta imagen debe reemplazarse, pero aún no entregó la nueva versión.
+- **Workaround actual:** Se mantiene el asset existente — funciona y se renderiza correctamente, sólo está pendiente la actualización visual.
+- **Qué falta:**
+  1. Esperar que el Designer entregue el nuevo asset
+  2. Reemplazar `assets/images/mascots/walvy-recuperar-acceso.png` (mantener el mismo nombre para evitar tocar el `require`)
+  3. Validar que las dimensiones del nuevo asset funcionen con el layout existente (el actual es ~44 KB, PNG)
+  4. Si el nuevo asset viene en formato distinto (WebP, SVG), actualizar la referencia en `features/auth/ui/ForgotPasswordScreen.tsx:177`
+- **Archivos involucrados:** `features/auth/ui/ForgotPasswordScreen.tsx`, `assets/images/mascots/walvy-recuperar-acceso.png`
+
 ### M1-FE-04 — Touch targets bajo el mínimo recomendado (44px)
 - **Detectado:** 2026-05-30 (auditorías QA pixel-perfect)
 - **Estado:** ⚠️ Cumple Figma pero falla guidelines de accesibilidad
@@ -103,6 +131,63 @@ Formato: `ID — Descripción — Estado — Bloqueante`
 - **Estado:** ❌ Sin implementar
 - **Bloqueante:** Sí — requiere definir canales push (FCM/APNs pendiente de scope)
 - **Qué falta:** `NotificationQueueService.enqueue()` + worker `@Cron()` que procese `WHERE sent_at IS NULL AND scheduled_for <= now()`. Decidir canales MVP: ¿solo `in_app` + `email`, o también `push`?
+
+### M2-FE-01 — Render de SemiBold con la fuente Aptos
+- **Detectado:** 2026-06-03 (auditoría `/profile` vista Datos)
+- **Estado:** ⚠️ Funciona pero el peso visual puede no ser el esperado en web/algunos dispositivos
+- **Síntomas:** Los inputs filled de la pantalla "Mis Datos" (Alias, Nombre, Apellido) y otros textos que usan `fontWeight: "600"` con la familia Aptos pueden renderizarse con peso normal en lugar de SemiBold. En el screenshot web los valores "jaja", "Usuario", "Demo" se ven semi-light.
+- **Causa raíz:** `constants/fonts.ts` mapea `fontFamily.semiBold` a `"Aptos"` (la regular) confiando en que RN aplica un peso sintético con `fontWeight: "600"`. Esto funciona inconsistentemente: depende de si la plataforma tiene un fallback SemiBold real disponible. En web sin Aptos SemiBold registrada, el sistema decide qué hacer.
+- **Workaround disponible:** Usar `fontFamily.bold` (Aptos-Bold) en lugar de Regular+weight para los textos que deben verse claramente SemiBold. Visualmente el Bold sería ligeramente más pesado que el SemiBold de Figma pero más consistente que el render actual.
+- **Qué falta:**
+  1. Validar en dispositivo nativo Android e iOS (no web) si los pesos 600 se ven correctamente — si sí, no hay nada que arreglar para producción real
+  2. Si en device también se ve light: registrar una variante `Aptos-SemiBold.ttf` explícita en `app.json` plugins/fonts y actualizar `fontFamily.semiBold` a apuntar a esa familia
+  3. Considerar si vale la pena pedir al Designer/font supplier el archivo .ttf de Aptos SemiBold (puede no estar disponible — la familia Aptos de Microsoft viene en sets limitados)
+- **Archivos involucrados:** `constants/fonts.ts`, `components/AppInput.tsx` (línea con `inputFigmaFilled`), todos los lugares con `fontWeight: "600"` + `fontFamily: "Aptos"`
+
+### M2-FE-02 — Touch targets bajo 44px en pantalla Mi perfil/Mis Datos
+- **Detectado:** 2026-06-03 (auditoría `/profile`)
+- **Estado:** ⚠️ Funcional pero falla guidelines de accesibilidad
+- **Síntomas:** Mismo problema que M1-FE-04 pero en otra pantalla. Elementos bajo el mínimo recomendado por Apple HIG / Material Design (44px):
+  - Botón "Editar foto" en avatar — `slot 40×40 + hitSlop 4` → toque efectivo 48px (justo en el límite)
+  - Toggle de Modo oscuro y de seguridad — `track 40×24 + hitSlop 6` → toque efectivo 36×52 vertical (vertical OK, horizontal bajo)
+  - Chevron de back ("< Mis datos") — `size 28 + hitSlop 8` → toque efectivo 44px (justo en el límite)
+- **Workaround disponible:** Aumentar `hitSlop` a `{top: 12, bottom: 12, left: 12, right: 12}` en cada Pressable afectado.
+- **Qué falta:** Aplicar hitSlop ampliado a los 3 elementos identificados. Considerar un wrapper `<TouchTarget>` que garantice 44px mínimo en toda la app.
+- **Archivos involucrados:** `features/profile/ui/ProfileScreen.tsx` (avatar Pressable, back chevron Pressable), `DarkModeToggle` interno del mismo file
+
+### M2-FE-05 — Alineación de reglas de password backend vs UI
+- **Detectado:** 2026-06-07 (auditoría /change-password)
+- **Estado:** ✅ Resuelto 2026-06-07 — backend YA valida las mismas 3 reglas (8 chars + mayúscula + número). Confirmado en `Backend/MVP-CheckApp/docs/api/auth/register.md:28` y `password-reset.md:62`.
+- **Resolución:** Las 3 capas (PasswordHints UI, hook local, mock) y el backend ahora hablan el mismo idioma:
+  > "Mínimo 8 caracteres, una mayúscula y un número"
+- **Cleanup pendiente (opcional):** En `utils/validation.ts` queda exportada `isStrongPassword` (regex de 5 reglas) que ya no se debería usar. Buscar y reemplazar los callsites por `isPasswordSecure` del `PasswordHints` para deprecar la 5-rule regex. No es bloqueante porque ninguna pantalla activa la usa ahora (verificado 2026-06-07).
+- **Archivos involucrados:**
+  - Frontend: `features/auth/ui/PasswordHints.tsx` (PASSWORD_REQS array), `features/auth/hooks/useChangePasswordForm.ts`, `api/mocks/mockHelpers.ts`
+  - Backend doc: `docs/api/auth/register.md`, `docs/api/auth/password-reset.md` (ambos especifican 3 reglas)
+  - Histórico: `utils/validation.ts` aún exporta `isStrongPassword` para deprecación posterior
+
+### M2-FE-04 — Re-crop con offset del pan en ProfilePhotoModal
+- **Detectado:** 2026-06-03 (auditoría modal "Mi foto de perfil" cargada)
+- **Estado:** ⚠️ Pan visual implementado, persistencia del offset al guardar pendiente
+- **Síntomas:** Tras el fix donde se conectó `PanResponder` al preview del modal, el usuario PUEDE arrastrar visualmente la foto cargada dentro del círculo de recorte. Sin embargo, al presionar "Guardar" se persiste el URI tal cual lo devolvió el `ImagePicker.launchImageLibraryAsync` nativo — **el offset visual del pan se descarta**.
+- **Causa:** El cropper nativo de iOS/Android (`allowsEditing: true, aspect: [1,1]`) recorta la foto a un cuadrado antes de que la veamos en el modal. Para preservar el reposicionamiento que el usuario hace en el modal, hay que recortar la imagen DE NUEVO usando coordinadas relativas al `panOffset`.
+- **Workaround actual:** El usuario puede arrastrar visualmente pero el avatar final usa el centro del crop nativo. En la práctica esto funciona OK porque el cropper nativo ya permite centrar bien la foto antes del modal — el pan del modal es un refinamiento opcional.
+- **Qué falta:**
+  1. Añadir `expo-image-manipulator` como dependencia (`bun add expo-image-manipulator`)
+  2. En `handleSave` de `ProfilePhotoModal`, antes de `onSave(pickedUri)`:
+     - Calcular las coordenadas del crop usando `panOffset.x / panOffset.y`, `previewWidth/previewHeight` y las dimensiones reales de la imagen
+     - Llamar `ImageManipulator.manipulateAsync(pickedUri, [{ crop: { originX, originY, width, height } }])`
+     - Pasar el URI resultante a `onSave`
+  3. Considerar también añadir pinch-to-zoom (`react-native-gesture-handler` ya está instalada, pero requiere `react-native-reanimated` para gestos compuestos elegantes — Reanimated NO está instalada)
+- **Archivos involucrados:** `features/profile/ui/ProfilePhotoModal.tsx` (función `handleSave`)
+
+### M2-FE-03 — Color exacto del avatar bg en pantalla Mis Datos
+- **Detectado:** 2026-06-03 (auditoría `/profile` vista Datos)
+- **Estado:** ⚠️ Diferencia sub-perceptual
+- **Síntomas:** Implementación usa `#F8F3EC` (cream cálido). El Figma 3395:4528 no expone un token explícito para el bg del avatar — el color exacto se infiere del render. Puede haber 2-4 puntos de diferencia en alguno de los canales RGB.
+- **Workaround:** Ninguno — el color actual queda dentro del rango "cream cálido" del design system.
+- **Qué falta:** Si el Designer quiere afinar a un color exacto, debe especificarlo como token. Si no, mantener `#F8F3EC` y mover a `theme.tokens.avatarBg` para centralizar.
+- **Archivos involucrados:** `features/profile/ui/ProfileScreen.tsx` (estilo inline del avatar `backgroundColor: "#F8F3EC"`)
 
 ---
 

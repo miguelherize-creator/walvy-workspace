@@ -40,14 +40,14 @@
 ## Comandos de desarrollo
 
 ```bash
-# Backend
-cd Backend/MVP-CheckApp
+# Backend  (repo: github.com/KabeliDev/back-walvy)
+cd back-walvy
 npm run start:dev        # hot reload
 docker compose up --build  # API + PostgreSQL
 npm run test:e2e
 
-# Frontend
-cd Frontend/rork-checkapp/expo
+# Frontend  (repo: github.com/KabeliDev/front-walvy)
+cd front-walvy/expo
 bun i
 bun run start            # Expo Metro
 bun run start-web        # Web preview

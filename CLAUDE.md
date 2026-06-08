@@ -22,6 +22,7 @@ Invoca el agente correcto según el tipo de trabajo. Cada uno carga su contexto 
 | `/walvy-arch` | Opus | Software Architect | ADRs, decisiones cross-cutting, estructura de módulos |
 | `/walvy-ai` | Opus | AI Module Engineer | Sprint 8, LLM integration, asistente financiero |
 | `/walvy-think` | Opus | Analista Senior | Nuevo requerimiento, trade-offs, plan antes de implementar |
+| `/walvy-kora` | Sonnet | Bitácora / Kora | Cierre de jornada — commits del día + reuniones → entradas Kora |
 
 ---
 
@@ -40,6 +41,7 @@ Todos los agentes parten de estos archivos:
 | [`context/debt.md`](context/debt.md) | Deuda técnica activa con cadena de bloqueos |
 | [`context/specs/`](context/specs/) | Contrato de cada módulo (endpoints, flujos, checklist) |
 | [`context/testing.md`](context/testing.md) | Estrategia de testing, patrones E2E, deuda de tests |
+| [`context/bitacora/`](context/bitacora/) | Bitácora diaria — un archivo por día generado con `/walvy-kora` |
 | [`context/mvp-scope.csv`](context/mvp-scope.csv) | Fuente de verdad del alcance MVP (Excel exportado) |
 | [`context/qa-audits/`](context/qa-audits/) | Reportes pixel-perfect generados por `/walvy-qa-visual` — uno por pantalla por iteración |
 
@@ -60,14 +62,24 @@ Todos los agentes parten de estos archivos:
 
 ---
 
+## Repositorios (KabeliDev)
+
+| Repo | GitHub | Ruta local |
+|------|--------|------------|
+| Frontend | `github.com/KabeliDev/front-walvy` | `front-walvy/` |
+| Backend | `github.com/KabeliDev/back-walvy` | `back-walvy/` |
+| Infra | `github.com/KabeliDev/walvy-platform-infra` | `walvy-platform-infra/` |
+
+---
+
 ## Rutas del proyecto
 
 | Área | Ruta |
 |------|------|
-| Backend | `Backend/MVP-CheckApp/src/` |
-| Frontend | `Frontend/rork-checkapp/expo/` |
-| DB Schema | `Backend/MVP-CheckApp/DB/schema.sql` |
-| Design tokens | `Frontend/rork-checkapp/expo/constants/colors.ts` + `theme.ts` |
+| Backend src | `back-walvy/src/` |
+| Frontend | `front-walvy/expo/` |
+| DB Schema | `back-walvy/DB/schema.sql` |
+| Design tokens | `front-walvy/expo/constants/colors.ts` + `theme.ts` |
 | E2E Playwright | `workspace/walvy-workspace/e2e/` |
 | Brand assets | `workspace/walvy-workspace/assets/brand/` |
 
@@ -77,11 +89,11 @@ Todos los agentes parten de estos archivos:
 
 ```bash
 # Backend
-cd Backend/MVP-CheckApp && npm run start:dev
+cd back-walvy && npm run start:dev
 docker compose up --build
 
 # Frontend
-cd Frontend/rork-checkapp/expo && bun run start
+cd front-walvy/expo && bun run start
 bun run start-web
 
 # Tests

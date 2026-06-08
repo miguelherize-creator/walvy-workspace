@@ -244,6 +244,103 @@ Solo si están documentadas en `context/decisions.md`:
 
 ---
 
+## Patrones de auditoría aprendidos (acumulados por iteración)
+
+Lista viva de patrones de diferencias que se repiten entre pantallas. Revisar SIEMPRE antes de generar el reporte — captura el 80% de las desviaciones reales.
+
+### Layout
+
+| Patrón | Cómo detectarlo | Fix típico |
+|---|---|---|
+| **Tabs/grid con `flex: 1`** | Figma usa `shrink-0` (ancho natural) + contenedor con `w-fixed` | Quitar `flex: 1`; setear `maxWidth` en el row contenedor exacto del Figma. Ej: bottom nav `WalvyTabBar` con `maxWidth: 358`. |
+| **Section heading FUERA del card** | Figma lo pone DENTRO del card al top, con `gap-16` con las filas | Mover el `<Text>` adentro del card; remover `marginTop/Bottom` del heading; añadir `gap` al card style. Ej: "Seguridad" en `/profile` Mis Datos. |
+| **`gap` uniforme entre todos los hijos** | Figma agrupa sub-conjuntos sin gap entre rows + divider | Crear contenedor interno `*RowsGroup` sin gap; el `gap` del padre solo separa heading↔group. Ej: `securityRowsGroup` en `profileStyles`. |
+| **Padding inflado** | Figma `pb-36` pero `spacing.xxxl + spacing.lg = 48` en código | Verificar suma de tokens contra Figma exacto. Ej: `spacing.xxxl + spacing.xs = 36`. |
+
+### Tipografía e inputs
+
+| Patrón | Cómo detectarlo | Fix típico |
+|---|---|---|
+| **Italic universal en inputs** | Implementación aplica `fontStyle: italic` siempre; Figma solo lo usa en placeholder | Hacer condicional: `inputFigmaPlaceholder` (italic) si `!filled`, `inputFigmaFilled` (semibold) si `filled`. |
+| **`fontWeight: 600` con Aptos puede no rendir SemiBold** | El render se ve light pese al weight | Validar en device nativo; si falla, usar `fontFamily.bold`. Documentar como deuda (M2-FE-01). |
+| **Subtitle sin `fontFamily` explícita** | Texto en 2 líneas se ve "unido" o wrap a 3 líneas inesperadamente. Figma usa `Aptos:Display` (estrecha + buenas line metrics) pero RN cae al system default (Roboto/SF) que es más ancho y aprieta `lineHeight: 16` sobre font 16. | Añadir `fontFamily: fontFamily.display` al style. Casos vistos: `hubRowSubtitle` (Mi perfil), `LoginScreen.subtitle`. |
+| **Title color via `theme.deepTeal` vs Figma `#103F43`** | Token resuelve a otro hex distinto | Verificar el resolved value en `getProfileColors`. |
+
+### Componentes específicos
+
+| Patrón | Cómo detectarlo | Fix típico |
+|---|---|---|
+| **Header con `border-bottom` coral** | Figma usa `drop-shadow rgba(27,107,115,0.1)`, NO border | Reemplazar `borderBottomWidth: 1, borderBottomColor: coral` por shadow plataforma-específica (`shadowColor`, `shadowOpacity 0.1`, `elevation` 4). |
+| **UserMenu con >2 items** | Figma `3395:4743` solo muestra Mi Perfil + Cerrar Sesión | Limpiar callbacks no usados de `useAppHeader` también (`onChangePassword`, `onDarkMode`, `onSettings`). |
+| **Avatar/foto local solo en una vista** | Header avatar muestra silueta default cuando ya hay foto en card | Promote state a `AuthProvider` con persistencia SecureStore (patrón replicable del `savedEmail`). Ej: `avatarUri` + `setAvatarUri`. |
+| **Bottom nav border-top en lugar de coral línea** | Figma usa `border-t` con color coral | `borderTopColor: theme.coral, borderTopWidth: 1`. |
+
+### Interactividad y gestures
+
+| Patrón | Cómo detectarlo | Fix típico |
+|---|---|---|
+| **Iconos que "prometen" interacción sin gesture handler** | Iconos Move/Hand visibles pero la acción no funciona | Conectar `PanResponder` o `react-native-gesture-handler`. Recordar: `pointerEvents="none"` en `<Svg>` y wrapper overlays. |
+| **`react-native-svg` captura touches en Android** | PanResponder en padre no se activa al tocar sobre área con SVG mask | `pointerEvents="none"` en el `<Svg>`. |
+| **Touch targets <44px** | Botones h-40, links h-24 según Figma | Aplicar `hitSlop` extendido sin cambiar el visual. Documentar como deuda (M1-FE-04 / M2-FE-02). |
+
+### Backdrop / overlays
+
+| Patrón | Cómo detectarlo | Fix típico |
+|---|---|---|
+| **Backdrop sin blur** | Figma `backdrop-blur 2px` no se ve en modal | Añadir `<BlurView intensity={20} tint="dark">` de `expo-blur` antes del card. |
+| **Modal bg blanco vs cream** | Figma usa `#FAF9F6`, theme.bg suele ser `#FFFFFF` | Usar constante explícita `FIGMA_MODAL_BG = "#FAF9F6"`. |
+| **Shadow simple vs doble Figma** | Figma define 2 sombras, RN solo soporta una | Aplicar la dominante (la de mayor opacity); documentar limitación. |
+
+### Grid 2-column con justify-between (selección de opciones)
+
+| Patrón | Cómo detectarlo | Fix típico |
+|---|---|---|
+| **Card grid mal espaciada** | Cards 2-col con `gap: N` en ambos ejes — colGap mayor de lo esperado, no respeta Figma `justify-between` | `width: "48.5%"`, `justifyContent: "space-between"`, `rowGap: 8` (col gap automático). El 48.5% deja ~3% para el gap-x. |
+| **Cards sin drop-shadow** | Figma define `drop-shadow [2px 4px 4px rgba(27,107,115,0.08)]` (teal sutil) que en la implementación no aparece | Aplicar plataforma-específico: iOS shadowColor/Offset/Opacity/Radius, Android elevation 2, Web boxShadow string. Ver `card` style en `OnboardingFocoScreen`. |
+| **Cards con icons demasiado chicos** | Figma usa `size-60` pero impl usa 40 o menos — los icons se ven perdidos en cards grandes | Match Figma exact: `cardIcon: { width: 60, height: 60 }`. |
+| **Card text alignItems** | Figma `items-center` en card → texto centrado debajo del icon. Impl `flex-start` → texto pegado a la izquierda | `card: { alignItems: "center" }` + `cardText: { width: "100%", alignItems: "center" }`. |
+
+### Gotchas de spacing
+
+| Patrón | Cómo detectarlo | Fix típico |
+|---|---|---|
+| **Gap "fantasma" del scrollContent** | Espacio visible entre subtitle y primera card / sección es notablemente mayor al `gap` declarado del scrollContent. Suelen ser ~30-50px más grande. | Buscar componentes que usen `display: 'none'` en vez de `return null` (como `AuthMessageBox`). En RN, `display: 'none'` puede dejar el elemento "presente" para cálculo de `gap` del padre. Si esos componentes tienen `marginBottom`, el gap se infla por cada uno invisible. **Fix:** render condicional `{condition ? <Component /> : null}` para que el componente no se monte cuando no aplica. |
+| **Layout shift al mostrar/ocultar messages** | El form salta visualmente cuando aparece error/success y eso pierde el foco del input | El pattern del `display: 'none'` SÍ tiene razón en screens con inputs adjacent al message (register, reset). Mantener `display:'none'` ahí + render condicional solo donde no haya inputs cerca. |
+
+### Gating UX entre cards / secciones
+
+| Patrón | Cómo detectarlo | Fix típico |
+|---|---|---|
+| **`opacity: 0.5` en card o sección** | Figma muestra una card con opacity 0.5 (mientras otra arriba está en estado normal) — significa que esta sección está "bloqueada" hasta que el usuario complete la anterior | Style `cardDisabled: { opacity: 0.5 }` + `pointerEvents="none"` en el View + `editable={false}` en los Inputs internos. Activar al state: `!card2Unlocked && styles.cardDisabled`. |
+| **Botón disabled hasta múltiples validaciones** | Figma muestra `bg rgba(27,107,115,0.3)` en estado default, no en estado active | Variable `canSubmit` computada del state del form (campos llenos + reglas + match) + `disabled={!canSubmit}` + `backgroundColor: canSubmit ? oceanTeal : "rgba(27,107,115,0.3)"`. |
+| **Requirements panel visible vs Figma minimal** | Figma muestra solo los inputs sin panel de "Requisitos para una contraseña segura". Implementación lo tiene siempre visible. | Mostrar el panel reactivamente: `{newPassword.length > 0 ? <RequirementsBox /> : null}` — feedback en vivo cuando aplica, oculto cuando no aporta. |
+
+### Tokens del design system (consolidados)
+
+Centralizar estos colores en `constants/colors.ts` (o derivarlos del theme) en vez de hardcodear en cada pantalla:
+
+| Token | Valor | Uso |
+|---|---|---|
+| `link-tertiary` | `#177E96` | Botón Terciario underlined ("Continuar más tarde", "Cargar imagen", "Cambiar imagen") |
+| `btn-disabled-teal` | `rgba(27,107,115,0.3)` | Botón Primario en estado disabled |
+| `radio-inactive-bg` | `rgba(230,222,210,0.4)` | Background de radio/checkbox sin selección |
+| `radio-inactive-border` | `rgba(27,107,115,0.4)` | Border de radio/checkbox sin selección |
+| `card-bg-warm` | `#FFFDFD` (NO `#FFFFFF`) | Background de cards (warm white) |
+| `card-border` | `#E6DED2` | Border 1px de cards |
+| `card-shadow-color` | `rgba(27,107,115,0.08)` | Color base del drop-shadow de cards |
+| `subtitle-text` | `rgba(31,42,51,0.8)` | Subtítulos secundarios |
+| `text-deep-teal` | `#103F43` | Headings y body principal |
+
+### Asset gotchas
+
+| Patrón | Cómo detectarlo | Fix típico |
+|---|---|---|
+| **PNG isotipo borroso al escalar** | `isotipo-new.png` 1KB upscale 3× en pixelRatio | Convertir a vectorial: `<Svg>` con `<Path>` del SVG fuente. Ej: `WalvyIsoIcon.tsx`. |
+| **Splash MP4/WebM sin alpha** | Cuadro opaco negro sobre fondo cream | Pedir Lottie/WebP animado con alpha nativo. |
+| **Watermark de fondo solo en auth** | Tabs layout no lo tiene → screens se ven planas | Añadir `<Image source={app-background.png} pointerEvents="none">` al `_layout.tsx` con `position: absolute`. Marcar `theme.bg` → `transparent` en screens que lo cubran. |
+
+---
+
 ## Output: dónde guardar el reporte
 
 **Ubicación:** `workspace/walvy-workspace/context/qa-audits/<modulo>/<screen>.md`
