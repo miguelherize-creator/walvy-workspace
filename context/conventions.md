@@ -50,6 +50,60 @@ export class RegisterDto {
 
 `ValidationPipe` global: `whitelist: true` + `forbidNonWhitelisted: true`.
 
+## Safe Area — insets en pantallas standalone (frontend)
+
+Toda pantalla que vive **fuera de `(tabs)`** (splash, login, onboarding, subscription-success, etc.)
+debe respetar los insets del sistema operativo manualmente. El `SafeAreaView` del Tab Navigator
+**no aplica** en estas pantallas.
+
+### Regla
+
+```tsx
+import { useSafeAreaInsets } from "react-native-safe-area-context";
+
+const insets = useSafeAreaInsets();
+
+// Aplicar en el contenedor inferior
+<View style={[styles.body, { paddingBottom: insets.bottom + 36 }]}>
+```
+
+### Valores típicos de `insets.bottom`
+
+| Dispositivo | Valor |
+|---|---|
+| Android con botones visibles | ~48 dp |
+| Android con gestos (barra delgada) | ~24 dp |
+| Android sin barra | 0 |
+| iPhone con home indicator (notch/Dynamic Island) | ~34 dp |
+| iPhone con botón home | 0 |
+
+### Patrón preferido para pantallas con header + body + footer
+
+```tsx
+{/* Header — altura fija 84 con paddingTop: 36 cubre status bar */}
+<View style={styles.header}>...</View>
+
+{/* Body — top fijo, bottom dinámico con inset */}
+<View style={[styles.body, { paddingBottom: insets.bottom + 36 }]}>
+  ...
+  {/* Footer empujado al fondo con marginTop: "auto" */}
+  <Text style={styles.footer}>...</Text>
+</View>
+```
+
+O con `SafeAreaView` cuando el contenido es un scroll o tab layout:
+
+```tsx
+<SafeAreaView edges={["bottom"]} style={{ flex: 1 }}>
+  ...
+</SafeAreaView>
+```
+
+> **Regla de oro**: si el contenido importante está en el fondo de la pantalla
+> y la pantalla no está dentro de `(tabs)`, usar `useSafeAreaInsets()` o
+> `SafeAreaView edges={["bottom"]}`. De lo contrario el nav bar de Android
+> tapa el contenido.
+
 ## Patrones de hooks (frontend)
 
 - No contienen JSX

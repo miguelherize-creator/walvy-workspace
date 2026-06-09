@@ -1,9 +1,201 @@
 # Extracción de Cartolas — Arquitectura y Flujo
 
-**Servicio de extracción:** Kread (`https://ai.kabeli.cl/kartolas-api`) — servicio FastAPI de Kabeli, código propietario  
+**Servicio de extracción:** Kread v2.0.0 (`https://ai.kabeli.cl/kartolas-api`) — servicio FastAPI de Kabeli, código propietario  
+**Motor IA:** Google Gemini 2.5 Flash + reglas deterministas  
+**Docs Kread:** `Kread-Kartolas/kread-kartolas-docs.html` (local) · `https://ai.kabeli.cl/kartolas-api/docs`  
 **Backend de aplicación:** NestJS (`https://api.sonark.tech/api`)  
 **Cliente:** APK React Native  
 **Versión actual:** V1 implementada · V2 diseñada (pendiente)
+
+---
+
+## Kread v2.0.0 — Contrato de API actual
+
+> Versión activa desde 2026-06. Migra todos los campos de ES → EN. Los **valores** de respuesta (categorías, bancos, tipos de transacción) permanecen en español.
+
+### Bancos y formatos soportados
+
+| Banco | Formatos aceptados |
+|---|---|
+| **BancoEstado** | PDF, Excel (.xlsx/.xls), CSV, imágenes (JPG, PNG, TIFF, WEBP) |
+| **Banco Santander** | Solo PDF |
+
+### Endpoints
+
+```
+POST   /kartolas-api/kartola
+GET    /kartolas-api/kartola/{job_id}/status
+GET    /kartolas-api/kartola/{job_id}/result
+```
+
+#### POST /kartolas-api/kartola
+```
+Content-Type: multipart/form-data
+Campo:        archivos  (array — entre 1 y 15 archivos)
+Tamaño total: máx 100 MB
+Formatos:     PDF, JPG, PNG, TIFF, WEBP, XLSX, XLS, CSV
+```
+```json
+// 202 Accepted
+{ "job_id": "b3f1a2c4-...", "message": "Files received, processing in background." }
+
+// 422 — menos de 1 o más de 15 archivos, formato no soportado, tamaño > 100 MB
+// 500 — GEMINI_API_KEY no configurada
+```
+
+#### GET /kartolas-api/kartola/{job_id}/status
+```json
+{
+  "job_id":    "b3f1a2c4-...",
+  "progress":  60,
+  "message":   "Completed 3 of 5 file(s).",
+  "completed": false,
+  "has_errors": false
+}
+```
+- `progress` — porcentaje 0→100
+- `completed` — false mientras procesa, true al terminar
+- `has_errors` — true si al menos un archivo tuvo error (el batch igualmente continúa)
+
+#### GET /kartolas-api/kartola/{job_id}/result
+```json
+{
+  "files": [
+    {
+      "filename": "cartola_enero.pdf",
+      "error": null,
+      "metadata": {
+        "bank": "BancoEstado",
+        "account_type": "Cuenta RUT",
+        "account_number": "12345678",
+        "statement_number": "202401",
+        "issued_at": "2024-01-31",
+        "extracted_at": "2024-06-08T14:30:00",
+        "source_format": "pdf",
+        "detection_confidence": 0.98
+      },
+      "account_holder": { "name": "Juan Andrés Pérez González", "rut": "12.345.678-9" },
+      "summary": {
+        "period": { "start_date": "2024-01-02", "end_date": "2024-01-31" },
+        "opening_balance": 850000,
+        "closing_balance": 1120500,
+        "total_credits": 1500000,
+        "total_debits": 1229500,
+        "total_withdrawals": 0,
+        "total_deposits": 0,
+        "transaction_count": 3
+      },
+      "transactions": [
+        {
+          "id": 1,
+          "global_id": "12345678_202401_1",
+          "date": "2024-01-05",
+          "operation_number": "98765432",
+          "raw_description": "REMUNERACION ENERO 2024",
+          "type": "abono",
+          "amount": 1500000,
+          "balance_after": 2350000,
+          "branch": null,
+          "category": "Empleador",
+          "subcategory": "Sueldo",
+          "category_confidence": 0.99
+        }
+      ],
+      "metrics": {
+        "pages_processed": 3,
+        "time_per_page_s": [0.82, 0.74, 0.69],
+        "extraction_time_s": 2.25,
+        "categorization_time_s": 4.11,
+        "total_time_s": 6.36,
+        "transactions_extracted": 3
+      }
+    }
+  ],
+  "global_summary": {
+    "total_files_processed": 1,
+    "total_files_successful": 1,
+    "total_files_failed": 0,
+    "has_errors": false,
+    "total_transactions": 3,
+    "total_time_s": 6.36
+  }
+}
+```
+
+Cuando un archivo falla (error por archivo, no global):
+```json
+{
+  "filename": "cartola_ilegible.pdf",
+  "error": {
+    "code": "BANK_NOT_IDENTIFIED",
+    "message": "Could not identify the bank for file 'cartola_ilegible.pdf'.",
+    "detected_bank": null,
+    "detection_confidence": 0.0
+  },
+  "metadata": null, "account_holder": null, "summary": null, "transactions": null
+}
+```
+
+Códigos de error por archivo: `BANK_NOT_IDENTIFIED` · `FORMAT_NOT_SUPPORTED` · `PARSE_FAILED`
+
+Códigos HTTP del result: `404` job_id no encontrado · `409` job aún no completó · `422` error global del job
+
+### Categorías (14 categorías · 89 subcategorías)
+
+| Categoría | Subcategorías destacadas |
+|---|---|
+| Empleador | Sueldo · Bono · Honorarios · Aguinaldos · Ingresos por ventas |
+| Transferencias | Enviada a persona · Recibida de persona · Recibida de empresa · Enviada a empresa |
+| Alimentación | Supermercado · Restaurantes · Comida a domicilio · Almacén · Feria |
+| Salud | Farmacia · Clínica · Consulta médica · Óptica/dentista · Isapre |
+| Hogar | Agua · Luz · Gas · Internet · Arriendo · GGCC · Streaming · Servipag |
+| Familia | Esposa · Pareja · Hijos · Padres · Hermanos |
+| Entretenimiento | Cine · Deporte/fitness · Alcohol · Vacaciones · Música |
+| Inversiones | Acciones/fondos · Divisas · Inmobiliario · Negocio propio |
+| Créditos | Tarjeta crédito · Consumo · Hipotecario · Línea de crédito · Intereses |
+| Gastos Personales | Ropa · Educación · Imposiciones · Impuestos · Comisiones bancarias |
+| Movilización | BIP · Bencina · TAG/peajes · Estacionamiento · Revisión técnica |
+| Efectivo | Giro cajero · Depósito en efectivo |
+| Otros | Movimiento interno · No conciliado · No reconocido |
+
+### Reglas deterministas (11 reglas, confidence 0.99 — sin llamada a Gemini)
+
+| Patrón | Tipo | Categoría / Subcategoría |
+|---|---|---|
+| `GETNET`, `TRANSBANK VENTAS` | abono | Empleador / Ingresos por ventas |
+| `COMISION TEF TERCEROS`, `COMISION TRANSACC` | cargo | Gastos Personales / Comisiones bancarias |
+| `REGULARIZA (COMPRA\|TARJETA\|DEBITO)` | abono | Créditos / Nota de crédito |
+| `TRANSFERENCIA DESDE MIS CUENTAS`, `TRASPASO ENTRE CUENTAS` | abono | Otros / Movimiento interno |
+| `FINTUAL` | cualquiera | Inversiones / Acciones y fondos mutuos |
+| `GIRO CAJERO`, `GIRO ATM`, `GIRO EFECTIVO` | giro | Efectivo / Giro cajero automático |
+| `DEPOSITO EFECTIVO`, `DEPOSITO EN CUENTA` | abono | Efectivo / Depósito en efectivo |
+| `BIP`, `METRO BIP`, `RED METROPOLITANA` | cargo | Movilización / BIP |
+| `AUTOPISTA`, `GLOBALVIA`, `COSTANERA NORTE`, `TAG AX` | cargo | Movilización / TAG y peajes |
+| `TEF A [nombre]` | cargo | Transferencias / Enviada a persona (conf. 0.85) |
+| `TEF DE [nombre]` | abono | Transferencias / Recibida de persona (conf. 0.85) |
+
+### Normalización de valores
+
+| Campo | Comportamiento |
+|---|---|
+| `amount` | Entero CLP (sin decimales) |
+| `operation_number` | `null` si no está en el PDF o es todo ceros |
+| `global_id` | `{numero_cuenta}_{numero_cartola}_{indice}` — clave de deduplicación cross-cartola |
+| `balance_after` | Del PDF si existe; calculado acumulativamente si no |
+| `*_confidence` | Float 0.0–1.0. Reglas deterministas → 0.99. Gemini → 0.70–0.95. Fallback → 0.0 |
+| Timeout Gemini | 30s → fallback `Otros / No conciliado` con confidence 0.0 |
+| Timeout parseo | 120s → `PARSE_FAILED` |
+| Error en un archivo | No interrumpe el resto del batch |
+
+### Migración ES → EN (v1 → v2)
+
+Los endpoints cambiaron de nombre:
+- `GET /kartola/{tarea_id}/estado` → `GET /kartola/{job_id}/status`
+- `GET /kartola/{tarea_id}/resultado` → `GET /kartola/{job_id}/result`
+- `tarea_id` → `job_id` · `completado` → `completed` · `tiene_errores` → `has_errors`
+- `estado` (int 0-100) → `progress` (int 0-100)
+
+---
 
 ---
 

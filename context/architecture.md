@@ -36,12 +36,13 @@ src/<modulo>/
 | `UsersModule` | `/users` | ✅ Completo |
 | `CashflowModule` | `/cashflow` | ✅ Completo (backend) |
 | `SubscriptionsModule` | `/subscriptions` | ✅ Completo |
+| `ProfileModule` | `/profile` | ✅ Completo — financial + goals |
+| `StorageModule` | — | ✅ S3Service global (avatars; cartola V2) |
 | `HealthController` | `/health` | ✅ `{ ok: true }` sin auth |
 
 ### Módulos pendientes
 | Módulo | Sprint | Estado |
 |--------|--------|--------|
-| `FinancialProfileModule` | M2 | ⚠️ Deuda técnica M2-DT-01 |
 | `BudgetModule` | M4/Sprint 5 | Schema only |
 | `DebtsModule` | M4/Sprint 6 | Schema only |
 | `RecurringPaymentsModule` | Sprint 7 | Schema only |

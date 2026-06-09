@@ -1,6 +1,6 @@
 # Deuda Técnica — Walvy
 
-**Última actualización:** 2026-05-14
+**Última actualización:** 2026-06-09
 
 Formato: `ID — Descripción — Estado — Bloqueante`
 
@@ -108,17 +108,15 @@ Formato: `ID — Descripción — Estado — Bloqueante`
 
 ### M2-DT-01 — Perfil financiero
 - **RF:** RF-02
-- **Estado:** ❌ Sin endpoints (entidad y tabla existen)
-- **Bloqueante:** No — independiente, pero lo bloquea M1-DT-04
-- **Endpoints pendientes:** `GET /profile/financial` + `PUT /profile/financial`
-- **Qué falta:** `ProfileModule` con service + controller. DTO: `monthlyIncomeEstimate`, `stableExpensesNote`, `currencyId?`. Definir cómo se calcula `estimatedPaymentCapacity`.
+- **Estado:** ✅ RESUELTO — `GET /profile/financial` + `PUT /profile/financial` implementados y alineados con front
+- **Implementación:** `FinancialProfileController` + `FinancialProfileService`. PUT upsert parcial. `currency` (ISO string "CLP") se mapea a `currency_id` interno; la respuesta omite `currencyId` (decisión del front). `monthlyIncomeEstimate` y `estimatedPaymentCapacity` validados `> 0` (front bloquea vacío, el `0` se rechaza con 400 — confirmado con front).
+- **Nota:** `estimatedPaymentCapacity` hoy es declarado por el usuario (no calculado). Si a futuro se calcula desde cashflow/deudas, será otro requerimiento.
 
-### M2-DT-02 — Metas financieras
+### M2-DT-02 — Metas financieras (foco del mes)
 - **RF:** RF-03
-- **Estado:** ❌ Sin endpoints (tabla `user_goals` existe)
-- **Bloqueante:** No — independiente, diseño en borrador
-- **Endpoints pendientes:** `GET /profile/goals` + `POST /profile/goals` + `PATCH /profile/goals/:id/deactivate`
-- **Qué falta:** Definir si son múltiples focos activos simultáneos o solo uno. `progress_cache` es solo-escritura del backend.
+- **Estado:** ⚠️ Parcial — `GET /profile/goals` + `POST /profile/goals` ✅ implementados. Falta `PATCH /profile/goals/:id/deactivate`.
+- **Decisión tomada:** **un solo foco activo** por usuario (no múltiples). `setFocus` reutiliza/sobrescribe la fila `is_active=true`.
+- **Qué falta:** endpoint de desactivación (quitar foco sin reemplazar). `progress_cache` es solo-escritura del backend.
 
 ### M2-DT-03 — Alertas y notificaciones
 - **RF:** RF-04
@@ -181,6 +179,28 @@ Formato: `ID — Descripción — Estado — Bloqueante`
   3. Considerar también añadir pinch-to-zoom (`react-native-gesture-handler` ya está instalada, pero requiere `react-native-reanimated` para gestos compuestos elegantes — Reanimated NO está instalada)
 - **Archivos involucrados:** `features/profile/ui/ProfilePhotoModal.tsx` (función `handleSave`)
 
+### M2-FE-06 — NotificationSettingsScreen: preferencias de avisos sin persistencia
+- **Detectado:** 2026-06-09 (revisión conexión Módulo 2 frontend-backend)
+- **Estado:** ❌ UI-only — sin backend, sin diseño aprobado, sin spec de arquitecto
+- **RF asociado:** RF-04 (ver M2-DT-03 para la deuda backend correspondiente)
+- **Descripción:** La pantalla `NotificationSettingsScreen` existe y renderiza 4 toggles:
+  - `paymentDueReminders` — Recordatorio de vencimiento de pago
+  - `budgetThresholdAlerts` — Alerta cuando se supera el umbral de presupuesto
+  - `weeklyImportReminder` — Recordatorio semanal de importar movimientos
+  - `dailyAiRecommendations` — Recomendaciones diarias del asistente IA
+- **Problema:** Los 4 toggles son `useState` local. Las preferencias se pierden al cerrar la app — no se persisten en SecureStore ni en backend.
+- **Bloqueantes del lado frontend:**
+  1. Backend debe implementar `GET /profile/alerts` + `PUT /profile/alerts` (ver M2-DT-03)
+  2. El equipo de Diseño debe revisar y aprobar la pantalla (actualmente es una propuesta — sin Figma definitivo)
+  3. El Arquitecto debe confirmar el contrato del payload (campos exactos, tipos, naming)
+- **Qué hacer una vez desbloqueado:**
+  1. Crear `notificationRepository.ts` con `getAlerts()` y `updateAlerts(payload)`
+  2. Crear `useNotificationSettings` hook con `useQuery` + `useMutation` (patrón idéntico a `useFinancialProfile`)
+  3. Reemplazar los 4 `useState` por el estado del query
+  4. Añadir `ActivityIndicator` de carga y manejo de error
+- **Archivos involucrados:** `features/profile/ui/NotificationSettingsScreen.tsx`
+- **Prioridad:** Baja — no bloqueante para MVP. No trabajar hasta que diseño apruebe la pantalla y backend confirme M2-DT-03.
+
 ### M2-FE-03 — Color exacto del avatar bg en pantalla Mis Datos
 - **Detectado:** 2026-06-03 (auditoría `/profile` vista Datos)
 - **Estado:** ⚠️ Diferencia sub-perceptual
@@ -188,6 +208,23 @@ Formato: `ID — Descripción — Estado — Bloqueante`
 - **Workaround:** Ninguno — el color actual queda dentro del rango "cream cálido" del design system.
 - **Qué falta:** Si el Designer quiere afinar a un color exacto, debe especificarlo como token. Si no, mantener `#F8F3EC` y mover a `theme.tokens.avatarBg` para centralizar.
 - **Archivos involucrados:** `features/profile/ui/ProfileScreen.tsx` (estilo inline del avatar `backgroundColor: "#F8F3EC"`)
+
+---
+
+## Módulo 10 — Monetización / Suscripciones
+
+### M10-DT-01 — schema.sql desalineado con la entidad real
+- **Estado:** ⚠️ Divergencia conocida — funciona, pero confunde
+- **Bloqueante:** No
+- **Síntomas:** `DB/schema.sql` define la tabla de referencia `subscription` (singular) con `starts_at` / `ends_at` y campos B2B/gift. La tabla **real en producción** es `subscriptions` (plural), generada por la entidad TypeORM con `DB_SYNC=true`, con columnas `current_period_start` / `current_period_end` / `cancelled_at`. Las dos no coinciden.
+- **Qué falta:** Decidir fuente de verdad. Cuando se trabaje M10 a fondo: o se documenta la tabla productiva `subscriptions` en `schema.sql`, o se migra la entidad al diseño de referencia. Por ahora la entidad manda.
+- **Archivos:** `back-walvy/DB/schema.sql` (línea ~1055) · `back-walvy/src/subscriptions/entities/subscription.entity.ts`
+
+### M10-DT-02 — Guard de acceso premium no implementado
+- **Estado:** ❌ Sin implementar
+- **Bloqueante:** No
+- **Qué falta:** No existe enforcement que corte el acceso premium al vencer la suscripción. Regla a aplicar: acceso válido mientras `now() < currentPeriodEnd` (borde exclusivo). Relevante tras `cancelSubscription`, que marca `cancelled` pero mantiene acceso hasta fin de período.
+- **Archivos:** `back-walvy/src/subscriptions/`
 
 ---
 
