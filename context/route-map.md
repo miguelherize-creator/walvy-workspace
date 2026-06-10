@@ -1,6 +1,6 @@
 # Mapa de rutas — Walvy Frontend
 
-**Última actualización:** 2026-06-09
+**Última actualización:** 2026-06-10
 **Basado en:** `front-walvy/expo/app/` (Expo Router file-based routing)
 
 ---
@@ -13,14 +13,27 @@
 ### Lógica del Splash (`app/index.tsx`)
 
 ```
-App arranca
+App arranca → AuthProvider restaura sesión (GET /users/me con token guardado)
     │
-    ├── loginSource === null       ──→  /(auth)/login
-    ├── loginSource === 'restored' ──→  /(tabs)          [sesión en SecureStore]
-    └── loginSource === 'fresh'
-            ├── sin username       ──→  /(auth)/choose-alias
-            └── con username       ──→  /(tabs)
+    ├── isAuthenticated = false  ────────────────────────→  /login  (firstTime mode)
+    │       (token inválido, expirado, o no existe)
+    │
+    └── isAuthenticated = true
+            │
+            ├── loginSource = 'restored'  ───────────────→  /login  (savedUser mode)
+            │       [re-auth obligatoria — app fintech]          "¡Hola nombre!" + solo contraseña
+            │       user ya está en contexto: LoginScreen        Desde aquí sigue Flujo A
+            │       muestra el modo contraseña automáticamente
+            │
+            └── loginSource = 'fresh'  (acaba de autenticarse en esta sesión)
+                    ├── sin username  ────────────────────→  /(auth)/choose-alias
+                    └── con username  ────────────────────→  /(tabs)
 ```
+
+> **¿Por qué re-auth en sesión restaurada?** Walvy maneja datos financieros sensibles.
+> El flujo biométrico ya desafía siempre al abrir (si está activo); este cambio
+> hace lo mismo para usuarios sin biometría. Modelo consistente: abrir la app
+> siempre requiere autenticación activa.
 
 ---
 
@@ -35,16 +48,17 @@ App arranca
     │       │
     │       └── GET /auth/onboarding
     │               │
-    │               ├── resumeSurface === "onboarding"
+    │               ├── resumeSurface === "home"  ──────────────────→  /(tabs)
+    │               ├── onboardingStatus === "completed"  ──────────→  /(tabs)
+    │               │
+    │               ├── resumeSurface === "onboarding" | null  (currentStep != null)
+    │               │   │   [null ocurre en steps escritos por backend: biometric_setup]
     │               │       ├── currentStep: "biometric_setup"     ──→  /(auth)/biometric-setup
     │               │       ├── currentStep: "profile_basic"        ──→  /(auth)/choose-alias
     │               │       │                                                └── → /(auth)/onboarding [ver Flujo C]
     │               │       ├── currentStep: "welcome"              ──→  /(auth)/onboarding
     │               │       ├── currentStep: "document_upload"      ──→  /(auth)/onboarding-doc
     │               │       └── currentStep: "document_processing"  ──→  /(auth)/onboarding-analyzing
-    │               │
-    │               ├── resumeSurface === "home"  ──────────────────→  /(tabs)
-    │               ├── onboardingStatus === "completed"  ──────────→  /(tabs)
     │               │
     │               └── [GET falla — fallback legacy]
     │                       ├── sin username  ──────────────────────→  /(auth)/choose-alias

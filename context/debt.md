@@ -43,7 +43,7 @@ Formato: `ID — Descripción — Estado — Bloqueante`
 - **Síntomas:** `GET /users/me` devuelve user con `email: null` o `email: ""` aunque el usuario tenga sesión activa. Esto rompía `savedUserPassword` mode en LoginScreen (necesita email para enviar al backend al hacer login con password).
 - **Workaround actual:** Persistencia local en SecureStore `LAST_USER_EMAIL_KEY` (ver [`decisions.md`](decisions.md) entrada 2026-05-31). `LoginScreen` y `useLoginForm` usan `effectiveEmail = user.email || savedEmail`.
 - **Qué falta:** Debug en backend de `/users/me` para verificar por qué `email` no se devuelve. Probable causa: query/serializer omite el campo. Una vez corregido, el workaround puede mantenerse como capa de resiliencia pero el bug principal estará resuelto.
-- **Archivos:** `Backend/MVP-CheckApp/src/users/users.controller.ts` o `users.service.ts` (revisar response shape de `getMe()`)
+- **Archivos:** `back-walvy/src/users/users.controller.ts` o `users.service.ts` (revisar response shape de `getMe()`)
 
 ### M1-FE-02 — `user.firstName` vacío en savedUser mode
 - **Detectado:** 2026-05-31
@@ -120,9 +120,15 @@ Formato: `ID — Descripción — Estado — Bloqueante`
 
 ### M2-DT-03 — Alertas y notificaciones
 - **RF:** RF-04
-- **Estado:** ❌ Sin endpoints (tabla `alert_preferences` existe)
-- **Bloqueante:** Sí — sin M2-DT-04 (worker) las preferencias no tienen efecto real
-- **Endpoints pendientes:** `GET /profile/alerts` + `PUT /profile/alerts`
+- **Estado:** ⚠️ **Endpoints SÍ existen** — en `/notifications/*`, no en `/profile/alerts`. El gap real es de **alineación de contrato** front↔back, no de implementación.
+- **Bloqueante:** Sí para efecto real — sin M2-DT-04 (worker) las preferencias se guardan pero no disparan avisos.
+- **Endpoints reales en backend** (`NotificationController`):
+  - `GET  /notifications/preferences/sections` — catálogo de avisos + estado
+  - `PATCH /notifications/preferences/toggle` — `{ alertType, enabled }`
+  - `POST /notifications/preferences` — upsert `{ alertType, channel, enabled, intensity }`
+  - `POST /notifications/preferences/defaults` — restablecer
+  - `GET /notifications/pending` · `GET /notifications/history` · `PATCH /notifications/:id/read`
+- **Qué falta:** decidir contrato final. O el front consume `/notifications/*` (recomendado, ya existe), o el back expone un alias `/profile/alerts`. NO hace falta implementar backend nuevo.
 
 ### M2-DT-04 — Worker de notificaciones
 - **RF:** RF-05
@@ -155,7 +161,7 @@ Formato: `ID — Descripción — Estado — Bloqueante`
 
 ### M2-FE-05 — Alineación de reglas de password backend vs UI
 - **Detectado:** 2026-06-07 (auditoría /change-password)
-- **Estado:** ✅ Resuelto 2026-06-07 — backend YA valida las mismas 3 reglas (8 chars + mayúscula + número). Confirmado en `Backend/MVP-CheckApp/docs/api/auth/register.md:28` y `password-reset.md:62`.
+- **Estado:** ✅ Resuelto 2026-06-07 — backend YA valida las mismas 3 reglas (8 chars + mayúscula + número). Confirmado en `back-walvy/docs/api/auth/register.md:28` y `password-reset.md:62`.
 - **Resolución:** Las 3 capas (PasswordHints UI, hook local, mock) y el backend ahora hablan el mismo idioma:
   > "Mínimo 8 caracteres, una mayúscula y un número"
 - **Cleanup pendiente (opcional):** En `utils/validation.ts` queda exportada `isStrongPassword` (regex de 5 reglas) que ya no se debería usar. Buscar y reemplazar los callsites por `isPasswordSecure` del `PasswordHints` para deprecar la 5-rule regex. No es bloqueante porque ninguna pantalla activa la usa ahora (verificado 2026-06-07).
@@ -181,8 +187,9 @@ Formato: `ID — Descripción — Estado — Bloqueante`
 
 ### M2-FE-06 — NotificationSettingsScreen: preferencias de avisos sin persistencia
 - **Detectado:** 2026-06-09 (revisión conexión Módulo 2 frontend-backend)
-- **Estado:** ❌ UI-only — sin backend, sin diseño aprobado, sin spec de arquitecto
+- **Estado:** ⚠️ UI-only — **el backend SÍ existe** (`/notifications/*`, ver M2-DT-03), pero el front no lo consume. Falta diseño aprobado + alinear contrato.
 - **RF asociado:** RF-04 (ver M2-DT-03 para la deuda backend correspondiente)
+- **Corrección 2026-06-10:** el supuesto "sin backend" era incorrecto. El backend expone preferencias en `/notifications/preferences/*`. No hay que implementar backend — hay que alinear ruta/shape y conectar el front.
 - **Descripción:** La pantalla `NotificationSettingsScreen` existe y renderiza 4 toggles:
   - `paymentDueReminders` — Recordatorio de vencimiento de pago
   - `budgetThresholdAlerts` — Alerta cuando se supera el umbral de presupuesto
@@ -190,7 +197,7 @@ Formato: `ID — Descripción — Estado — Bloqueante`
   - `dailyAiRecommendations` — Recomendaciones diarias del asistente IA
 - **Problema:** Los 4 toggles son `useState` local. Las preferencias se pierden al cerrar la app — no se persisten en SecureStore ni en backend.
 - **Bloqueantes del lado frontend:**
-  1. Backend debe implementar `GET /profile/alerts` + `PUT /profile/alerts` (ver M2-DT-03)
+  1. ~~Backend debe implementar `/profile/alerts`~~ → **Ya existe** en `/notifications/preferences/*`. Solo falta que el front consuma esa ruta (o acordar un alias).
   2. El equipo de Diseño debe revisar y aprobar la pantalla (actualmente es una propuesta — sin Figma definitivo)
   3. El Arquitecto debe confirmar el contrato del payload (campos exactos, tipos, naming)
 - **Qué hacer una vez desbloqueado:**

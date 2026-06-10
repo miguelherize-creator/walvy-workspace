@@ -2,7 +2,7 @@
 
 **Layer:** 6 (Perfil de usuario y alertas)  
 **Estado:** ✅ Producción (schema) · ⚠️ Endpoints parciales (ver M2-DT-01, M2-DT-04)  
-**Docs completos:** `Backend/MVP-CheckApp/DB/modulo2/`
+**Docs completos:** `back-walvy/DB/modulo2/`
 
 ---
 

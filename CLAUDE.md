@@ -1,7 +1,7 @@
 # Walvy — Agent Harness
 
 **Proyecto:** Walvy — app de finanzas personales para Chile
-**Stack:** NestJS 10 + React Native (Expo 54) + PostgreSQL 15
+**Stack:** NestJS 10 + React Native (Expo 54) + PostgreSQL 16
 **Arquitectura:** Spec-Driven Development con agentes especializados
 
 ---

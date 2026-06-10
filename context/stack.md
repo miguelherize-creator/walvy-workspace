@@ -2,7 +2,7 @@
 
 ## Backend
 - **Framework:** NestJS 10 + TypeScript strict
-- **DB:** PostgreSQL 15 + TypeORM 0.3.28
+- **DB:** PostgreSQL 16 + TypeORM 0.3.28
 - **Auth:** JWT (15min access / 7d refresh rotado + hasheado) + Passport JWT + bcrypt
 - **Validación:** class-validator (solo en DTOs, en el boundary)
 - **Email:** Nodemailer (OTP, password reset)
@@ -23,7 +23,7 @@
 - **Testing:** Jest + React Native Testing Library
 
 ## Base de datos
-- PostgreSQL 15, sin carpeta migrations aún
+- PostgreSQL 16, sin carpeta migrations aún
 - `DB_SYNC=false` en producción, `true` solo en dev temporal
 - 55 tablas en 19 capas semánticas
 - Status domain pattern (no ENUMs para estados mutables)

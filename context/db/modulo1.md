@@ -2,7 +2,7 @@
 
 **Layers:** 0 (Catálogos ISO) · 1 (Status centralizado) · 2 (RBAC) · 3 (Config) · 4 (Auth)  
 **Estado:** ✅ Producción  
-**Docs completos:** `Backend/MVP-CheckApp/DB/modulo1/`
+**Docs completos:** `back-walvy/DB/modulo1/`
 
 ---
 

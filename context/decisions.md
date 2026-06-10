@@ -15,7 +15,7 @@ Registro de decisiones t茅cnicas y de producto. Orden cronol贸gico. No borrar 鈥
 
 ## [repo] Nombre de producto: Walvy
 - **Contexto:** Coexist铆an "CheckApp" y "Walvy" en docs, API, Docker y CSV.
-- **Decisi贸n:** El producto se documenta e implementa como **Walvy**. La carpeta `Frontend/rork-checkapp/` se mantiene por convenci贸n del tooling.
+- **Decisi贸n:** El producto se documenta e implementa como **Walvy**. La carpeta `front-walvy/` se mantiene por convenci贸n del tooling.
 
 ## [2026-04-06] Health check y URL defaults
 - **Decisi贸n:** Backend expone `GET /health`. El frontend hace probe al arranque; URL por defecto seg煤n plataforma (Android emulator = `10.0.2.2:3000`); override con `EXPO_PUBLIC_BACKEND_BASE_URL`. Mock forzado con `EXPO_PUBLIC_USE_MOCK_MODE`.

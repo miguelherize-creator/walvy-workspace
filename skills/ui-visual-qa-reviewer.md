@@ -34,7 +34,7 @@ Senior UI QA Engineer especializado en auditoría visual de aplicaciones React N
 |---|---|---|
 | Figma node ID o URL | ✅ Sí | Del Designer o Figma MCP (`mcp__263db1c6...__get_design_context`) |
 | Screenshot de la implementación | ⭐ Recomendado | Android/iOS device o Chrome (web) — sin esto la auditoría puede generar falsos positivos |
-| Código del componente RN | Opcional | Ya disponible en `Frontend/rork-checkapp/expo/features/<feature>/ui/` |
+| Código del componente RN | Opcional | Ya disponible en `front-walvy/expo/features/<feature>/ui/` |
 
 **⚠️ Lección aprendida:** auditorías sin screenshot real generan falsos positivos sobre assets compuestos (mascots, composiciones complejas). Pedir screenshot siempre.
 
@@ -389,5 +389,5 @@ Si la pantalla tiene varios estados:
 - `context/specs/` — Specs de cada módulo (contratos esperados)
 - `context/decisions.md` — ADRs para divergencias conscientes
 - `context/debt.md` — Deuda técnica detectada (bugs raíz, no solo UI)
-- `Frontend/rork-checkapp/expo/constants/colors.ts` — Tokens de color
-- `Frontend/rork-checkapp/expo/constants/theme.ts` — Tokens de tipografía/espaciado
+- `front-walvy/expo/constants/colors.ts` — Tokens de color
+- `front-walvy/expo/constants/theme.ts` — Tokens de tipografía/espaciado

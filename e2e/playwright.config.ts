@@ -32,7 +32,7 @@ const webServers: Array<{
 if (!MOCK) {
   webServers.push({
     command: "npm run start:dev",
-    cwd: "../../../Backend/MVP-CheckApp",
+    cwd: "../../../back-walvy",
     port: 3000,
     reuseExistingServer: true,
     timeout: 30_000,
@@ -44,7 +44,7 @@ if (!MOCK) {
 
 webServers.push({
     command: "npx expo start --web --port 8081",
-  cwd: "../../../Frontend/rork-checkapp/expo",
+  cwd: "../../../front-walvy/expo",
   port: 8081,
   reuseExistingServer: true,
   timeout: 60_000,

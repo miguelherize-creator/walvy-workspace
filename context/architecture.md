@@ -11,7 +11,7 @@ BACKEND (NestJS 10)
   Controller → Service → Repository/Entity
   Guards (JWT, Throttler) · Pipes · Filters
          ↕ TypeORM
-DATOS (PostgreSQL 15)
+DATOS (PostgreSQL 16)
   19 layers · status_domain · CQRS read models · vistas SQL
          ↕
 EXTERNOS: Flow.cl · SMTP · [FCM/APNs pendiente]

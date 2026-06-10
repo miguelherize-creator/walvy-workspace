@@ -1,6 +1,6 @@
 # Base de Datos Walvy — Índice
 
-**Motor:** PostgreSQL 15 · **Total tablas:** 71 · **Capas:** 19 (L0–L18)
+**Motor:** PostgreSQL 16 · **Total tablas:** 71 · **Capas:** 19 (L0–L18)
 
 ---
 
@@ -8,10 +8,10 @@
 
 | Recurso | Ruta | Confianza |
 |---------|------|-----------|
-| Schema SQL activo (M1-M2) | `Backend/MVP-CheckApp/DB/schema.sql` | ✅ Producción |
-| DBML completo | `Backend/MVP-CheckApp/DB/walvy-full.dbml` | ✅ Producción |
-| Documentación M1 | `Backend/MVP-CheckApp/DB/modulo1/` | ✅ Producción |
-| Documentación M2 | `Backend/MVP-CheckApp/DB/modulo2/` | ✅ Producción |
+| Schema SQL activo (M1-M2) | `back-walvy/DB/schema.sql` | ✅ Producción |
+| DBML completo | `back-walvy/DB/walvy-full.dbml` | ✅ Producción |
+| Documentación M1 | `back-walvy/DB/modulo1/` | ✅ Producción |
+| Documentación M2 | `back-walvy/DB/modulo2/` | ✅ Producción |
 | Schema SQL extendido (M1-M10) | `legacy/DB_v2/schema.sql` | 📋 Referencia |
 | Documentación M3-M10, B2B | `legacy/DB_v2/documentacion/` | 📋 Referencia |
 | Q&A revisión Jeaninne Rivera | `context/db/QA-jeaninne.md` | 📋 Referencia |

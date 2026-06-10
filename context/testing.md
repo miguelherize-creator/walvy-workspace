@@ -13,14 +13,14 @@
 
 ## 1. E2E Backend — Supertest + Jest
 
-**Ubicación:** `Backend/MVP-CheckApp/test/`  
+**Ubicación:** `back-walvy/test/`  
 **Runner:** Jest 29 + Supertest  
 **Config:** `jest-e2e.json` con `maxWorkers: 1` (DB compartida, no paralelizable)
 
 ### Estructura de suites
 
 ```
-Backend/MVP-CheckApp/test/
+back-walvy/test/
 ├── auth.e2e-spec.ts
 ├── users.e2e-spec.ts
 └── helpers/
@@ -44,7 +44,7 @@ Backend/MVP-CheckApp/test/
 ### Comandos
 
 ```bash
-cd Backend/MVP-CheckApp
+cd back-walvy
 npm run test:e2e                                    # todos
 npm run test:e2e -- --testPathPattern=auth          # solo auth
 ```
@@ -68,7 +68,7 @@ cd e2e && cross-env E2E_MODE=api npm test
 ```
 
 El frontend arranca automáticamente en `:8081` (Expo Web).  
-En modo FULL, el backend también arranca desde `../../../Backend/MVP-CheckApp`.
+En modo FULL, el backend también arranca desde `../../../back-walvy`.
 
 ### Variables de entorno
 
@@ -100,12 +100,12 @@ workspace/walvy-workspace/e2e/
 
 ## 3. Tests Frontend — RTL + jest-expo
 
-**Ubicación:** `Frontend/rork-checkapp/expo/**/__tests__/`  
+**Ubicación:** `front-walvy/expo/**/__tests__/`  
 **Runner:** Jest + React Native Testing Library  
 **Helper:** `renderWithProviders()` — envuelve con `QueryClientProvider` + `AuthProvider` + `ThemeProvider`
 
 ```bash
-cd Frontend/rork-checkapp/expo
+cd front-walvy/expo
 bun run test              # todos
 bun run test --watch      # watch mode
 bun run test --coverage   # con coverage

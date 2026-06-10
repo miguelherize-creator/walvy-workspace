@@ -135,7 +135,7 @@ assets/brand/
 └── presentacion/ ← brand starter kit (PPT)
 ```
 
-> Los assets de producción (optimizados para mobile) están en `Frontend/rork-checkapp/expo/assets/`.
+> Los assets de producción (optimizados para mobile) están en `front-walvy/expo/assets/`.
 
 ---
 
@@ -145,8 +145,8 @@ Walvy está compuesto por repositorios independientes. Este workspace es la capa
 
 | Repositorio | Stack | Descripción |
 |-------------|-------|-------------|
-| `Backend/MVP-CheckApp` | NestJS + PostgreSQL | API principal — auth, perfil, cashflow, suscripciones |
-| `Frontend/rork-checkapp` | Expo / React Native | App móvil y web |
+| `back-walvy` | NestJS + PostgreSQL | API principal — auth, perfil, cashflow, suscripciones |
+| `front-walvy` | Expo / React Native | App móvil y web |
 | Extracción de cartolas | FastAPI | Servicio de lectura y parseo de cartolas bancarias |
 | Repo arquitectura | — | Infraestructura, diagramas, decisiones de plataforma |
 | Repo asistente IA | — | Módulo LLM — asistente financiero conversacional |
