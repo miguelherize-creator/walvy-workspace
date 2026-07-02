@@ -1,6 +1,6 @@
 # Deuda Técnica — Walvy
 
-**Última actualización:** 2026-06-09
+**Última actualización:** 2026-06-11
 
 Formato: `ID — Descripción — Estado — Bloqueante`
 
@@ -226,6 +226,21 @@ Formato: `ID — Descripción — Estado — Bloqueante`
 - **Síntomas:** `DB/schema.sql` define la tabla de referencia `subscription` (singular) con `starts_at` / `ends_at` y campos B2B/gift. La tabla **real en producción** es `subscriptions` (plural), generada por la entidad TypeORM con `DB_SYNC=true`, con columnas `current_period_start` / `current_period_end` / `cancelled_at`. Las dos no coinciden.
 - **Qué falta:** Decidir fuente de verdad. Cuando se trabaje M10 a fondo: o se documenta la tabla productiva `subscriptions` en `schema.sql`, o se migra la entidad al diseño de referencia. Por ahora la entidad manda.
 - **Archivos:** `back-walvy/DB/schema.sql` (línea ~1055) · `back-walvy/src/subscriptions/entities/subscription.entity.ts`
+
+### M10-FE-01 — Deep link de retorno desde Flow.cl
+- **Detectado:** 2026-06-11
+- **Estado:** ⚠️ Funcional con polling — mejora de UX pendiente
+- **Flujo actual (MVP):** Flow redirige a `https://api.sonark.tech/subscriptions/return` → backend muestra página HTML de confirmación → usuario cierra browser y vuelve al app manualmente → `AppState` listener detecta foreground → `GET /subscriptions/me` confirma si el pago se activó.
+- **Mejora propuesta:** Cambiar `FLOW_RETURN_URL` para que el backend en `/return` haga un redirect a `walvy://subscription-return?ok=1` en vez de mostrar HTML. El app recibiría el deep link, llamaría `GET /subscriptions/me` y navegaría directo a la pantalla de éxito sin que el usuario tenga que cerrar el browser manualmente.
+- **Consideraciones de seguridad:**
+  - No pasar el token de Flow en el deep link (no es necesario)
+  - El parámetro `ok=1` es solo una señal — el app siempre verifica contra el backend
+  - Para producción: migrar de `walvy://` (custom scheme, interceptable) a Android App Links / Universal Links (https, verifica ownership de dominio)
+- **Qué implementar:**
+  1. Backend `subscriptions.controller.ts` — en `returnHtml()`: redirect a `walvy://subscription-return?ok=1` si status=2, `ok=0` si status 3/4
+  2. Frontend `useDeepLinkHandler.ts` — agregar handler para path `subscription-return` → llama `checkPaymentStatus()` → navega a `/subscription-success` o muestra error
+- **Bloqueante:** No — el flujo actual con `AppState` es funcional para MVP
+- **Prioridad:** Media — mejora UX del flujo de pago, no crítico para lanzamiento
 
 ### M10-DT-02 — Guard de acceso premium no implementado
 - **Estado:** ❌ Sin implementar

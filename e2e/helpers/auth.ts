@@ -6,6 +6,8 @@ const BACKEND_URL = process.env.BACKEND_URL ?? "http://localhost:3000";
 /** Credenciales mock predefinidas en mockService.ts */
 export const MOCK_USER = {
   username: "demo",
+  /** Email real del usuario demo — necesario porque la pantalla de login valida formato email. */
+  email: "demo@walvy.mock",
   password: "123456",
 };
 
@@ -41,14 +43,16 @@ export async function registerViaApi(
   return res;
 }
 
-/** Login vía UI: rellena username + password y pulsa el botón. */
+/** Login vía UI: rellena email + password y pulsa el botón. */
 export async function loginViaUI(
   page: Page,
-  username: string,
+  email: string,
   password: string,
 ) {
   await page.goto("/login");
-  await page.getByTestId("login-username").fill(username);
+  // Esperar a que el campo email esté visible antes de interactuar
+  await page.getByTestId("login-email").waitFor({ state: "visible", timeout: 15_000 });
+  await page.getByTestId("login-email").fill(email);
   await page.getByTestId("login-password").fill(password);
   await page.getByTestId("login-button").click();
 }

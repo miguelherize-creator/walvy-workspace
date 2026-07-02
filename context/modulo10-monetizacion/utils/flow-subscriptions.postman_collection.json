@@ -1,0 +1,576 @@
+{
+  "info": {
+    "name": "Walvy — Flow Suscripciones (Cargo Automático)",
+    "description": "Colección para probar el flujo completo de Flow Cargo Automático.\n\nVariables de entorno necesarias:\n- FLOW_API_URL     → https://sandbox.flow.cl/api\n- FLOW_API_KEY     → tu API key de sandbox\n- FLOW_SECRET_KEY  → tu secret key de sandbox\n\nFlujo en orden:\n1. Crear Plan\n2. Crear Cliente\n3. Registrar Tarjeta\n4. Verificar Registro de Tarjeta\n5. Crear Suscripción\n6. Cancelar Suscripción (opcional)",
+    "schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json"
+  },
+  "variable": [
+    {
+      "key": "FLOW_API_KEY",
+      "value": "",
+      "description": "API Key del comercio en Flow"
+    },
+    {
+      "key": "FLOW_SECRET_KEY",
+      "value": "",
+      "description": "Secret Key del comercio en Flow"
+    },
+    {
+      "key": "planId",
+      "value": ""
+    },
+    {
+      "key": "customerId",
+      "value": ""
+    },
+    {
+      "key": "registerToken",
+      "value": ""
+    },
+    {
+      "key": "subscriptionId",
+      "value": ""
+    }
+  ],
+  "item": [
+    {
+      "name": "Paso 1 — Crear Plan",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              "// Firma HMAC-SHA256 — igual que el FlowService de Walvy",
+              "const secretKey = pm.environment.get('FLOW_SECRET_KEY');",
+              "const apiKey    = pm.environment.get('FLOW_API_KEY');",
+              "",
+              "const body = {};",
+              "pm.request.body.urlencoded.each(i => { if (!i.disabled) body[i.key] = i.value; });",
+              "body.apiKey = apiKey;",
+              "",
+              "const toSign = Object.keys(body).sort().map(k => k + body[k]).join('');",
+              "const sig = CryptoJS.HmacSHA256(toSign, secretKey).toString(CryptoJS.enc.Hex);",
+              "",
+              "pm.request.body.urlencoded.upsert({ key: 'apiKey', value: apiKey });",
+              "pm.request.body.urlencoded.upsert({ key: 's',      value: sig    });"
+            ],
+            "type": "text/javascript"
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "const r = pm.response.json();",
+              "if (r.planId) { pm.collectionVariables.set('planId', r.planId); console.log('planId guardado:', r.planId); }"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/x-www-form-urlencoded"
+          }
+        ],
+        "url": {
+          "raw": "{{FLOW_API_URL}}/plans/create",
+          "host": [
+            "{{FLOW_API_URL}}"
+          ],
+          "path": [
+            "plans",
+            "create"
+          ]
+        },
+        "body": {
+          "mode": "urlencoded",
+          "urlencoded": [
+            {
+              "key": "planId",
+              "value": "walvy-pro-mensual",
+              "description": "ID único del plan en Flow (string, sin espacios)"
+            },
+            {
+              "key": "name",
+              "value": "Walvy Pro Mensual",
+              "description": "Nombre visible del plan"
+            },
+            {
+              "key": "amount",
+              "value": "6990",
+              "description": "Monto en CLP"
+            },
+            {
+              "key": "currency",
+              "value": "CLP"
+            },
+            {
+              "key": "interval",
+              "value": "3",
+              "description": "3=mensual"
+            },
+            {
+              "key": "trial_period_days",
+              "value": "0",
+              "description": "Días de prueba (0 = sin trial)"
+            },
+            {
+              "key": "urlCallback",
+              "value": "https://api.sonark.tech/subscriptions/webhook",
+              "description": "Webhook de renovación"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Paso 1b — Crear Plan Anual",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              "const secretKey = pm.environment.get('FLOW_SECRET_KEY');",
+              "const apiKey    = pm.environment.get('FLOW_API_KEY');",
+              "const body = {};",
+              "pm.request.body.urlencoded.each(i => { if (!i.disabled) body[i.key] = i.value; });",
+              "body.apiKey = apiKey;",
+              "const toSign = Object.keys(body).sort().map(k => k + body[k]).join('');",
+              "const sig = CryptoJS.HmacSHA256(toSign, secretKey).toString(CryptoJS.enc.Hex);",
+              "pm.request.body.urlencoded.upsert({ key: 'apiKey', value: apiKey });",
+              "pm.request.body.urlencoded.upsert({ key: 's',      value: sig    });"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/x-www-form-urlencoded"
+          }
+        ],
+        "url": {
+          "raw": "{{FLOW_API_URL}}/plans/create",
+          "host": [
+            "{{FLOW_API_URL}}"
+          ],
+          "path": [
+            "plans",
+            "create"
+          ]
+        },
+        "body": {
+          "mode": "urlencoded",
+          "urlencoded": [
+            {
+              "key": "planId",
+              "value": "walvy-pro-anual"
+            },
+            {
+              "key": "name",
+              "value": "Walvy Pro Anual"
+            },
+            {
+              "key": "amount",
+              "value": "59990"
+            },
+            {
+              "key": "currency",
+              "value": "CLP"
+            },
+            {
+              "key": "interval",
+              "value": "4",
+              "description": "4=anual"
+            },
+            {
+              "key": "trial_period_days",
+              "value": "0"
+            },
+            {
+              "key": "urlCallback",
+              "value": "https://api.sonark.tech/subscriptions/webhook"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Paso 2 — Crear Cliente",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              "const secretKey = pm.environment.get('FLOW_SECRET_KEY');",
+              "const apiKey    = pm.environment.get('FLOW_API_KEY');",
+              "const body = {};",
+              "pm.request.body.urlencoded.each(i => { if (!i.disabled) body[i.key] = i.value; });",
+              "body.apiKey = apiKey;",
+              "const toSign = Object.keys(body).sort().map(k => k + body[k]).join('');",
+              "const sig = CryptoJS.HmacSHA256(toSign, secretKey).toString(CryptoJS.enc.Hex);",
+              "pm.request.body.urlencoded.upsert({ key: 'apiKey', value: apiKey });",
+              "pm.request.body.urlencoded.upsert({ key: 's',      value: sig    });"
+            ],
+            "type": "text/javascript"
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "const r = pm.response.json();",
+              "if (r.customerId) { pm.collectionVariables.set('customerId', r.customerId); console.log('customerId guardado:', r.customerId); }"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/x-www-form-urlencoded"
+          }
+        ],
+        "url": {
+          "raw": "{{FLOW_API_URL}}/customer/create",
+          "host": [
+            "{{FLOW_API_URL}}"
+          ],
+          "path": [
+            "customer",
+            "create"
+          ]
+        },
+        "body": {
+          "mode": "urlencoded",
+          "urlencoded": [
+            {
+              "key": "name",
+              "value": "Miguel Herize",
+              "description": "Nombre del cliente"
+            },
+            {
+              "key": "email",
+              "value": "miguel.herize@kabeli.cl",
+              "description": "Email del cliente"
+            },
+            {
+              "key": "externalId",
+              "value": "usr_xxxxxxxx",
+              "description": "UUID del usuario en Walvy (app_user.user_id)"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Paso 3 — Registrar Tarjeta",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              "const secretKey = pm.environment.get('FLOW_SECRET_KEY');",
+              "const apiKey    = pm.environment.get('FLOW_API_KEY');",
+              "const body = {};",
+              "pm.request.body.urlencoded.each(i => { if (!i.disabled) body[i.key] = i.value; });",
+              "body.apiKey = apiKey;",
+              "const toSign = Object.keys(body).sort().map(k => k + body[k]).join('');",
+              "const sig = CryptoJS.HmacSHA256(toSign, secretKey).toString(CryptoJS.enc.Hex);",
+              "pm.request.body.urlencoded.upsert({ key: 'apiKey', value: apiKey });",
+              "pm.request.body.urlencoded.upsert({ key: 's',      value: sig    });"
+            ],
+            "type": "text/javascript"
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "const r = pm.response.json();",
+              "if (r.token) { pm.collectionVariables.set('registerToken', r.token); console.log('registerToken guardado:', r.token); }",
+              "if (r.url)   { console.log('Abrir en browser:', r.url + '?token=' + r.token); }"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/x-www-form-urlencoded"
+          }
+        ],
+        "url": {
+          "raw": "{{FLOW_API_URL}}/customer/register",
+          "host": [
+            "{{FLOW_API_URL}}"
+          ],
+          "path": [
+            "customer",
+            "register"
+          ]
+        },
+        "body": {
+          "mode": "urlencoded",
+          "urlencoded": [
+            {
+              "key": "customerId",
+              "value": "{{customerId}}"
+            },
+            {
+              "key": "name",
+              "value": "Miguel Herize"
+            },
+            {
+              "key": "email",
+              "value": "miguel.herize@kabeli.cl"
+            },
+            {
+              "key": "urlReturn",
+              "value": "https://api.sonark.tech/subscriptions/card-return",
+              "description": "URL donde Flow redirige al usuario tras ingresar tarjeta"
+            },
+            {
+              "key": "urlConfirmation",
+              "value": "https://api.sonark.tech/subscriptions/card-confirm",
+              "description": "Webhook de confirmación de registro"
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Paso 4 — Consultar Estado Registro de Tarjeta",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              "// El token llega en el urlReturn (query param o body POST del formulario)",
+              "// Aquí usamos el registerToken guardado en el Paso 3",
+              "const secretKey = pm.environment.get('FLOW_SECRET_KEY');",
+              "const apiKey    = pm.environment.get('FLOW_API_KEY');",
+              "const token     = pm.collectionVariables.get('registerToken');",
+              "",
+              "const params = { apiKey, token };",
+              "const toSign = Object.keys(params).sort().map(k => k + params[k]).join('');",
+              "const sig    = CryptoJS.HmacSHA256(toSign, secretKey).toString(CryptoJS.enc.Hex);",
+              "",
+              "pm.request.url.addQueryParams([",
+              "  { key: 'apiKey', value: apiKey },",
+              "  { key: 'token',  value: token  },",
+              "  { key: 's',      value: sig    }",
+              "]);"
+            ],
+            "type": "text/javascript"
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "const r = pm.response.json();",
+              "console.log('Estado registro:', JSON.stringify(r));",
+              "// Guardar customerId si viene en la respuesta",
+              "if (r.customerId) { pm.collectionVariables.set('customerId', r.customerId); console.log('customerId confirmado:', r.customerId); }",
+              "// status: 1 = tarjeta registrada OK, otros valores = pendiente o error"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{FLOW_API_URL}}/customer/getRegisterStatus",
+          "host": [
+            "{{FLOW_API_URL}}"
+          ],
+          "path": [
+            "customer",
+            "getRegisterStatus"
+          ]
+        },
+        "description": "Consultar estado del registro de tarjeta.\n\nEl token viene del urlReturn — el mismo token del Paso 3.\n\nResponse incluye:\n- status: 1 = tarjeta registrada correctamente\n- customerId: ID del cliente (confirma a quién pertenece la tarjeta)"
+      }
+    },
+    {
+      "name": "Paso 5 — Crear Suscripción",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              "const secretKey = pm.environment.get('FLOW_SECRET_KEY');",
+              "const apiKey    = pm.environment.get('FLOW_API_KEY');",
+              "const body = {};",
+              "pm.request.body.urlencoded.each(i => { if (!i.disabled) body[i.key] = i.value; });",
+              "body.apiKey = apiKey;",
+              "const toSign = Object.keys(body).sort().map(k => k + body[k]).join('');",
+              "const sig = CryptoJS.HmacSHA256(toSign, secretKey).toString(CryptoJS.enc.Hex);",
+              "pm.request.body.urlencoded.upsert({ key: 'apiKey', value: apiKey });",
+              "pm.request.body.urlencoded.upsert({ key: 's',      value: sig    });"
+            ],
+            "type": "text/javascript"
+          }
+        },
+        {
+          "listen": "test",
+          "script": {
+            "exec": [
+              "const r = pm.response.json();",
+              "if (r.subscriptionId) { pm.collectionVariables.set('subscriptionId', r.subscriptionId); console.log('subscriptionId guardado:', r.subscriptionId); }"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/x-www-form-urlencoded"
+          }
+        ],
+        "url": {
+          "raw": "{{FLOW_API_URL}}/subscription/create",
+          "host": [
+            "{{FLOW_API_URL}}"
+          ],
+          "path": [
+            "subscription",
+            "create"
+          ]
+        },
+        "description": "Mínimo requerido: planId + customerId.\nFlow genera los cobros automáticamente a partir de aquí.\nEl response incluye el subscriptionId que hay que guardar para cancelaciones futuras.",
+        "body": {
+          "mode": "urlencoded",
+          "urlencoded": [
+            {
+              "key": "planId",
+              "value": "walvy-pro-mensual",
+              "description": "ID del plan (Paso 1). Cambiar a walvy-pro-anual para plan anual."
+            },
+            {
+              "key": "customerId",
+              "value": "{{customerId}}",
+              "description": "ID del cliente (Paso 2 / Paso 4)"
+            },
+            {
+              "key": "couponId",
+              "value": "",
+              "description": "Opcional — ID de cupón de descuento",
+              "disabled": true
+            }
+          ]
+        }
+      }
+    },
+    {
+      "name": "Extra — Obtener Factura (Invoice)",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              "const secretKey = pm.environment.get('FLOW_SECRET_KEY');",
+              "const apiKey    = pm.environment.get('FLOW_API_KEY');",
+              "const invoiceId = pm.variables.get('invoiceId') || '0';",
+              "",
+              "const params = { apiKey, invoiceId };",
+              "const toSign = Object.keys(params).sort().map(k => k + params[k]).join('');",
+              "const sig    = CryptoJS.HmacSHA256(toSign, secretKey).toString(CryptoJS.enc.Hex);",
+              "",
+              "pm.request.url.addQueryParams([",
+              "  { key: 'apiKey',    value: apiKey    },",
+              "  { key: 'invoiceId', value: invoiceId },",
+              "  { key: 's',         value: sig       }",
+              "]);"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "GET",
+        "header": [],
+        "url": {
+          "raw": "{{FLOW_API_URL}}/invoice/get",
+          "host": [
+            "{{FLOW_API_URL}}"
+          ],
+          "path": [
+            "invoice",
+            "get"
+          ]
+        },
+        "description": "Obtener el detalle de una factura de suscripción.\n\nStatus del invoice:\n  0 = impago\n  1 = pagado\n  2 = anulado\n\nError:\n  0 = sin error\n  1 = falló el cargo (ver errorDescription)\n\nCampos clave para Walvy:\n  - period_start / period_end → actualizar currentPeriodEnd en subscriptions\n  - status = 1 → renovación exitosa\n  - error = 1 → cargo falló, ver next_attemp_date y paymentLink\n  - paymentLink → URL para que el usuario pague manualmente si el cargo automático falló\n  - chargeAttemps → historial de intentos fallidos"
+      }
+    },
+    {
+      "name": "Extra — Cancelar Suscripción",
+      "event": [
+        {
+          "listen": "prerequest",
+          "script": {
+            "exec": [
+              "const secretKey = pm.environment.get('FLOW_SECRET_KEY');",
+              "const apiKey    = pm.environment.get('FLOW_API_KEY');",
+              "const body = {};",
+              "pm.request.body.urlencoded.each(i => { if (!i.disabled) body[i.key] = i.value; });",
+              "body.apiKey = apiKey;",
+              "const toSign = Object.keys(body).sort().map(k => k + body[k]).join('');",
+              "const sig = CryptoJS.HmacSHA256(toSign, secretKey).toString(CryptoJS.enc.Hex);",
+              "pm.request.body.urlencoded.upsert({ key: 'apiKey', value: apiKey });",
+              "pm.request.body.urlencoded.upsert({ key: 's',      value: sig    });"
+            ],
+            "type": "text/javascript"
+          }
+        }
+      ],
+      "request": {
+        "method": "POST",
+        "header": [
+          {
+            "key": "Content-Type",
+            "value": "application/x-www-form-urlencoded"
+          }
+        ],
+        "url": {
+          "raw": "{{FLOW_API_URL}}/subscription/cancel",
+          "host": [
+            "{{FLOW_API_URL}}"
+          ],
+          "path": [
+            "subscription",
+            "cancel"
+          ]
+        },
+        "body": {
+          "mode": "urlencoded",
+          "urlencoded": [
+            {
+              "key": "subscriptionId",
+              "value": "{{subscriptionId}}"
+            }
+          ]
+        }
+      }
+    }
+  ]
+}

@@ -43,11 +43,15 @@ if (!MOCK) {
 }
 
 webServers.push({
-    command: "npx expo start --web --port 8081",
+  // --clear fuerza recompilación del bundle con las env vars correctas.
+  // Necesario porque Metro cachea bundles con el valor de EXPO_PUBLIC_*
+  // y si el .env tiene EXPO_PUBLIC_USE_MOCK_MODE=false, el bundle cacheado
+  // ignora la env var que pasamos aquí.
+  command: "npx expo start --web --port 8081 --clear",
   cwd: "../../../front-walvy/expo",
   port: 8081,
-  reuseExistingServer: true,
-  timeout: 60_000,
+  reuseExistingServer: false,
+  timeout: 120_000,
   env: {
     EXPO_PUBLIC_BACKEND_BASE_URL: BACKEND_URL,
     EXPO_PUBLIC_USE_MOCK_MODE: MOCK ? "true" : "false",

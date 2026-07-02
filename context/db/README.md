@@ -15,6 +15,7 @@
 | Schema SQL extendido (M1-M10) | `legacy/DB_v2/schema.sql` | 📋 Referencia |
 | Documentación M3-M10, B2B | `legacy/DB_v2/documentacion/` | 📋 Referencia |
 | Q&A revisión Jeaninne Rivera | `context/db/QA-jeaninne.md` | 📋 Referencia |
+| Decisión: admin_users / admin_audit_log | `workspace/utils/admin-tables-decision.md` | 📋 Decisión |
 
 > **Producción** = en uso en el backend, source of truth.  
 > **Referencia** = borradores bien encaminados, abiertos a cambios según diseño y cliente.
