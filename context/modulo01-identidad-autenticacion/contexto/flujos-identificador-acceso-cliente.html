@@ -1,0 +1,172 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Walvy — Cómo funciona el acceso</title>
+  <style>
+    :root { --ink: #1a2f2f; --muted: #4a6670; --line: #c5d4d8; --bg: #faf8f5; --accent: #2d7d7d; }
+    * { box-sizing: border-box; }
+    body { font-family: "Segoe UI", system-ui, sans-serif; color: var(--ink); background: var(--bg); line-height: 1.55; max-width: 720px; margin: 0 auto; padding: 2rem 1.5rem 3rem; }
+    h1 { font-size: 1.55rem; color: var(--accent); border-bottom: 2px solid var(--line); padding-bottom: 0.5rem; }
+    h2 { font-size: 1.15rem; margin-top: 1.75rem; color: var(--ink); }
+    p { margin: 0.65rem 0; }
+    table { width: 100%; border-collapse: collapse; margin: 1rem 0; font-size: 0.92rem; }
+    th, td { border: 1px solid var(--line); padding: 0.55rem 0.65rem; vertical-align: top; }
+    th { background: #e8f2f2; text-align: left; }
+    hr { border: none; border-top: 1px solid var(--line); margin: 1.5rem 0; }
+    .diagram { margin: 1.25rem 0; padding: 1rem; background: #fff; border: 1px solid var(--line); border-radius: 8px; overflow-x: auto; }
+    .diagram svg { display: block; margin: 0 auto; max-width: 100%; height: auto; }
+    ol li { margin: 0.45rem 0; }
+    footer { margin-top: 2rem; font-size: 0.85rem; color: var(--muted); font-style: italic; }
+    @media print {
+      body { background: #fff; padding: 1rem; }
+      .diagram { break-inside: avoid; }
+      h2 { break-after: avoid; }
+    }
+  </style>
+</head>
+<body>
+
+<h1>Walvy — Cómo funciona el acceso (registro e inicio de sesión)</h1>
+<p>Documento orientado a <strong>negocio y producto</strong> (no es una guía técnica de integración con Gmail u otros proveedores).</p>
+<hr />
+
+<h2>1. Aclaración que suele generar dudas</h2>
+<p><strong>Pregunta del estilo:</strong> <em>«¿Es integración con el correo, o usar el correo como usuario?»</em></p>
+<table>
+  <thead><tr><th>Qué <strong>no</strong> es</th><th>Qué <strong>sí</strong> es</th></tr></thead>
+  <tbody>
+    <tr>
+      <td>No es «entrar con Google» ni conectar la bandeja de Gmail dentro de la app.</td>
+      <td>Es un <strong>usuario y contraseña clásicos</strong>: tú eliges <strong>un identificador</strong> (en un solo campo) y una <strong>contraseña</strong>.</td>
+    </tr>
+    <tr>
+      <td>No dependemos de que el correo «mande» algo para poder iniciar sesión cada día.</td>
+      <td>Si tu identificador <strong>es</strong> un correo (<code>ana@empresa.cl</code>), entonces <strong>ese correo es tu «nombre de usuario» para entrar</strong> (junto con tu clave).</td>
+    </tr>
+  </tbody>
+</table>
+<p>En resumen: <strong>correo + clave</strong> y <strong>nombre de usuario + clave</strong> no son dos sistemas distintos. Son <strong>dos formas válidas de rellenar el mismo concepto</strong>: «lo que me identifica ante Walvy», más la contraseña.</p>
+<hr />
+
+<h2>2. Los tres caminos (un solo campo en pantalla)</h2>
+<p>En Walvy el usuario escribe en <strong>un único campo</strong> (etiquetado en producto como algo como <em>«Correo, RUT o nombre de usuario»</em>). El sistema <strong>reconoce automáticamente</strong> qué formato es:</p>
+
+<div class="diagram" aria-label="Diagrama: un campo se clasifica en correo, RUT o usuario">
+  <svg xmlns="http://www.w3.org/2000/svg" width="640" height="200" viewBox="0 0 640 200">
+    <defs>
+      <marker id="arr" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#2d7d7d"/></marker>
+    </defs>
+    <rect x="8" y="70" width="120" height="56" rx="8" fill="#e8f2f2" stroke="#2d7d7d"/>
+    <text x="68" y="92" text-anchor="middle" font-size="11" font-weight="600">Un solo campo</text>
+    <text x="68" y="108" text-anchor="middle" font-size="10">(identificador)</text>
+    <line x1="128" y1="98" x2="168" y2="98" stroke="#2d7d7d" stroke-width="2" marker-end="url(#arr)"/>
+    <polygon points="168,60 248,60 248,136 168,136" fill="#fff" stroke="#2d7d7d"/>
+    <text x="208" y="88" text-anchor="middle" font-size="11" font-weight="600">¿Qué parece?</text>
+    <text x="208" y="108" text-anchor="middle" font-size="10">(heurística)</text>
+    <line x1="248" y1="78" x2="300" y2="38" stroke="#2d7d7d" stroke-width="1.5" marker-end="url(#arr)"/>
+    <line x1="248" y1="98" x2="300" y2="98" stroke="#2d7d7d" stroke-width="1.5" marker-end="url(#arr)"/>
+    <line x1="248" y1="118" x2="300" y2="158" stroke="#2d7d7d" stroke-width="1.5" marker-end="url(#arr)"/>
+    <rect x="300" y="12" width="130" height="44" rx="6" fill="#f0ebe4" stroke="#8a7a66"/>
+    <text x="365" y="32" text-anchor="middle" font-size="10">Correo</text>
+    <text x="365" y="46" text-anchor="middle" font-size="9">(@ válido)</text>
+    <rect x="300" y="76" width="130" height="44" rx="6" fill="#f0ebe4" stroke="#8a7a66"/>
+    <text x="365" y="96" text-anchor="middle" font-size="10">RUT Chile</text>
+    <rect x="300" y="140" width="130" height="44" rx="6" fill="#f0ebe4" stroke="#8a7a66"/>
+    <text x="365" y="160" text-anchor="middle" font-size="10">Nombre usuario</text>
+    <text x="365" y="174" text-anchor="middle" font-size="9">(handle)</text>
+    <line x1="430" y1="34" x2="480" y2="90" stroke="#2d7d7d" stroke-width="1.5" marker-end="url(#arr)"/>
+    <line x1="430" y1="98" x2="480" y2="98" stroke="#2d7d7d" stroke-width="1.5" marker-end="url(#arr)"/>
+    <line x1="430" y1="162" x2="480" y2="106" stroke="#2d7d7d" stroke-width="1.5" marker-end="url(#arr)"/>
+    <rect x="480" y="70" width="148" height="56" rx="8" fill="#d9efef" stroke="#2d7d7d"/>
+    <text x="554" y="92" text-anchor="middle" font-size="10" font-weight="600">Identificador</text>
+    <text x="554" y="108" text-anchor="middle" font-size="10">+ contraseña</text>
+  </svg>
+</div>
+
+<ul>
+  <li><strong>Correo:</strong> si escribes algo con <code>@</code> y es un correo válido, Walvy lo trata como <strong>identificador tipo correo</strong>.</li>
+  <li><strong>RUT:</strong> si el texto coincide con el patrón de RUT chileno, Walvy lo trata como <strong>identificador tipo RUT</strong>.</li>
+  <li><strong>Nombre de usuario:</strong> si no es correo ni RUT, puede ser un <strong>usuario corto</strong> (handle), con reglas de formato.</li>
+</ul>
+<p><strong>Contraseña:</strong> siempre es el segundo campo. No cambia según el tipo de identificador.</p>
+<hr />
+
+<h2>3. Diagrama del viaje del usuario (alto nivel)</h2>
+<div class="diagram" aria-label="Diagrama: pantalla a servidor a sesión">
+  <svg xmlns="http://www.w3.org/2000/svg" width="520" height="260" viewBox="0 0 520 260">
+    <defs>
+      <marker id="a2" markerWidth="8" markerHeight="8" refX="7" refY="4" orient="auto"><path d="M0,0 L8,4 L0,8 Z" fill="#2d7d7d"/></marker>
+    </defs>
+    <rect x="20" y="20" width="200" height="100" rx="10" fill="#fff" stroke="#2d7d7d" stroke-dasharray="6 4"/>
+    <text x="120" y="48" text-anchor="middle" font-size="11" font-weight="600">Pantalla</text>
+    <rect x="40" y="58" width="160" height="28" rx="4" fill="#e8f2f2" stroke="#2d7d7d"/>
+    <text x="120" y="76" text-anchor="middle" font-size="10">Identificador</text>
+    <rect x="40" y="92" width="160" height="28" rx="4" fill="#e8f2f2" stroke="#2d7d7d"/>
+    <text x="120" y="110" text-anchor="middle" font-size="10">Contraseña</text>
+    <line x1="220" y1="70" x2="268" y2="70" stroke="#2d7d7d" stroke-width="2" marker-end="url(#a2)"/>
+    <line x1="220" y1="106" x2="268" y2="106" stroke="#2d7d7d" stroke-width="2" marker-end="url(#a2)"/>
+    <rect x="268" y="48" width="120" height="80" rx="8" fill="#d9efef" stroke="#2d7d7d"/>
+    <text x="328" y="82" text-anchor="middle" font-size="11" font-weight="600">Servidor</text>
+    <text x="328" y="98" text-anchor="middle" font-size="10">Walvy</text>
+    <line x1="388" y1="88" x2="430" y2="88" stroke="#2d7d7d" stroke-width="2" marker-end="url(#a2)"/>
+    <polygon points="430,50 500,50 500,126 430,126" fill="#fff" stroke="#2d7d7d"/>
+    <text x="465" y="78" text-anchor="middle" font-size="10" font-weight="600">¿OK?</text>
+    <line x1="465" y1="126" x2="465" y2="152" stroke="#2d7d7d" marker-end="url(#a2)"/>
+    <rect x="400" y="152" width="100" height="36" rx="6" fill="#d4edda" stroke="#2d7d7d"/>
+    <text x="450" y="174" text-anchor="middle" font-size="10">Sesión</text>
+    <line x1="430" y1="100" x2="380" y2="180" stroke="#c45c5c" stroke-width="1.5"/>
+    <text x="300" y="200" font-size="10" fill="#8b4444">Si no: mensaje de error</text>
+  </svg>
+</div>
+<p>No hay un «tercer paso mágico» del correo solo para entrar: el correo, si lo usas como identificador, entra por la <strong>misma puerta</strong> que el RUT o el nombre de usuario.</p>
+<hr />
+
+<h2>4. Después del registro: completar datos (no es otro login)</h2>
+<p>Según <strong>qué</strong> usaste como identificador al registrarte, el producto puede guiarte de forma distinta para <strong>completar</strong> la cuenta (verificación de correo u onboarding). Eso <strong>no</strong> cambia la idea de «un identificador + contraseña» para entrar.</p>
+<table>
+  <thead><tr><th>Si te registraste con…</th><th>Idea simple</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Correo</strong></td><td>Suele encajar con flujos que envían un <strong>código al mismo correo</strong> que ya diste.</td></tr>
+    <tr><td><strong>RUT o nombre de usuario</strong></td><td>A menudo el producto pide <strong>después</strong> un correo para verificar o notificaciones.</td></tr>
+  </tbody>
+</table>
+<p>Eso es <strong>completar perfil / verificar contacto</strong>, no «otro tipo de login».</p>
+<hr />
+
+<h2>5. UX: «usuario + pass» principal y correo como mismo identificador</h2>
+<p>Eso es <strong>compatible</strong> con Walvy: un campo puede ser correo, RUT o handle. En pantalla se puede enfatizar «Usuario y contraseña» y aclarar en texto pequeño que también vale correo o RUT.</p>
+<hr />
+
+<h2>6. Frases cortas para una reunión</h2>
+<ol>
+  <li><strong>No conectamos tu Gmail para entrar;</strong> escribes identificador y clave como en cualquier servicio.</li>
+  <li><strong>El identificador puede ser correo, RUT o nombre de usuario;</strong> es un solo campo inteligente.</li>
+  <li><strong>Correo + clave no es integración con el proveedor de correo:</strong> es usar el correo como tu nombre de usuario ante Walvy.</li>
+  <li><strong>Después del registro</strong> a veces pedimos correo o código solo para verificar o completar el perfil, no para reemplazar usuario y clave.</li>
+</ol>
+<hr />
+
+<h2>7. Glosario mínimo</h2>
+<table>
+  <thead><tr><th>Término</th><th>Significado</th></tr></thead>
+  <tbody>
+    <tr><td><strong>Identificador</strong></td><td>Lo que el usuario escribe en el primer campo (correo, RUT o handle).</td></tr>
+    <tr><td><strong>Nombre de usuario / handle</strong></td><td>Texto corto sin <code>@</code>, único en el sistema.</td></tr>
+    <tr><td><strong>RUT</strong></td><td>Identificador nacional; formato reconocido por el sistema.</td></tr>
+    <tr><td><strong>Contraseña</strong></td><td>Segundo factor de acceso en login/registro estándar.</td></tr>
+  </tbody>
+</table>
+<hr />
+
+<h2>8. Preguntas para alinear con ustedes (respuesta breve)</h2>
+<ol>
+  <li><strong>Mensaje principal en pantalla:</strong> ¿Les encaja que el copy principal diga algo como <em>«Usuario y contraseña»</em> (o <em>«Identificador y contraseña»</em>), dejando en texto secundario o en el placeholder que <em>también</em> se puede usar correo o RUT en el mismo campo, o prefieren que el titular mencione explícitamente <em>«Correo, RUT o usuario»</em> como hoy?</li>
+  <li><strong>Prioridad de uso:</strong> Para su público objetivo, ¿esperan que la mayoría entre con <strong>correo</strong>, con <strong>RUT</strong>, o con <strong>nombre de usuario</strong>? (Nos ayuda a ordenar tutoriales, FAQs y mensajes de error sin cambiar la lógica técnica.)</li>
+  <li><strong>Futuro cercano:</strong> ¿Descartan por ahora un <em>«Iniciar sesión con Google / Apple»</em> aparte de usuario+contraseña, o lo quieren contemplar en la hoja de ruta? Si lo contemplan, ¿sería <em>adicional</em> al acceso actual o reemplazaría algo?</li>
+</ol>
+
+<footer>Documento para alinear negocio y producto Walvy. Los textos de pantalla pueden ajustarse sin cambiar esta lógica.</footer>
+</body>
+</html>

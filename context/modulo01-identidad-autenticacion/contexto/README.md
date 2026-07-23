@@ -11,6 +11,7 @@
 | Spec de onboarding / enrolment | [`../../specs/onboarding.md`](../../specs/onboarding.md) |
 | Schema / DB | [`../../db/modulo1.md`](../../db/modulo1.md) |
 | Contrato de auth Walvy ↔ Kread | [`contrato-walvy-kread-auth.md`](contrato-walvy-kread-auth.md) |
+| Cómo funciona el acceso (negocio/producto) — correo vs. usuario como identificador | [`flujos-identificador-acceso-cliente.md`](flujos-identificador-acceso-cliente.md) ([html](flujos-identificador-acceso-cliente.html), [pdf](flujos-identificador-acceso-cliente.pdf)) |
 
 ## Deuda técnica
 Ver [`../deuda-tecnica/README.md`](../deuda-tecnica/README.md) (M1-DT-01 … M1-DT-04).
