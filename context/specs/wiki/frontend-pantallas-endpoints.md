@@ -2,7 +2,9 @@
 
 **Frontend:** `walvy-org/walvy-app-frontend` · rama `main` (`walvy/main`) · SHA `a929a2c`  
 **Alcance:** los **14 auth + 5 users + 4 profile** actualizados en backend.  
-**Complementa:** [`frontend-routes-graph.md`](frontend-routes-graph.md) (navegación) y [`authentication.md`](authentication.md) (contrato auth).
+**Complementa:** [`frontend-routes-graph.md`](../../frontend-routes-graph.md) (navegación) y [`authentication.md`](../authentication.md) (contrato auth).
+
+**Casos de prueba por pantalla** (endpoint × ID variante): [`pantallas/README.md`](pantallas/README.md).
 
 Formato pedido: **Pantalla (endpoints)**. Si un cambio de backend rompe el path, el body o el shape de respuesta, las pantallas listadas son las afectadas.
 
@@ -11,11 +13,12 @@ Formato pedido: **Pantalla (endpoints)**. Si un cambio de backend rompe el path,
 ## Pantalla (endpoints)
 
 ### `/` — Splash (`SplashScreen`)
-No llama API. Espera a que `AuthProvider` termine el arranque y siempre navega a `/login`.
+Casos: [`pantallas/splash.md`](pantallas/splash.md). No llama API. Espera a que `AuthProvider` termine el arranque y siempre navega a `/login`.
 
 - Indirecto al arrancar la app: `GET /health` (probe mock/real) y `GET /users/me` (restaurar sesión).
 
 ### `/login` — Login (`LoginScreen` + `useLoginForm`)
+Casos: [`pantallas/login.md`](pantallas/login.md).
 - `POST /auth/login` — submit de correo/clave (también en modo usuario guardado).
 - `GET /auth/onboarding` — post-login: decide a qué pantalla retomar (`currentStep` + `resumeSurface`).
 - `POST /auth/email-verification/request` — si el onboarding viene en `email_verification`.
