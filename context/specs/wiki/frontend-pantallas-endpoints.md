@@ -198,6 +198,21 @@ Consecuencias concretas en este front:
 
 `GET /users/me` ahora anida `onboarding` (puertas). El tipo `User` del front **no** tiene ese campo; el restore de sesión no lo usa para navegar (Splash siempre va a Login). Impacto bajo en Splash, alto si alguien empieza a leer `me.onboarding` sin adaptar el tipo.
 
+### Cierre — `UserOnboardingService`
+
+El backend **no** cierra el onboarding porque la app llegue a first-ready o mande `resumeSurface: "home"`. `PATCH /auth/onboarding/step` pone `onboardingStatus = completed` (y `currentGate = null`, `lastCompletedGate = G5_diagnostico`, `resumeState = completed`) **solo** si estas cuatro quedan en `true`:
+
+| Bandera | Quién la escribe hoy |
+|---|---|
+| `financialProfileCompleted` | Nadie. Reservada al módulo de análisis (M3). **Fuera del DTO.** |
+| `importAttempted` | El cliente, al enviar documentos (`PATCH` step). |
+| `biometricPrompted` | `PATCH /auth/biometric`, no el step. |
+| `minDocThresholdMet` | Nadie. Reservada al módulo de análisis (M3). **Fuera del DTO.** |
+
+`goalsSet` **no** entra en esa condición. Con dos de las cuatro sin actor, el flujo real **nunca** llega a `completed`: el usuario entra a Home con `resumeState: ready_to_resume` y el onboarding sigue `in_progress`. El fixture `datos-prueba.ts` solo marca `prueba04` como `completed` (estado objetivo, no alcanzable hoy). `prueba03` y `prueba05` quedan en `G2_carga`.
+
+Fuente: `back-walvy` `src/auth/services/user-onboarding.service.ts` (`allDone`) y `docs/api/auth/onboarding.md`.
+
 ### Media — users
 
 | Cambio backend | Efecto en este front |

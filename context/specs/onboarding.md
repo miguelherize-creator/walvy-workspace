@@ -1,5 +1,7 @@
 # Spec: Onboarding
 
+> **Desactualizado.** El contrato vigente es puertas (`currentGate` / `resumeState`), no `currentStep`. El cierre real está en la wiki: [`wiki/frontend-pantallas-endpoints.md`](wiki/frontend-pantallas-endpoints.md) § Cierre — `UserOnboardingService` solo marca `completed` si `financialProfileCompleted`, `importAttempted`, `biometricPrompted` y `minDocThresholdMet` son las cuatro `true`. `goalsSet` no cuenta. Doc de API: `back-walvy/docs/api/auth/onboarding.md`.
+
 **Estado backend:** ⚠️ Parcialmente implementado — ver M1-DT-04  
 **Estado frontend:** ✅ Completo (flujo básico)  
 **Módulo NestJS:** `src/auth/` (integrado en auth)
