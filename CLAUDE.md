@@ -19,6 +19,7 @@ Invoca el agente correcto según el tipo de trabajo. Cada uno carga su contexto 
 | `/walvy-design` | Sonnet | Design Engineer | UI pixel-perfect (Builder): Figma → código RN |
 | `/walvy-qa` | Sonnet | QA Engineer | Tests, criterios de aceptación, checklist de features |
 | `/walvy-qa-visual` | Sonnet | UI Visual QA Reviewer | Auditoría pixel-perfect contra Figma (NO genera código — solo reporta) — ver [`skills/ui-visual-qa-reviewer.md`](skills/ui-visual-qa-reviewer.md) |
+| `/walvy-audit` | Sonnet | Code Auditor | Auditoría de calidad de cambios en staged (front+back): correctness, comentarios, tipos, design system, a11y + sugerencia de commit — ver [`skills/walvy-audit.md`](skills/walvy-audit.md) |
 | `/walvy-arch` | Opus | Software Architect | ADRs, decisiones cross-cutting, estructura de módulos |
 | `/walvy-ai` | Opus | AI Module Engineer | Sprint 8, LLM integration, asistente financiero |
 | `/walvy-think` | Opus | Analista Senior | Nuevo requerimiento, trade-offs, plan antes de implementar |
@@ -38,6 +39,7 @@ Todos los agentes parten de estos archivos:
 | [`context/db/`](context/db/) | Schema completo por módulo (M1-M10 + B2B) — M1-M2 producción, M3-M10 referencia |
 | [`context/mvp-scope.md`](context/mvp-scope.md) | Sprint status, próximos pasos |
 | [`context/decisions.md`](context/decisions.md) | 16 ADRs — por qué tomamos cada decisión |
+| [`context/release-workflow.md`](context/release-workflow.md) | Modelo de ramas/releases/deploy manual/migraciones TypeORM (propuesta Erick 2026-07-31) |
 | [`context/debt.md`](context/debt.md) | Deuda técnica activa con cadena de bloqueos |
 | [`context/specs/`](context/specs/) | Contrato de cada módulo (endpoints, flujos, checklist) |
 | [`context/testing.md`](context/testing.md) | Estrategia de testing, patrones E2E, deuda de tests |

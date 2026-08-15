@@ -8,33 +8,40 @@
 
 ## Flujo completo
 
+Las 14 rutas de `@Controller('auth')`. Contrastado contra `walvy/main` (`dd084c7`) y
+`front-walvy/expo/api/endpoints.ts` — el frontend declara 13: no llama `logout-all`.
+
 ```
 REGISTRO
   POST /auth/register              → crea usuario (pending_verification) + envía OTP email
+  POST /auth/email-verification/request  → (re)envía OTP al correo indicado · JWT
   POST /auth/email-verification/confirm  → activa usuario + retorna tokens
-  POST /auth/email-verification/resend   → reenvía OTP si expiró
+  POST /auth/email-verification/resend   → reenvía OTP si expiró · máx 3/hora
 
 LOGIN
-  POST /auth/login                 → email+password → access+refresh tokens
-  POST /auth/biometric/validate    → firma criptográfica → access+refresh tokens
+  POST /auth/login                 → identifier (email/RUT/username) + password → tokens
 
 SESIÓN
   POST /auth/refresh               → rota tokens (invalida refresh anterior)
   POST /auth/logout                → revoca refresh token
-  POST /auth/logout/all            → revoca todos los refresh del usuario
+  POST /auth/logout-all            → revoca todos los refresh del usuario
 
 RECUPERACIÓN
   POST /auth/forgot-password       → envía OTP reset por email
+  POST /auth/verify-reset-code     → valida el OTP antes de pedir la nueva clave
   POST /auth/reset-password        → valida OTP + actualiza password
 
 BIOMETRÍA
-  POST /auth/biometric/register    → registra clave pública del dispositivo
-  DELETE /auth/biometric/:deviceId → revoca biometría de un dispositivo
+  PATCH /auth/biometric            → activa/desactiva la preferencia (method, deviceId)
 
 ONBOARDING
-  GET  /auth/onboarding/state      → estado actual del onboarding
+  GET  /auth/onboarding            → estado actual del onboarding
   PATCH /auth/onboarding/step      → avanza un paso ⚠️ parcialmente implementado (M1-DT-04)
 ```
+
+No existe endpoint de validación biométrica: el desbloqueo se resuelve en el dispositivo con
+`expo-local-authentication` sobre credenciales guardadas, y termina en `POST /auth/login`. El
+backend nunca ve clave pública ni firma — sólo la preferencia. Es lo que exige `M01-BIO-001`.
 
 ## Contratos clave
 
@@ -71,7 +78,9 @@ ONBOARDING
 ```
 
 ## Reglas de negocio
-- Password: mín 8 chars, mayúscula, minúscula, número, carácter especial
+- Password: mín 8 chars, una mayúscula y un número (`/^(?=.*[A-Z])(?=.*\d)/` en los tres DTOs).
+  No exige minúscula ni carácter especial, y no hay reglas de reutilización ni expiración — la
+  política efectiva está en decisión en el pendiente 3 de `M1-RN-ACC-*` (#43)
 - OTP: 6 dígitos, expira en `EMAIL_VERIFICATION_EXPIRES_MINUTES` (default 15)
 - Solo usuarios con `status = active` pueden hacer login
 - `username` es handle opcional (no se pide en registro)

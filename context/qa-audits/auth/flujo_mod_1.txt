@@ -45,7 +45,18 @@ Parte 1 — Registro hasta Choose Alias
 
   /(auth)/onboarding
   ├── 4 slides de bienvenida (sin llamadas API)
-  └── "¡Comencemos!" → /(auth)/onboarding-doc
+  └── "¡Comencemos!" → /(auth)/onboarding-foco
+
+  /(auth)/onboarding-foco
+  ├── Selección de foco: bajar deuda / ahorrar un monto / aumentar margen
+  ├── "Guardar" → POST saveGoal(focusId)
+  │   → PATCH /auth/onboarding/step { currentStep: "document_upload", resumeSurface: "onboarding", goalsSet: true }
+  │     401 → router.replace("/login")
+  │     otro error → no bloquea el flujo (se ignora, continúa igual)
+  │   → /(auth)/onboarding-doc
+  └── "Más tarde" → ExitOnboardingModal → "Salir"
+      → PATCH step { currentStep: "document_upload", resumeSurface: "home", resumeContext: { pendingStep: "document_upload" } }
+      → /(tabs)
 
   /(auth)/onboarding-doc
   ├── Al montar:

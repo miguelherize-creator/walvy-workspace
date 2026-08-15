@@ -315,6 +315,18 @@ Lista viva de patrones de diferencias que se repiten entre pantallas. Revisar SI
 | **Botón disabled hasta múltiples validaciones** | Figma muestra `bg rgba(27,107,115,0.3)` en estado default, no en estado active | Variable `canSubmit` computada del state del form (campos llenos + reglas + match) + `disabled={!canSubmit}` + `backgroundColor: canSubmit ? oceanTeal : "rgba(27,107,115,0.3)"`. |
 | **Requirements panel visible vs Figma minimal** | Figma muestra solo los inputs sin panel de "Requisitos para una contraseña segura". Implementación lo tiene siempre visible. | Mostrar el panel reactivamente: `{newPassword.length > 0 ? <RequirementsBox /> : null}` — feedback en vivo cuando aplica, oculto cuando no aporta. |
 
+### Reglas light/dark mode (documento de referencia)
+
+**Antes de auditar cualquier pantalla, leer [`context/visual-design-rules.md`](../context/visual-design-rules.md).**
+
+Contiene la fuente de verdad de:
+- Mapeado completo de tokens light → dark (Sección 1)
+- Reglas de auth screens: logo, tipografía, colores dinámicos (Sección 2)
+- Reglas de AppInput, Tab Bar, Profile Hub, Checkboxes (Secciones 3–6)
+- Checklist de bugs recurrentes B01–B10 (Sección 7)
+
+Al reportar diferencias de color en Fase 3, verificar primero si la diferencia viola alguna regla de ese documento. Indicar el número de bug (ej. "viola B03 — shadowColor hardcoded").
+
 ### Tokens del design system (consolidados)
 
 Centralizar estos colores en `constants/colors.ts` (o derivarlos del theme) en vez de hardcodear en cada pantalla:

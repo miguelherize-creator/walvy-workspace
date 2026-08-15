@@ -1,0 +1,63 @@
+repo	issue	status	tipo	modulo	prioridad	bloque	reglas_cubiertas
+KabeliDev/back-walvy	20	Todo	revisión	M1	alta	transversal	epic — 48 reglas
+KabeliDev/back-walvy	21	Todo	revisión	M1	alta	transversal	habilitador
+KabeliDev/back-walvy	22	Todo	revisión	M1	alta	acceso	ACC-001..005
+KabeliDev/back-walvy	23	In Progress	revisión	M1	alta	acceso	ACC-006, 007, 008
+KabeliDev/back-walvy	24	In Progress	revisión	M1	media	acceso	ACC-009
+KabeliDev/back-walvy	25	In Progress	revisión	M1	alta	acceso	ACC-010, 011
+KabeliDev/back-walvy	26	Todo	revisión	M1	alta	acceso	ACC-012..015
+KabeliDev/back-walvy	27	Todo	revisión	M1	media	acceso	ACC-016..018
+KabeliDev/back-walvy	28	Todo	revisión	M1	alta	acceso	ACC-019..024
+KabeliDev/back-walvy	29	Todo	revisión	M1	alta	acceso	ACC-025..027
+KabeliDev/back-walvy	30	Todo	revisión	M1	media	acceso	ACC-028
+KabeliDev/back-walvy	31	Todo	revisión	M1	alta	onboarding	ACC-029, 030
+KabeliDev/back-walvy	32	Todo	revisión	M1	media	onboarding	ONB-001, 012
+KabeliDev/back-walvy	33	Todo	revisión	M1	alta	onboarding	ONB-002, 003
+KabeliDev/back-walvy	34	Todo	revisión	M1	media	onboarding	ONB-013
+KabeliDev/back-walvy	35	Todo	revisión	M1	alta	onboarding	ONB-006, 007
+KabeliDev/back-walvy	36	Todo	revisión	M1	alta	onboarding	ONB-008, 015
+KabeliDev/back-walvy	37	Todo	revisión	M1	alta	onboarding	ONB-004, 005, 006
+KabeliDev/back-walvy	38	Todo	revisión	M1	alta	onboarding	ONB-009, 010, 017
+KabeliDev/back-walvy	39	Todo	revisión	M1	alta	onboarding	ONB-011, 012
+KabeliDev/back-walvy	40	Todo	revisión	M1	media	onboarding	ONB-014, 016
+KabeliDev/back-walvy	41	Todo	revisión	M1	media	onboarding	ONB-018
+KabeliDev/back-walvy	42	Todo	revisión	M1	media	transversal	ONB-016
+KabeliDev/back-walvy	43	Todo	revisión	M1	alta	transversal	§3.3 acceso (6 pendientes)
+KabeliDev/back-walvy	44	Todo	revisión	M1	alta	transversal	§3.3 onboarding (4 pendientes)
+KabeliDev/back-walvy	45	Todo	revisión	M1	media	transversal	CP-M1-ACC/ONB
+KabeliDev/back-walvy	46	Todo	revisión	M1	alta	transversal	cierre del epic
+KabeliDev/back-walvy	47	Done	remediación	M1	alta	acceso	remediación ACC-008
+KabeliDev/back-walvy	48	In Review	remediación	M1	media	acceso	remediación ACC-008
+KabeliDev/back-walvy	49	In Review	remediación	M1	baja	acceso	remediación ACC-009
+KabeliDev/back-walvy	50	Blocked	remediación	M1	media	acceso	remediación ACC-010
+KabeliDev/front-walvy	18	In Progress	validación	M1	media		M1-V01…V04 (4)
+KabeliDev/front-walvy	19	In Review	validación	M1	media		M1-V05…V07 (3)
+KabeliDev/front-walvy	20	In Review	validación	M1	alta		M1-V08…V12 (5)
+KabeliDev/front-walvy	21	In Review	validación	M1	alta		M1-V13…V16 (4)
+KabeliDev/front-walvy	22	In Review	validación	M1	alta		M1-V17…V23 (7)
+KabeliDev/front-walvy	23	In Progress	validación	M1	media		M1-V24…V26 (3)
+KabeliDev/front-walvy	24	In Review	validación	M1	media		M1-V27
+KabeliDev/front-walvy	25	In Progress	validación	M1	media		M1-V28…V36 (9)
+KabeliDev/front-walvy	26	In Progress	validación	M1	alta		M1-V37…V43 (7)
+KabeliDev/front-walvy	27	In Review	validación	M1	media		M1-V44…V47 (4)
+KabeliDev/front-walvy	28	In Progress	validación	M1	alta		M1-V48…V52 (5)
+KabeliDev/front-walvy	29	In Progress	validación	M1	alta		M1-V53…V57 (5)
+KabeliDev/front-walvy	30	In Review	validación	M1	media		M1-V58…V60 (3)
+KabeliDev/front-walvy	31	In Review	validación	M2	media		M2-V01…V04 (4)
+KabeliDev/front-walvy	32	In Progress	validación	M2	media		M2-V05…V14 (10)
+KabeliDev/front-walvy	33	In Progress	validación	M2	alta		M2-V15…V22 (8)
+KabeliDev/front-walvy	34	In Progress	validación	M2	media		M2-V23…V30 (8)
+KabeliDev/front-walvy	35	In Progress	validación	M2	media		M2-V31…V36 (6)
+KabeliDev/front-walvy	36	In Progress	validación	M2	alta		M2-V37…V44 (8)
+KabeliDev/front-walvy	37	In Progress	validación	M2	media		M2-V45…V53 (9)
+KabeliDev/front-walvy	38	In Progress	validación	M2	alta		M2-V54…V58 (5)
+KabeliDev/front-walvy	39	In Progress	validación	M2	media		M2-V59…V63 (5)
+KabeliDev/front-walvy	40	In Progress	validación	M2	alta		M2-V64…V67 (4)
+KabeliDev/front-walvy	41	In Progress	validación	M2	alta		M2-V68…V84 (17)
+KabeliDev/back-walvy	51	Todo	decisión	M2			
+KabeliDev/back-walvy	52	Todo	decisión	M2			
+KabeliDev/back-walvy	53	Todo	decisión	M2			
+KabeliDev/front-walvy	48	Todo	decisión	M2			
+KabeliDev/back-walvy	54	Todo	revisión	M1			
+KabeliDev/back-walvy	55	Todo	remediación	M1			
+KabeliDev/back-walvy	56	Todo	remediación	M1			

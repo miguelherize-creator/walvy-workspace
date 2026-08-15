@@ -1,6 +1,6 @@
 # Propuesta a Kread: soporte multi-documento en un solo endpoint
 
-**Fecha:** 2026-07-10
+**Fecha:** 2026-07-13
 **De:** Walvy (Miguel Herize)
 **Para:** Equipo Kread
 **Estado:** Propuesta — pendiente de validación con Kread
@@ -24,7 +24,11 @@ Kread propuso un **endpoint separado por tipo de documento**. Nuestra contraprop
 - Hoy un usuario sube un lote mixto (hasta 15 archivos) en una sola operación. Con endpoints separados, el front tendría que pre-clasificar y trocear el batch antes de llamar a Kread — trabajo duplicado y una fuente más de error, justo lo que la ingesta dinámica (N archivos, un solo POST) vino a evitar.
 - Es 100% aditivo sobre el contrato v2.0.0: no toca `POST /kartola` ni `GET /status`, y no cambia la arquitectura de Walvy (Lambda → Kread → callback).
 
+
+
 ## Contrato propuesto
+
+
 
 ### 1. Nuevo discriminador por archivo: `document_type`
 
@@ -43,12 +47,14 @@ Mismo patrón que ya usan para `detected_bank` / `detection_confidence` en el fl
 
 ### 2. Qué buckets vienen poblados según `document_type`
 
-| `document_type` | `metadata` / `account_holder` | `summary` | `transactions` | `debts` |
-|---|---|---|---|---|
-| `bank_statement` | ✅ (sin cambios) | ✅ (sin cambios) | ✅ (sin cambios) | vacío |
-| `credit_card_statement` | ✅ | vacío (no aplica "saldo de cuenta") | ✅ (movimientos de la tarjeta) | ✅ (1 elemento: la deuda de esa tarjeta) |
-| `cmf_report` | ✅ (parcial — puede no traer `account_number`) | vacío | vacío (un informe CMF no lista movimientos) | ✅ (N elementos, uno por institución acreedora reportada) |
-| `other` | según lo que se pueda leer | vacío | vacío | vacío |
+
+| `document_type`         | `metadata` / `account_holder`                 | `summary`                           | `transactions`                              | `debts`                                                  |
+| ----------------------- | --------------------------------------------- | ----------------------------------- | ------------------------------------------- | -------------------------------------------------------- |
+| `bank_statement`        | ✅ (sin cambios)                               | ✅ (sin cambios)                     | ✅ (sin cambios)                             | vacío                                                    |
+| `credit_card_statement` | ✅                                             | vacío (no aplica "saldo de cuenta") | ✅ (movimientos de la tarjeta)               | ✅ (1 elemento: la deuda de esa tarjeta)                  |
+| `cmf_report`            | ✅ (parcial — puede no traer `account_number`) | vacío                               | vacío (un informe CMF no lista movimientos) | ✅ (N elementos, uno por institución acreedora reportada) |
+| `other`                 | según lo que se pueda leer                    | vacío                               | vacío                                       | vacío                                                    |
+
 
 `bank_statement` queda **idéntico** al contrato de hoy — cero breaking changes para lo que ya está en producción.
 
@@ -76,13 +82,17 @@ Reemplaza lo que en nuestro borrador inicial separaba `debt` y `CMR` en dos buck
 
 Ajustes vs. el borrador que circulamos primero, y el motivo de cada uno:
 
-| Campo original | Campo propuesto | Motivo |
-|---|---|---|
-| `name: "Préstamo Pedro"` | `institution` | Kread extrae lo que lee del documento (el emisor/acreedor). Un label tipo "Préstamo Pedro" es algo que el usuario escribe en la app, no algo que un PDF contenga. Walvy arma el nombre final combinando `institution` + `product_type`. |
-| `debtType: "prestamo_personal"` | `product_type` con enum cerrado `consumer \| mortgage \| credit_card \| line \| other` | Ese enum ya está definido en el schema de nuestro módulo de deudas (M4 — schema listo, en implementación). Si Kread manda valores libres, alguien tiene que mantener una tabla de traducción que se desincroniza con el tiempo. Preferimos que Kread emita directamente uno de estos 5 valores, con su propio `product_type_confidence` (mismo patrón que `category_confidence`). |
-| *(no existía)* | `interest_rate_pct` | Sin tasa de interés no podemos correr la estrategia Avalanche (ordena las deudas por mayor tasa). Es un dato que normalmente está impreso en la cartola o el informe — pedimos que se extraiga si está disponible, `null` si no. |
-| `nextDueDate` | `next_due_date` + `due_day` | Son dos cosas distintas en nuestro modelo: `next_due_date` es la próxima fecha puntual impresa en el documento; `due_day` es el día fijo del mes (1–31) cuando el documento lo indica explícitamente como pago recurrente. Si solo hay una fecha puntual, basta con `next_due_date` y `due_day: null`. |
-| *(no existía)* | `currency` | Mismo patrón que ya usan en `metadata.currency`. |
+
+| Campo original                  | Campo propuesto                           | Motivo                                                                                                                                                                                                                                                                                                 |
+| ------------------------------- | ----------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `name: "Préstamo Pedro"`        | `institution`                             | Kread extrae lo que lee del documento (el emisor/acreedor). Un label tipo "Préstamo Pedro" es algo que el usuario escribe en la app, no algo que un PDF contenga. Walvy arma el nombre final combinando `institution` + `product_type`.                                                                |
+| `debtType: "prestamo_personal"` | `product_type` con enum cerrado `consumer | mortgage                                                                                                                                                                                                                                                                                               |
+| *(no existía)*                  | `interest_rate_pct`                       | Sin tasa de interés no podemos correr la estrategia Avalanche (ordena las deudas por mayor tasa). Es un dato que normalmente está impreso en la cartola o el informe — pedimos que se extraiga si está disponible, `null` si no.                                                                       |
+| `nextDueDate`                   | `next_due_date` + `due_day`               | Son dos cosas distintas en nuestro modelo: `next_due_date` es la próxima fecha puntual impresa en el documento; `due_day` es el día fijo del mes (1–31) cuando el documento lo indica explícitamente como pago recurrente. Si solo hay una fecha puntual, basta con `next_due_date` y `due_day: null`. |
+| *(no existía)*                  | `currency`                                | Mismo patrón que ya usan en `metadata.currency`.                                                                                                                                                                                                                                                       |
+
+
+
 
 ### 4. `general` — reservado, sin implementar en v1
 
@@ -97,6 +107,8 @@ Shape tentativo para cuando se active en una v2 (**no es parte de este requerimi
 ```json
 { "kind": "string", "fields": { "campo": "valor" }, "confidence": 0.0 }
 ```
+
+
 
 ## Ejemplo completo — archivo `cmf_report`
 
@@ -151,6 +163,8 @@ Shape tentativo para cuando se active en una v2 (**no es parte de este requerimi
   "general": []
 }
 ```
+
+
 
 ## Ejemplo completo — archivo `credit_card_statement`
 
@@ -208,22 +222,13 @@ Shape tentativo para cuando se active en una v2 (**no es parte de este requerimi
 }
 ```
 
+
+
 ## Preguntas abiertas para Kread
 
-1. **`other` en v1 — ¿éxito con buckets vacíos, o error?** Nuestra recomendación: es un éxito (Kread sí leyó el archivo, solo que todavía no extrae estructura de él), no un `error` como `BANK_NOT_IDENTIFIED`. ¿Coinciden con este criterio?
-2. **¿Nuevo código de error `DOCUMENT_TYPE_NOT_IDENTIFIED`?** Análogo a `BANK_NOT_IDENTIFIED`, para cuando ni siquiera se puede determinar si es cartola/tarjeta/CMF/otro (documento ilegible, por ejemplo).
-3. **¿El mismo pipeline (Gemini + reglas deterministas) que ya usan para detectar banco sirve para clasificar `document_type`?** O necesita un modelo/prompt distinto — nos ayuda a estimar confianza esperada y tiempos de proceso.
-4. **¿`product_type` como enum cerrado (`consumer|mortgage|credit_card|line|other`) es viable de su lado?** O prefieren mandar texto libre y Walvy hace el mapeo — es negociable si su clasificación no calza limpio en 5 categorías.
+1. `other` **en v1 — ¿éxito con buckets vacíos, o error?** Nuestra recomendación: es un éxito (Kread sí leyó el archivo, solo que todavía no extrae estructura de él), no un `error` como `BANK_NOT_IDENTIFIED`. ¿Coinciden con este criterio?
+2. **¿Nuevo código de error** `DOCUMENT_TYPE_NOT_IDENTIFIED`**?** Análogo a `BANK_NOT_IDENTIFIED`, para cuando ni siquiera se puede determinar si es cartola/tarjeta/CMF/otro (documento ilegible, por ejemplo).
+3. **¿El mismo pipeline (Gemini + reglas deterministas) que ya usan para detectar banco sirve para clasificar** `document_type`**?** O necesita un modelo/prompt distinto — nos ayuda a estimar confianza esperada y tiempos de proceso.
+4. **¿**`product_type` **como enum cerrado (**`consumer|mortgage|credit_card|line|other`**) es viable de su lado?** O prefieren mandar texto libre y Walvy hace el mapeo — es negociable si su clasificación no calza limpio en 5 categorías.
 5. **Tamaño de batch:** ¿el mismo límite de 15 archivos / 100MB aplica igual mezclando tipos, o un informe CMF (típicamente más largo) necesita un límite distinto?
 
-## Compatibilidad
-
-100% aditivo. Ningún cliente que integra hoy contra `bank_statement` ve cambios — `document_type` y `debts` son campos nuevos, `general` siempre vacío en v1. No se toca `POST /kartola` ni `GET /status`.
-
-## Próximos pasos
-
-- [ ] Validar con Kread las 5 preguntas abiertas
-- [ ] Kread confirma factibilidad y estimación de `document_type` + `debts`
-- [ ] Walvy actualiza `KreadResult`/`KreadFileResult` en `back-walvy/src/imports/kread/kread.service.ts` cuando el contrato quede cerrado
-- [ ] Extender `kread.mapper.ts` con el mapeo `debts` → modelo interno (M4, `back-walvy/src/debts/` — módulo aún no implementado)
-- [ ] Coordinar con front-walvy el cambio de tipos en `expo/api/types/cartola.ts` (mismo patrón ya usado para `NormalizedLine`/`RawRow`)

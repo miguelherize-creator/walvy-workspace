@@ -129,3 +129,8 @@ Registro de decisiones técnicas y de producto. Orden cronológico. No borrar �
 - **Eliminados:** 9 archivos basura confirmados (duplicados con sufijos "copia", "(2)", "_22", hashes opacos).
 - **Pendiente:** revisar `_unused/` (32 archivos) con equipo de diseño antes de eliminar.
 - **Archivos:** `expo/assets/images/`, READMEs por carpeta documentando convenciones.
+
+## [2026-07-31] Modelo de ramas/releases/migraciones (Walvy-wide)
+- **Contexto:** Erick (Walvy) propuso formalmente un modelo trunk-based/main-based para `back-walvy` y `front-walvy`: sin ramas permanentes por ambiente, releases via GitHub tag, deploy manual por workflow, migraciones TypeORM versionadas. Aprobado internamente por su equipo, pendiente de revisión conjunta con desarrollo.
+- **Decisión:** Adoptar `feature/* → PR → main → GitHub Release/tag → deploy manual` como flujo objetivo. Detalle completo, gaps detectados y puntos abiertos en [`release-workflow.md`](release-workflow.md).
+- **Consecuencias:** `develop` y `release` (permanentes en ambos repos hoy) quedan a depreciar. `back-walvy` ya tiene parte de la mecánica (`release-image.yml`, `deploy.yml`) pero con tag `vX.Y.Z` en vez de `backend-vX.Y.Z`, sin `run_migrations`, y sin migraciones TypeORM reales (hoy son `.sql` sueltos en `DB/migrations/`).
