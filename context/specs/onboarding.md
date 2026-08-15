@@ -1,6 +1,6 @@
 # Spec: Onboarding
 
-> **Desactualizado.** El contrato vigente es puertas (`currentGate` / `resumeState`), no `currentStep`. El cierre real está en la wiki: [`wiki/frontend-pantallas-endpoints.md`](wiki/frontend-pantallas-endpoints.md) § Cierre — `UserOnboardingService` solo marca `completed` si `financialProfileCompleted`, `importAttempted`, `biometricPrompted` y `minDocThresholdMet` son las cuatro `true`. `goalsSet` no cuenta. Doc de API: `back-walvy/docs/api/auth/onboarding.md`.
+> **Desactualizado.** El contrato vigente es puertas (`currentGate` / `resumeState`), no `currentStep`. El cierre **de producto** es diagnóstico + próxima acción (`M1-RN-ONB-016`, `M1-DP-009`); el del **código** son cuatro flags (`allDone`) y no se alcanza. Ver [`wiki/frontend-pantallas-endpoints.md`](wiki/frontend-pantallas-endpoints.md) § Cierre y `KabeliDev/back-walvy#68`.
 
 **Estado backend:** ⚠️ Parcialmente implementado — ver M1-DT-04  
 **Estado frontend:** ✅ Completo (flujo básico)  

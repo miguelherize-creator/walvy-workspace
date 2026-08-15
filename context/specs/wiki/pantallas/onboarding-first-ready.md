@@ -7,7 +7,7 @@
 
 Primera lectura (semáforo). Luego tabs. **No cierra el onboarding.**
 
-`UserOnboardingService` solo pone `completed` si `financialProfileCompleted`, `importAttempted`, `biometricPrompted` y `minDocThresholdMet` son las cuatro `true`. `goalsSet` no cuenta. Las dos de suficiencia no las escribe nadie (M3); el DTO del step ya no las acepta. Ir a Inicio deja el onboarding en `in_progress`. Detalle: [`frontend-pantallas-endpoints.md`](../frontend-pantallas-endpoints.md) § Cierre.
+El Cliente cierra al **mostrar diagnóstico + próxima acción** (`M1-RN-ONB-016` / `M1-DP-009`). El código, en cambio, usa cuatro flags (`allDone`) y dos no las escribe nadie: ir a Inicio **no** marca `completed`. Detalle: [`frontend-pantallas-endpoints.md`](../frontend-pantallas-endpoints.md) § Cierre.
 
 ---
 
@@ -30,7 +30,7 @@ Primera lectura (semáforo). Luego tabs. **No cierra el onboarding.**
 | 3 | `M1-V55` | `GET .../summary` | Riesgo | Riesgo sereno, una presión | Pendiente |
 | 4 | `M1-V56` | `GET .../summary` | Sin diagnóstico | No rojo por falta de datos | Pendiente |
 | 5 | `M1-V57` | — | Varias señales | Una presión + un CTA. Resto secundario | Pendiente |
-| 6 | `M1-V48` | `PATCH /auth/onboarding/step` | CTA a Inicio | Va a `/(tabs)`. No cierra: faltan `financialProfileCompleted` y `minDocThresholdMet` (M3). Body viejo (`currentStep`) | Pendiente |
+| 6 | `M1-V48` | `PATCH /auth/onboarding/step` | CTA a Inicio | Va a `/(tabs)`. No cierra: `allDone` inalcanzable y el cierre de producto (`ONB-016`) no está. Body viejo (`currentStep`) | Pendiente |
 | 7 | `M1-RN-ONB-016` | `GET/PUT /profile/financial` | Salida a Perfil Financiero | **Fuera de M1.** Tabs/profile es stub. RM1-22 | Pendiente |
 
 **Siguiente:** [`tabs.md`](tabs.md)

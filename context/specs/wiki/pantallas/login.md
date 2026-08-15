@@ -86,7 +86,7 @@ Casos de la fila 3. El mapa del front `walvy/main` usa `currentStep` (el backend
 - V02 “dirigir a Home” está **ajustado por PO**: autenticación OK ≠ Home. Cubrir filas 14–20, no solo tabs.
 - V09 biométrica: `goToDashboard()` si hay perfil; puede **saltar** onboarding incompleto. Marcar Divergente si se confirma.
 - Contrato onboarding: si el GET trae `currentGate` y el front lee `currentStep`, V02/retoma = Divergente hasta alinear puertas.
-- `onboardingStatus === completed` casi no ocurre: el backend solo cierra con las cuatro banderas de `UserOnboardingService` (ver wiki § Cierre). Home real hoy es `resumeState: ready_to_resume`, no `completed`.
+- `onboardingStatus === completed` casi no ocurre: el código espera cuatro flags (`allDone`); el Cliente cierra por diagnóstico (`M1-DP-009`). Ninguna de las dos se cumple en el flujo real. Home hoy es `resumeState: ready_to_resume`. Ver wiki § Cierre.
 - Refresh no tiene variante propia; si el login 200 y el GET onboarding 401, el interceptor puede rotar y reintentar.
 
 **Anterior:** [`splash.md`](splash.md) · **Siguiente:** register (pendiente)

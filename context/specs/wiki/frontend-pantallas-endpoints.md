@@ -198,20 +198,26 @@ Consecuencias concretas en este front:
 
 `GET /users/me` ahora anida `onboarding` (puertas). El tipo `User` del front **no** tiene ese campo; el restore de sesión no lo usa para navegar (Splash siempre va a Login). Impacto bajo en Splash, alto si alguien empieza a leer `me.onboarding` sin adaptar el tipo.
 
-### Cierre — `UserOnboardingService`
+### Cierre — código vs producto
 
-El backend **no** cierra el onboarding porque la app llegue a first-ready o mande `resumeSurface: "home"`. `PATCH /auth/onboarding/step` pone `onboardingStatus = completed` (y `currentGate = null`, `lastCompletedGate = G5_diagnostico`, `resumeState = completed`) **solo** si estas cuatro quedan en `true`:
+Hay **dos condiciones** y no coinciden. No tratar `allDone` como la regla de negocio.
+
+**Lo que pide el Cliente** (`M1-RN-ONB-016`, `M01-RGL-016`, `M1-DP-009`; tablero [#68](https://github.com/KabeliDev/back-walvy/issues/68), [RM1-20](https://github.com/KabeliDev/back-walvy/issues/40)): el onboarding se cumple **al poder mostrar el diagnóstico inicial y la próxima acción**. Cuelga de suficiencia + primera lectura, no de una suma de flags. Eso no está implementado (`RM1-17` Todo).
+
+**Lo que hace el código hoy** (`UserOnboardingService.allDone`): `PATCH /auth/onboarding/step` pone `completed` solo si estas cuatro son `true`. `goalsSet` no cuenta.
 
 | Bandera | Quién la escribe hoy |
 |---|---|
-| `financialProfileCompleted` | Nadie. Reservada al módulo de análisis (M3). **Fuera del DTO.** |
-| `importAttempted` | El cliente, al enviar documentos (`PATCH` step). |
-| `biometricPrompted` | `PATCH /auth/biometric`, no el step. |
-| `minDocThresholdMet` | Nadie. Reservada al módulo de análisis (M3). **Fuera del DTO.** |
+| `financialProfileCompleted` | Nadie. Fuera del DTO. Frontera M2 (`RM1-22`). |
+| `importAttempted` | El cliente, al enviar documentos. |
+| `biometricPrompted` | `PATCH /auth/biometric`. |
+| `minDocThresholdMet` | Nadie. Fuera del DTO. Debería derivarse de la cartola (`#68`). |
 
-`goalsSet` **no** entra en esa condición. Con dos de las cuatro sin actor, el flujo real **nunca** llega a `completed`: el usuario entra a Home con `resumeState: ready_to_resume` y el onboarding sigue `in_progress`. El fixture `datos-prueba.ts` solo marca `prueba04` como `completed` (estado objetivo, no alcanzable hoy). `prueba03` y `prueba05` quedan en `G2_carga`.
+Con dos de las cuatro sin actor, el flujo real **nunca** llega a `completed`. Home hoy es `resumeState: ready_to_resume` con onboarding `in_progress`. [#68](https://github.com/KabeliDev/back-walvy/issues/68) pide **no** “arreglarlo” mandando los dos booleanos que faltan: eso haría alcanzable la condición que el Cliente ya rechazó.
 
-Fuente: `back-walvy` `src/auth/services/user-onboarding.service.ts` (`allDone`) y `docs/api/auth/onboarding.md`.
+El fixture `datos-prueba.ts` solo marca `prueba04` como `completed` para tener una cuenta de Home. Es un stand-in: 04 tiene cartola, **no** diagnóstico persistido. `prueba03` y `prueba05` quedan en `G2_carga` (sin cartola no cierran ni por flags ni por `M1-DP-009`).
+
+Fuente código: `user-onboarding.service.ts`. Fuente producto: Doc M1 v3.0 §3.2, Assessment `M01-RGL-016`, issue `#68`.
 
 ### Media — users
 
