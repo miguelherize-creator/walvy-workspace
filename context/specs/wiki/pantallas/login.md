@@ -3,90 +3,105 @@
 **Componente:** `expo/features/auth/ui/LoginScreen.tsx` + `useLoginForm` + `useBiometricLogin`  
 **Ruta:** `app/(auth)/login.tsx`  
 **Tablero:** [MV-M1-01](https://github.com/KabeliDev/front-walvy/issues/18) V01–V04 · [MV-M1-02](https://github.com/KabeliDev/front-walvy/issues/19) V05–V07  
-**Figma:** firstTime `3470:6974` · savedUserPassword `3470:7098` · savedUserBiometric `3470:7080` · error `3677:2837`
+**Figma:** firstTime `3470:6974` · savedUserPassword `3470:7098` · savedUserBiometric `3470:7080` · error `3677:2837`  
+**Revisión código:** 16 ago 2026 · login y huella retoman `currentGate`; `resumeState` no salta el mapa
 
-Llega **siempre** desde splash. Tres caras: firstTime, savedUserPassword, savedUserBiometric. El submit y la huella viven acá; el destino post-éxito lo arma `GET /auth/onboarding`.
+Llega **siempre** desde splash. Tres caras: firstTime, savedUserPassword, savedUserBiometric. El submit y la huella viven acá. El destino post-clave y post-huella lo arma `GET /auth/onboarding`.
 
 ---
 
 ## Endpoints
 
 | Método | Path | Quién | Cuándo |
-|---|---|---|---|
+| --- | --- | --- | --- |
 | POST | `/auth/login` | `AuthProvider.login` ← `useLoginForm` | CTA Entrar (firstTime y savedUserPassword) |
-| GET | `/auth/onboarding` | `useLoginForm` post-login | Credenciales OK, para retoma |
-| POST | `/auth/email-verification/request` | `useLoginForm` | Onboarding en `email_verification` (o `nextStep`) |
-| GET | `/users/me` | `AuthProvider.loginWithBiometric` | Huella OK (no reenvía password) |
+| GET | `/auth/onboarding` | `useLoginForm` y `useBiometricLogin` post-auth | Credenciales o huella OK y `nextStep` no es `email_verification` |
+| POST | `/auth/email-verification/request` | `useLoginForm` (+ el backend ya reenvía en el login) | `nextStep === "email_verification"` |
+| GET | `/users/me` | `AuthProvider.loginWithBiometric` | Huella/Face OK. No llama `POST /auth/login` |
 | POST | `/auth/refresh` | interceptor | 401 en onboarding / me, si hay refresh |
 
 ---
 
 ## Control: variante × endpoint
 
+Estados = revisión de código, no corrida QA en dispositivo.
+
 ### Acceso / Login — MV-M1-01
 
 | # | ID variante | Endpoint | Disparador | Esperado (matriz + este front) | Estado |
-|---|---|---|---|---|---|
-| 1 | `M1-V01` | — | Entra sin usuario guardado | UI correo + contraseña. Link “Crea mi cuenta” y “¿Olvidaste…?” | Pendiente |
-| 2 | `M1-V02` | `POST /auth/login` | Correo/clave válidos | 200 + tokens. **No** ir fijo a Home: sigue fila 3 | Pendiente |
-| 3 | `M1-V02` · `M1-V06` (ajuste PO) | `GET /auth/onboarding` | Login 200 | Destino según estado: verify-code / biometric / alias / onboarding / doc / analyzing / tabs. Matriz dice “Home”; PO: continuidad por estado funcional | Pendiente |
-| 4 | `M1-V03` | `POST /auth/login` | Clave o correo inválidos | 401. Se queda en login. firstTime: error de credenciales; savedUser: error inline en password | Pendiente |
-| 5 | `M1-V03` | — | Email vacío / formato | Sin POST. `emailError` inline | Pendiente |
-| 6 | `M1-V04` | `POST /auth/login` | Usuario persistido, “Ingresar con clave” | Email de SecureStore (no del input). Body `{ email, password }`. Post-éxito igual que V02 | Pendiente |
-| 7 | `M1-V04` · `M1-RN-ACC-025` | — | Cara savedUser | Saludo + solo clave (o biometría). Pedir re-auth; no entrar a tabs por el restore de splash | Pendiente |
+| --- | --- | --- | --- | --- | --- |
+| 1 | `M1-V01` · `M1-RN-ACC-001` | — | Entra sin usuario guardado | Título “Te damos la bienvenida”. Inputs correo + clave. Links “Crea tu cuenta” y “¿Olvidaste tu contraseña?”. Copy Figma: “Crea mi cuenta” | Conforme |
+| 2 | `M1-V02` · `M1-RN-ACC-004` | `POST /auth/login` | Correo/clave válidos | 200 + tokens en SecureStore. **No** ir fijo a Home: sigue fila 3 | Conforme |
+| 3 | `M1-V02` (ajuste PO) | `GET /auth/onboarding` | Login 200 | Destino por `currentGate` / `resumeState` (filas 14–20). Matriz dice “Home”; PO: continuidad por estado | Conforme |
+| 4 | `M1-V03` | `POST /auth/login` | Clave o correo inválidos | 401. Se queda. `passwordError` inline “Correo o contraseña incorrectos” (firstTime y savedUser). 403 cuenta restringida va al banner, no al password | Conforme |
+| 5 | `M1-V03` | — | Email / clave vacíos | CTA deshabilitado; sin POST. Formato inválido de correo: sí entra a `handleLogin` y pone `emailError` | Conforme |
+| 6 | `M1-V04` | `POST /auth/login` | Usuario persistido, “Entrar a mi cuenta” | Email de `user.email` \|\| `savedEmail`, no del input. Body `{ email, password }`. Post-éxito igual que V02 | Conforme |
+| 7 | `M1-V04` · `M1-RN-ACC-025` | — | Cara savedUser | Saludo “¡Hola {nombre}!” + solo clave (o biometría). “Cambiar de usuario” hace logout completo. Splash no entra a tabs | Conforme |
 
 ### Biometría en esta pantalla — MV-M1-02
 
 No es `/(auth)/biometric-setup`. Es el reingreso.
 
 | # | ID variante | Endpoint | Disparador | Esperado | Estado |
-|---|---|---|---|---|---|
-| 8 | `M1-V05` | — | Saved user + biometría ON | CTA Face ID / huella. No dispara API hasta el éxito | Pendiente |
-| 9 | `M1-V06` | `GET /users/me` | Huella/Face OK | No llama `POST /auth/login`. Restaura user. Destino: tabs si onboarding completo; si no, misma retoma que V02 (hoy `useBiometricLogin` va a tabs si hay username — contrastar) | Pendiente |
-| 10 | `M1-V07` · `M1-RN-ACC-027` | — | 3 fallos biométricos | Fallback a savedUserPassword. Sin logout-all. `MAX_BIOMETRIC_ATTEMPTS = 3` | Pendiente |
+| --- | --- | --- | --- | --- | --- |
+| 8 | `M1-V05` · `M1-RN-ACC-026` | — | Saved user + biometría ON + token en store | Cara `savedUserBiometric`. CTA “Entrar”. Link “Ingresar con clave”. No dispara API hasta el éxito | Conforme |
+| 9 | `M1-V06` | `GET /users/me` + `GET /auth/onboarding` | Huella/Face OK | No llama `POST /auth/login`. Tras `me`, consulta onboarding y retoma `currentGate` igual que el login con clave. Perfil vacío y sin puerta → choose-alias | Conforme |
+| 10 | `M1-V07` · `M1-RN-ACC-027` | — | 3 fallos (`loginWithBiometric` → `null`) | `MAX_BIOMETRIC_ATTEMPTS = 3` → `savedUserPassword`. Sin `logout-all`. Fallo de huella no muestra mensaje; solo cuenta el intento | Conforme |
 
 ### Salidas de esta pantalla (variante vive en otro flujo)
 
 | # | ID variante | Endpoint | Disparador | Esperado | Estado |
-|---|---|---|---|---|---|
-| 11 | `M1-V08` | — | “Crea mi cuenta” | `/(auth)/register`. Sin API | Pendiente |
-| 12 | `M1-V17` | — | “¿Olvidaste tu contraseña?” | `/forgot-password`. Sin API acá | Pendiente |
-| 13 | `M1-V13` | `POST /auth/email-verification/request` | Login OK y cuenta `pending_verification` / step `email_verification` | Reenvía OTP y abre verify-code | Pendiente |
+| --- | --- | --- | --- | --- | --- |
+| 11 | `M1-V08` · `M1-RN-ACC-005` | — | “Crea tu cuenta” | `router.push("/register")`. Sin API | Conforme |
+| 12 | `M1-V17` · `M1-RN-ACC-019` | — | “¿Olvidaste tu contraseña?” / “¿Necesitas recuperar…?” | `router.push("/forgot-password")`. Sin API acá | Conforme |
+| 13 | `M1-V13` | `POST /auth/email-verification/request` | Login 200 con `nextStep: email_verification` | Abre verify-code. El backend **ya** reenvía el OTP en el login; el front vuelve a pedir. Si el POST del front falla, igual navega | Conforme |
 
 ### Retoma post-login (`GET /auth/onboarding`)
 
-Casos de la fila 3. El mapa del front `walvy/main` usa `currentStep` (el backend nuevo usa `currentGate` — riesgo de caer a tabs).
+El login con clave y la huella rutean igual tras `GET /auth/onboarding`:
 
-| # | ID variante | `currentStep` (front hoy) | Destino | Estado |
-|---|---|---|---|---|
-| 14 | `M1-V13` | `email_verification` | verify-code + request OTP | Pendiente |
-| 15 | `M1-V26` | `biometric_setup` | `/(auth)/biometric-setup` | Pendiente |
-| 16 | `M1-V24` | `profile_basic` | `/(auth)/choose-alias` | Pendiente |
-| 17 | `M1-V27` | `welcome` | `/(auth)/onboarding` | Pendiente |
-| 18 | `M1-V37` / `M1-V58` | `document_upload` | `/(auth)/onboarding-doc` | Pendiente |
-| 19 | `M1-V44` / `M1-V60` | `document_processing` | `/(auth)/onboarding-analyzing` | Pendiente |
-| 20 | `M1-V02` si `completed` o `resumeSurface: home` | — | `/(tabs)` | Pendiente |
+1. `onboardingStatus === "completed"` → tabs (o alerta de enrolar biometría).
+2. `currentGate` con ruta en `ONBOARDING_GATE_ROUTE` → esa pantalla. **Incluye** `resumeState: ready_to_resume`: la pausa no salta la puerta.
+3. Sin puerta y perfil vacío → choose-alias.
+4. Si el GET falla y perfil vacío → choose-alias; si no → tabs.
+
+| # | ID variante | Señal (front hoy) | Destino | Estado |
+| --- | --- | --- | --- | --- |
+| 14 | `M1-V13` | `nextStep: email_verification` (respuesta de login, no el GET) | verify-code + request OTP | Conforme |
+| 15 | `M1-V26` | — | **No** hay puerta a `/(auth)/biometric-setup`. La oferta es un `Alert` al caer a tabs si el device puede biometría y aún no está activa | Divergente |
+| 16 | `M1-V24` | sin `currentGate` + `hasNoProfileData` | `/(auth)/choose-alias` | Conforme |
+| 17 | `M1-V27` | `G0_activacion` | `/(auth)/onboarding` | Conforme |
+| 18 | `M1-V28` / `M1-V58` | `G1_foco` | `/(auth)/onboarding-foco` | Conforme |
+| 19 | `M1-V37` / `M1-V59` | `G2_carga` | `/(auth)/onboarding-doc` | Conforme |
+| 20 | `M1-V44` / `M1-V60` | `G3_analisis` | `/(auth)/onboarding-analyzing` | Conforme |
+| 21 | — | `G4_revision` | `/(auth)/onboarding-analysis` | Conforme |
+| 22 | — | `G5_diagnostico` | `/(auth)/onboarding-first-ready` | Conforme |
+| 23 | `M1-V02` Home | `completed` · o `G6_retoma` (sin ruta) | `/(tabs)` | Conforme |
+| 23b | `M1-V02` / `V58` | `in_progress` · `G2_carga` · `resumeState: ready_to_resume` | `/(auth)/onboarding-doc` — no tabs | Conforme |
+
+`G6_retoma` no está en `ONBOARDING_GATE_ROUTE`: cae a tabs, que es el sentido de esa puerta.
 
 ---
 
 ## Qué no va en esta pantalla
 
 | ID | Archivo |
-|---|---|
+| --- | --- |
 | Arranque cold start / probe | [`splash.md`](splash.md) |
-| Registro (V09–V12) | `register.md` (pendiente) |
-| OTP de cuenta (V14–V16) | `verify-code.md` |
+| Registro (V09–V12) | [`register.md`](register.md) |
+| OTP de cuenta (V14–V16) | [`verify-code.md`](verify-code.md) |
 | Recuperación (V18–V23) | forgot / reset |
-| Activar biometría primer ingreso (V26 UI) | `biometric-setup.md` |
+| Activar biometría primer ingreso (UI de setup) | [`biometric-setup.md`](biometric-setup.md) |
 
 ---
 
 ## Notas para el caso
 
-- V02 “dirigir a Home” está **ajustado por PO**: autenticación OK ≠ Home. Cubrir filas 14–20, no solo tabs.
-- V09 biométrica: `goToDashboard()` si hay perfil; puede **saltar** onboarding incompleto. Marcar Divergente si se confirma.
-- Contrato onboarding: si el GET trae `currentGate` y el front lee `currentStep`, V02/retoma = Divergente hasta alinear puertas.
-- `onboardingStatus === completed` casi no ocurre: el código espera cuatro flags (`allDone`); el Cliente cierra por diagnóstico (`M1-DP-009`). Ninguna de las dos se cumple en el flujo real. Home hoy es `resumeState: ready_to_resume`. Ver wiki § Cierre.
+- V02 “dirigir a Home” está **ajustado por PO**: autenticación OK ≠ Home. Cubrir filas 14–23, no solo tabs.
+- Jest (`login.test.tsx`) cubre firstTime, CTA deshabilitado, login → tabs si `completed`, login → cartola si `G2_carga` + pausa, y los dos links. Huella y savedUser no están en el suite.
+- V06 (huella) retoma por `GET /auth/onboarding`, igual que el camino con clave.
+- `onboardingStatus === completed` casi no ocurre en el flujo real (`allDone` vs `M1-DP-009`). “Salir por ahora” deja `resumeState: ready_to_resume` con onboarding `in_progress`; el login siguiente sigue la puerta. Ver wiki § Cierre en [`frontend-pantallas-endpoints.md`](../frontend-pantallas-endpoints.md).
+- Cuenta restringida: `POST /auth/login` → **403** (`M1-BC-005`). El interceptor de refresh no aplica (no es 401). El usuario se queda en login con el mensaje de soporte.
 - Refresh no tiene variante propia; si el login 200 y el GET onboarding 401, el interceptor puede rotar y reintentar.
 
-**Anterior:** [`splash.md`](splash.md) · **Siguiente:** register (pendiente)
+**Anterior:** [`splash.md`](splash.md) · **Siguiente:** [`register.md`](register.md)
