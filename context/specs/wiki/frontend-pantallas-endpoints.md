@@ -55,8 +55,8 @@ Dos modos:
 **Afectación alta:** el body de step ya no coincide con el DTO de puertas (`currentGate`). Si el PATCH 400, igual intenta ir a choose-alias, pero la retoma queda desincronizada.
 
 ### `/(auth)/choose-alias` — Nombre y alias (`ChooseAliasScreen` + `useChooseAliasForm`)
-- `PATCH /users/me` — `firstName`, `lastName`, `username`.
-- `PATCH /auth/onboarding/step` — `{ currentStep: "welcome", resumeSurface: "onboarding" }` (guardar y saltar).
+- `PATCH /users/me` — `firstName`, `lastName`, `username`. Los dos CTAs guardan: **Guardar y continuar** → onboarding (V24); **Guardar y salir** → tabs (V25). No hay “Omitir y continuar”.
+- No llama `PATCH /auth/onboarding/step`.
 
 No usa el alias deprecado `PATCH /users/profile`.
 

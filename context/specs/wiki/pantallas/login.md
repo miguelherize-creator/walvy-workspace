@@ -60,15 +60,15 @@ No es `/(auth)/biometric-setup`. Es el reingreso.
 
 El login con clave y la huella rutean igual tras `GET /auth/onboarding`:
 
-1. `onboardingStatus === "completed"` → tabs (o alerta de enrolar biometría).
-2. `currentGate` con ruta en `ONBOARDING_GATE_ROUTE` → esa pantalla. **Incluye** `resumeState: ready_to_resume`: la pausa no salta la puerta.
+1. `onboardingStatus === "completed"` → si el device puede biometría y aún no está activa, `/(auth)/biometric-setup?next=home`; si no, tabs.
+2. `currentGate` con ruta en `ONBOARDING_GATE_ROUTE` → esa pantalla. **Incluye** `resumeState: ready_to_resume`: la pausa no salta la puerta. **No** ofrece biometría (prueba03 va a carga).
 3. Sin puerta y perfil vacío → choose-alias.
-4. Si el GET falla y perfil vacío → choose-alias; si no → tabs.
+4. Si el GET falla y perfil vacío → choose-alias; si no → tabs / biometric-setup.
 
 | # | ID variante | Señal (front hoy) | Destino | Estado |
 | --- | --- | --- | --- | --- |
 | 14 | `M1-V13` | `nextStep: email_verification` (respuesta de login, no el GET) | verify-code + request OTP | Conforme |
-| 15 | `M1-V26` | — | **No** hay puerta a `/(auth)/biometric-setup`. La oferta es un `Alert` al caer a tabs si el device puede biometría y aún no está activa | Divergente |
+| 15 | `M1-V26` | — | Destino Home + device con biometría y aún no activa → `/(auth)/biometric-setup?next=home` (pantalla Walvy). “Omitir y continuar” / “Activar acceso rápido” → `/(tabs)`. No es el `Alert` | Conforme |
 | 16 | `M1-V24` | sin `currentGate` + `hasNoProfileData` | `/(auth)/choose-alias` | Conforme |
 | 17 | `M1-V27` | `G0_activacion` | `/(auth)/onboarding` | Conforme |
 | 18 | `M1-V28` / `M1-V58` | `G1_foco` | `/(auth)/onboarding-foco` | Conforme |

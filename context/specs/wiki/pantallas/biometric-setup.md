@@ -5,7 +5,7 @@
 **Tablero:** primer ingreso `M1-V26` · reglas ACC-026 (activar, no reingreso)  
 **Figma:** `4911:5511`
 
-Oferta de **activar** biometría post-verificación. El reingreso con huella es [`login.md`](login.md) V05–V07.
+Oferta de **activar** biometría: post-verificación (primer ingreso → alias) y post-login cuando el destino sería Home (`?next=home`, V26 / prueba04). El reingreso con huella ya activa es [`login.md`](login.md) V05–V07.
 
 ---
 
@@ -22,9 +22,9 @@ Oferta de **activar** biometría post-verificación. El reingreso con huella es 
 
 | # | ID variante | Endpoint | Disparador | Esperado | Estado |
 |---|---|---|---|---|---|
-| 1 | `M1-V26` | — | Primer ingreso, device con biometría | Muestra Face ID / huella. Si el device no tiene, confirmar si se salta | Pendiente |
-| 2 | `M1-V26` | `PATCH /auth/biometric` | Acepta | `enabled: true`, `method: face_id \| fingerprint` | Pendiente |
-| 3 | `M1-V26` | `PATCH /auth/biometric` | “Ahora no” | `enabled: false`. Sigue el flujo (no bloquea) | Pendiente |
+| 1 | `M1-V26` | — | Primer ingreso o login a Home, device con biometría | Pantalla Walvy Face ID / huella. Login: `next=home`. Sin device, login no entra acá | Pendiente |
+| 2 | `M1-V26` | `PATCH /auth/biometric` | Acepta | `enabled: true`, `method: face_id \| fingerprint`. Luego alias, o `/(tabs)` si `next=home` | Pendiente |
+| 3 | `M1-V26` | `PATCH /auth/biometric` | “Omitir y continuar” | `enabled: false`. Sigue el flujo (no bloquea). `next=home` → Inicio sin huella para la próxima | Pendiente |
 | 4 | `M1-V24` (paso) | `PATCH /auth/onboarding/step` | Acepta o rechaza | Front escribe `currentStep: profile_basic`. Backend puertas espera `currentGate` → 400 / retoma rota | Pendiente |
 
 ---
