@@ -27,7 +27,7 @@ Dos modos por params: verificación de cuenta (post-register o retoma V13 desde 
 | 1 | `M1-V13` | — | Llega de register o login retoma | UI código 6 dígitos. CTA según completitud | Pendiente |
 | 2 | `M1-V14` | `POST /auth/email-verification/confirm` | Código inválido | No activa. Error, permite corregir. Máx. intentos los pone el backend | Pendiente |
 | 3 | `M1-V15` | `POST /auth/email-verification/confirm` | Código válido | `emailVerified`. Avanza a primer ingreso (biometric-setup o choose-alias según onboarding) | Pendiente |
-| 4 | `M1-V16` | `POST /auth/email-verification/resend` | Timer / “Reenviar” | Nuevo OTP. Cooldown/límite backend. RN de vigencia aún pendiente en matriz | Pendiente |
+| 4 | `M1-V16` | `POST /auth/email-verification/resend` | Timer / “Reenviar” | Contador de reenvío **60 s** (no es el TTL). Nuevo OTP invalida el anterior. Límites AX-M1-001 en backend | Conforme (front 60 s; TTL efectivo backend 15 min vs baseline 10) |
 
 ## Control: reset — V20–V21
 

@@ -28,8 +28,9 @@ Body: `{ email, documentNumber, password, acceptTerms, acceptPrivacy }`. El RUT 
 | 3 | `M1-V11` | — | Datos OK, T&C sin aceptar | Sin POST. Mensaje “Debes aceptar los términos…” | Pendiente |
 | 4 | `M1-V12` | — | Datos OK, privacidad sin aceptar | Sin POST. Mensaje de política | Pendiente |
 | 5 | `M1-V09` | `POST /auth/register` | Todo válido + ambos checks | 201 + tokens. Navega a verify-code con `email`. Backend ya envió OTP | Pendiente |
-| 6 | `M1-V09` | `POST /auth/register` | Correo ya registrado | 409. `emailError` “Este correo ya está registrado”. Se queda acá | Pendiente |
-| 7 | `M1-RN-ACC-008` / `009` | — | Contraseña / RUT | Complejidad (8, mayúscula, número) y tope de bytes. RUT `^\d{7,8}-[\dkK]$` post-normalizar | Pendiente |
+| 6 | `M1-V09` | `POST /auth/register` | Correo ya registrado | 409 `code: email_taken`. Error en el campo correo: “Este correo ya está registrado” | Pendiente |
+| 7 | `M1-V09` | `POST /auth/register` | RUT ya registrado | 409 `code: document_taken`. Error en el campo RUT: “Este RUT ya está registrado” | Pendiente |
+| 8 | `M1-RN-ACC-008` / `009` | — | Contraseña / RUT | Complejidad (8, mayúscula, número) y tope de bytes. RUT `^\d{7,8}-[\dkK]$` post-normalizar | Pendiente |
 
 ---
 
