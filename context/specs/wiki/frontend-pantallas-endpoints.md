@@ -27,9 +27,13 @@ Casos: [`pantallas/login.md`](pantallas/login.md).
 **Afectación alta** si cambia el shape de `GET /auth/onboarding`: el mapa de retoma usa `currentStep` (`biometric_setup`, `profile_basic`, `welcome`, `document_upload`, `document_processing`). El backend nuevo responde `currentGate` / `resumeState`. Login no sabrá a dónde mandar al usuario.
 
 ### `/(auth)/register` — Registro (`RegisterScreen` + `useRegisterForm`)
-- `POST /auth/register` — body: `email`, `documentNumber`, `password`, `acceptTerms`, `acceptPrivacy`.
+Casos: [`pantallas/register.md`](pantallas/register.md).
+- `GET /legal/documents` — al montar, sin token: trae T&C y privacidad vigentes con su `id` de versión.
+- `POST /auth/register` — body: `email`, `documentNumber`, `password`, `acceptTerms`, `acceptPrivacy`, `acceptedTermsVersionId`, `acceptedPrivacyVersionId`.
 
 Tras 201 navega a verify-code. No llama verificación acá: el backend envía el OTP en el register.
+
+**Afectación alta** si `GET /legal/documents` deja de responder: sin versión no hay nada que aceptar y el registro se bloquea a propósito. El `409` trae `code` (`email_taken`, `document_taken`, `legal_version_stale`) y los tres comparten status.
 
 ### `/(auth)/verify-code` — Código OTP (`VerifyCodeScreen` + `useVerifyCodeForm`)
 Dos modos:
