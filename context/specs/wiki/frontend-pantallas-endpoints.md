@@ -96,7 +96,7 @@ Auth:
 Ningún endpoint. UI de deep link. El propio front documenta que hoy nadie las abre (verificación es OTP de 6 dígitos, no enlace).
 
 ### `/(tabs)` — Inicio (stub) + menú usuario (`useAppHeader`)
-- `POST /auth/logout` — “Cerrar sesión” (logout completo si no hay biometría, o si se fuerza).
+- `POST /auth/logout` — “Cerrar sesión” sin huella (revoca tokens, conserva usuario guardado) o “Cambiar de usuario” (limpia el dispositivo).
 
 Con biometría activa el logout es suave y **no** llama al backend (deja token para reingreso).
 
@@ -114,7 +114,7 @@ Ningún endpoint de auth/users/profile.
 |---|---|---|
 | `AuthProvider` (arranca en `_layout`) | Restore de sesión | `GET /health`, `GET /users/me` |
 | `AuthProvider.login` / `.register` | Login y registro | `POST /auth/login`, `POST /auth/register` |
-| `AuthProvider.logout` | Cerrar sesión completo | `POST /auth/logout` |
+| `AuthProvider.logout` | Cerrar sesión sin huella, o Cambiar de usuario | `POST /auth/logout` |
 | `api/client.ts` interceptor | 401 en request autenticado | `POST /auth/refresh` |
 | `useNotificationSetup` (nativo) | Usuario autenticado | `PATCH /users/me/push-token` |
 

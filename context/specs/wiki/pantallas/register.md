@@ -60,7 +60,8 @@ La regla es una: **lo que pertenece a un campo se muestra bajo el campo**; el ba
 | Cliente | Correo vacío / inválido | Campo correo |
 | Cliente | Correos no coinciden | Campo confirmar correo |
 | Cliente | RUT vacío / patrón / módulo-11 | Campo RUT |
-| Cliente | Contraseña: complejidad y tope de bytes | Panel de requisitos + campo contraseña |
+| Cliente | Contraseña: complejidad (8 caracteres, mayúscula, número) | Panel de requisitos, un check por regla |
+| Cliente | Contraseña: tope de 72 bytes | Campo contraseña, en cuanto se supera. No es un check del panel: es un techo, no una meta, y el Figma lleva tres |
 | Cliente | T&C o privacidad sin aceptar | CTA deshabilitado (sin texto) |
 | `POST /auth/register` | 400 RUT inválido | Campo RUT |
 | `POST /auth/register` | 400 contraseña | Campo contraseña, con el mensaje del backend |
