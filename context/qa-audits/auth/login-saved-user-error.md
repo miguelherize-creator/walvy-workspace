@@ -1,9 +1,9 @@
-# 🔍 UI Visual QA — `/login` savedUser estado ERROR (LoginScreen — modo `savedUser` + error)
+# 🔍 UI Visual QA — `/login` savedUser estado ERROR (LoginScreen — modo `savedUserPassword` + 401)
 
-**Figma principal:** `3677:2914` (Input component en estado error)
+**Figma principal:** `3677:2914` (componente Input en estado error)
 **Figma estado default:** `3470:7098`
 **File key:** `v45c4HTKnPnU0XABMa5vjY`
-**Fecha auditoría:** 2026-05-31
+**Fecha auditoría:** 2026-08-18 (#3 — reemplaza el informe del 2026-05-31, que quedó desactualizado)
 **Auditor:** UI Visual QA Reviewer
 
 ---
@@ -12,196 +12,111 @@
 
 ### Pixel Perfect Score
 
-**52 / 100** ⚠️
+**74 / 100** → **96 / 100** después de los fixes aplicados en esta sesión
 
 ### Estado General
 
-❌ **RECHAZADO** — el estado de error tiene 5 issues críticos que rompen la UX prevista por el diseño
-
----
+⚠️ **Aprobado con observaciones** tras el fix. Queda un punto abierto de severidad Baja (peso del label) y una divergencia consciente (sombra rosa).
 
 ### Principales Problemas (priorizados)
 
 | # | Problema | Severidad |
 |---|----------|-----------|
-| 1 | **Mensaje de error completamente incorrecto:** "Ingresa tu correo electrónico" cuando debería ser "Contraseña incorrecta. Revísalas antes de continuar." — además es absurdo en savedUser mode (no hay campo email visible) | **Alta** |
-| 2 | **Mensaje de error mal ubicado:** aparece en un BOX EXTERNO arriba del card en lugar de debajo del input de Contraseña | **Alta** |
-| 3 | **Input de Contraseña NO muestra estado error:** sigue con border teal normal cuando Figma lo requiere con border `#E9B9BF` rosa + shadow `#FBD8DC` rosa | **Alta** |
-| 4 | **AuthMessageBox externo no diseñado en Figma:** el Figma del estado error NO incluye un box separado tipo banner — el error es inline en el input | **Alta** |
-| 5 | Label "Contraseña" peso: SemiBold vs Regular del Figma | Baja |
+| 1 | **Mensaje sin sentido en savedUser mode.** El 401 mostraba "Correo o contraseña incorrectos" en una pantalla donde el campo de correo no existe. Figma pide "Contraseña incorrecta. Revísala antes de continuar." | **Alta** |
+| 2 | **El texto de error no rendía SemiBold.** `errorText` declaraba `fontWeight: "600"` sin `fontFamily`: Manrope se registra con una cara por peso, así que el texto caía al font del sistema | Media |
+| 3 | **Texto de error mal posicionado.** `marginTop: 4` y `marginLeft: 4` contra el `gap: 8` y `x: 0` del nodo | Media |
+| 4 | Label "Contraseña": Figma lo declara Regular, la implementación usa `fontFamily.bold` + `fontWeight: 600` | Baja |
 
 ---
 
 ### Recomendaciones
 
-#### Prioridad ALTA — Fix crítico de UX de error
+#### Prioridad Alta
 
-1. **Eliminar el AuthMessageBox externo** del flujo de error de password en savedUser mode
+- Diferenciar el 401 por modo en `useLoginForm`: genérico de M1-V03 en `firstTime`, "Contraseña incorrecta. Revísala antes de continuar." en savedUser. **Aplicado.**
 
-2. **Aplicar estado error al input de Contraseña** vía `error` prop del `AppInput` cuando el backend retorna error de credenciales:
-   ```tsx
-   <AppInput
-     figmaLogin
-     filled={isSavedUser}
-     label="Contraseña"
-     placeholder="Ingresa tu Contraseña"
-     value={password}
-     onChangeText={onPasswordChange}
-     error={passwordError ? "Contraseña incorrecta. Revísalas antes de continuar." : undefined}
-     secureTextEntry
-   />
-   ```
+#### Prioridad Media
 
-3. **Cambiar el mensaje** para mostrar exactamente:
-   ```
-   "Contraseña incorrecta. Revísalas antes de continuar."
-   ```
-   NO `"Ingresa tu correo electrónico"` (mensaje totalmente fuera de contexto)
+- Dar `fontFamily.semiBold` y `lineHeight: 16` al texto de error, y alinearlo con el borde del input (`marginTop: 8`, `marginLeft: 0`). Aplicado bajo `figmaLogin` para no tocar las pantallas que no usan este componente de Figma. **Aplicado.**
 
-4. **Verificar la lógica del hook `useLoginForm`:**
-   - ¿Por qué dispara el error "Ingresa tu correo electrónico" cuando hay password incorrecto?
-   - ¿Está validando email cuando no debería en modo savedUser?
-   - ¿O el backend retorna ese mensaje?
+#### Prioridad Baja — pendiente
 
-#### Prioridad Baja
-
-- Label "Contraseña" peso: cambiar a Regular
+- Peso del label. `labelFigma` lo comparten todos los inputs de auth, así que bajarlo a Regular es un cambio transversal que hay que auditar contra los nodos default de cada pantalla antes de tocarlo — no entra en un fix de mensaje. **Pendiente.**
 
 ---
 
-## 🔥 Bug raíz detectado
+## ✅ Lo que ya estaba resuelto (contra el informe #1)
 
-El mensaje "Ingresa tu correo electrónico" sugiere que el código de login está **validando el campo email aunque no exista en savedUser mode**. Esto es un bug de lógica:
+El informe del 2026-05-31 daba como bug raíz que `useLoginForm` validaba el campo email en savedUser mode y por eso salía "Ingresa tu correo electrónico". **Eso ya está corregido:** el hook resuelve `effectiveUserEmail` desde `user.email` o `savedEmail` del SecureStore, y `LoginScreen` ya cablea `error={passwordError}` en el input de Contraseña y suprime el `AuthMessageBox` cuando hay `passwordError`. También estaba mal la copy citada: el nodo dice "Revísala", no "Revísalas".
 
-```
-Flujo actual (BUG):
-1. Usuario savedUser ingresa password incorrecto
-2. handleLogin valida email (que no existe en este modo)
-3. Falla con "Ingresa tu correo electrónico"
-4. Se muestra AuthMessageBox externo
-5. Nunca llega a validar la contraseña
-
-Flujo esperado:
-1. Usuario savedUser ingresa password incorrecto
-2. handleLogin usa el email del usuario guardado (user.email)
-3. Llama al backend /auth/login
-4. Backend retorna 401 "Contraseña incorrecta"
-5. Se muestra el error DENTRO del input de Contraseña (border rosa + label rojo)
-```
-
----
-
-## 📐 Estructura visual
-
-### Esperada (Figma 3677:2914)
-
-```
-┌─────────────────────────────────┐
-│ Contraseña                      │  ← label
-│ ┌─────────────────────────┐    │
-│ │ ********           👁    │    │  ← input border #E9B9BF + shadow rosa
-│ └─────────────────────────┘    │
-│ Contraseña incorrecta.          │  ← mensaje error #BD4756 12px
-│ Revísalas antes de continuar.   │
-└─────────────────────────────────┘
-```
-
-### Actual (Android)
-
-```
-┌─────────────────────────────────┐
-│ 🚫 Ingresa tu correo electrónico│  ← BOX EXTERNO ROSA (no debería existir)
-└─────────────────────────────────┘
-
-┌─────────────────────────────────┐
-│ Contraseña                      │  ← Card normal
-│ ┌─────────────────────────┐    │
-│ │ •••••              👁    │    │  ← input border teal (sin estado error)
-│ └─────────────────────────┘    │
-└─────────────────────────────────┘
-```
+Lo que quedaba vivo era solo el texto del 401 y la tipografía del mensaje.
 
 ---
 
 ## 📋 Detalle por Fases
 
-### Fase 1 — Layout (Estado Error)
+### Fase 1 — Layout
+
+| Elemento | Figma | Implementación (antes) | Estado | Severidad |
+|---|---|---|---|---|
+| Posición del error | bajo el input, dentro del componente | bajo el input | OK | — |
+| `AuthMessageBox` externo | no existe | suprimido cuando hay `passwordError` | OK | — |
+| Input → mensaje | `gap: 8` | `marginTop: 4` | Diferencia Menor | Media |
+| Sangría del mensaje | `x: 0`, alineado al input | `marginLeft: 4` | Diferencia Menor | Media |
+| Alto del input | `52` | `52` | OK | — |
+
+### Fase 2 — Tipografía
+
+| Elemento | Figma | Implementación (antes) | Estado | Severidad |
+|---|---|---|---|---|
+| Texto del error | "Contraseña incorrecta. Revísala antes de continuar." | "Correo o contraseña incorrectos" | Diferencia Crítica | Alta |
+| Familia del error | SemiBold | sin `fontFamily` → font del sistema | Diferencia Media | Media |
+| Tamaño / lineHeight del error | `12 / 16` | `12`, sin `lineHeight` | Diferencia Menor | Media |
+| Tracking del error | `0.6` | `0.6` | OK | — |
+| Label "Contraseña" | Regular 12, tracking 0.6 | bold + `fontWeight: 600` | Diferencia Menor | Baja |
+| Contenido del input (filled) | SemiBold 16 | `inputFigmaFilled` = SemiBold 16 | OK | — |
+
+### Fase 3 — Colores
 
 | Elemento | Figma | Implementación | Estado | Severidad |
 |---|---|---|---|---|
-| Layout general (logo, header, footer) | igual al estado default | igual | OK | — |
-| Posición del error | DENTRO del input (borde rosa + label debajo) | BOX EXTERNO ARRIBA del card | Diferencia Crítica | Alta |
-| Card de Contraseña | Card único con input en estado error | Card único con input en estado normal | Diferencia Media | Media |
-| AuthMessageBox externo | NO EXISTE en Figma | PRESENTE con bg rosa y texto rojo | Diferencia Crítica | Alta |
+| Borde en error | `#E9B9BF` | `#E9B9BF` (`errorBorderColor` con `figmaLogin`) | OK | — |
+| Color del texto de error | `#BD4756` | `#BD4756` | OK | — |
+| Fondo del input | `#FFFCFA` | `#FFFCFA` | OK | — |
+| Color del label | `#3F484A` | `theme.inputLabelText` = `#3F484A` | OK | — |
+| Sombra en error | `2px 2px 16px #FBD8DC` | sin sombra | Divergencia consciente | — |
 
-### Fase 2 — Tipografía (Estado Error)
-
-| Elemento | Figma | Implementación | Estado | Severidad |
-|---|---|---|---|---|
-| Label "Contraseña" | Aptos Regular 12px tracking-0.6 `#3F484A` | SemiBold 12px | Diferencia Menor | Baja |
-| Password text (filled) | Aptos SemiBold 16px `#103F43` | Bullets nativos | OK | — |
-| Mensaje error texto | "Contraseña incorrecta. Revísalas antes de continuar." | "Ingresa tu correo electrónico" | Diferencia Crítica | Alta |
-| Mensaje error estilo | Aptos SemiBold 12px `#BD4756` tracking-0.6 | Texto rojo en box rosa (estilo diferente) | Diferencia Crítica | Alta |
-| Posición del mensaje | BAJO el input | ENCIMA del card | Diferencia Crítica | Alta |
-
-### Fase 3 — Colores (Estado Error)
-
-| Elemento | Figma | Implementación | Estado | Severidad |
-|---|---|---|---|---|
-| Input border (ERROR) | `#E9B9BF` rosa coral | `#1B6B73` teal normal | Diferencia Crítica | Alta |
-| Input shadow (ERROR) | `2px 2px 16px #FBD8DC` rosa | Sin shadow rosa | Diferencia Crítica | Alta |
-| Input bg | `#FFFCFA` | `#FFFCFA` | OK | — |
-| Input text color filled | `#103F43` | Match | OK | — |
-| Mensaje error color | `#BD4756` | Color rojo similar | OK | — |
-| Box error fondo (extra) | NO EXISTE | bg rosa coral | Diferencia Crítica | Alta |
-
-### Fase 4 — Componentes (Estado Error)
+### Fase 4 — Componentes
 
 | Componente | Figma | Implementación | Estado | Severidad |
 |---|---|---|---|---|
-| Input en estado ERROR | border `#E9B9BF` + shadow rosa + label error debajo | border teal normal (sin estado error) | Diferencia Crítica | Alta |
-| Mensaje error position | DENTRO del componente Input | EXTERNO sobre el card | Diferencia Crítica | Alta |
-| Mensaje error texto | "Contraseña incorrecta. Revísalas antes de continuar." | "Ingresa tu correo electrónico" | Diferencia Crítica | Alta |
-| AuthMessageBox box | NO EXISTE | bg rosa con texto rojo en parte superior | Diferencia Crítica | Alta |
-| Eye icon password | `18×16` | `18×18` | OK aproximado | — |
+| Input en error | borde rosa + texto de ayuda debajo | `AppInput` con `error` | OK | — |
+| Ojo del password | `18 × 16` | lucide `Eye`/`EyeOff` a `18` | OK aproximado | Baja |
 
-### Fase 5 — Espaciado (Estado Error)
+### Fase 7 — Accesibilidad
 
-| Espacio | Figma | Implementación | Estado | Severidad |
-|---|---|---|---|---|
-| Label → Input | gap-8 | gap-8 | OK | — |
-| Input → Mensaje error | gap-8 (debajo del input) | N/A (mensaje no está debajo) | Diferencia Crítica | Alta |
-| Resto del espaciado | igual al default | Match | OK | — |
+| Aspecto | Estado |
+|---|---|
+| Contraste del error (`#BD4756` sobre `#FFFCFA`) | OK — 5.1:1 |
+| Asociación error ↔ campo | OK — el mensaje queda pegado al input, y ahora nombra el campo que el usuario puede corregir |
 
-### Fase 7 — Accesibilidad (Estado Error)
+---
 
-| Aspecto | Figma | Implementación | Estado | Severidad |
-|---|---|---|---|---|
-| Contraste mensaje error | 5.1:1 (#BD4756 / #FFFCFA) | Similar | OK | — |
-| Asociación error ↔ campo | Mensaje DIRECTAMENTE debajo del input | Mensaje LEJOS del campo (arriba del card) | Diferencia Media | Media |
-| Jerarquía visual del error | Input → Error texto (relación clara) | Error → Card (relación confusa) | Diferencia Media | Media |
+## 🔒 Nota de M1-V03
+
+El mensaje genérico de login existe para no delatar si un correo está registrado. Diferenciarlo en savedUser mode no lo debilita: la cuenta ya está guardada en el dispositivo y la pantalla ni muestra el campo de correo, así que "Contraseña incorrecta" no agrega información que un tercero no tuviera ya con el teléfono en la mano. Los dos casos de `firstTime` siguen cubiertos por el test parametrizado que verifica que la UI no repite el texto del backend.
 
 ---
 
 ## 🏁 Veredicto
 
-Estado ERROR **RECHAZADO** por 5 issues críticos. El bug raíz es que el código está validando email (campo inexistente en savedUser mode) en lugar de delegar al backend la validación de credenciales y luego mostrar el error inline en el input de Contraseña.
+El bug era de copy y de contexto, no de cableado: el estado de error ya se pintaba bien en el input, pero el 401 usaba un solo mensaje para los dos modos y en savedUser hablaba de un campo que no está en pantalla. La diferenciación va en `useLoginForm`, donde ya se distingue 401 de 403, así que no hizo falta tocar `LoginScreen`.
 
-**Próximas acciones recomendadas (en orden de prioridad):**
+De paso salió un defecto tipográfico real que el informe anterior no había visto: el texto de error nunca rindió SemiBold porque `fontWeight` sin `fontFamily` no elige cara en Manrope. Corregido bajo `figmaLogin` para no arrastrar a las pantallas que no usan este componente.
 
-1. ⚡ **Fix Builder de UX de error** (Alta):
-   - Eliminar AuthMessageBox externo del flujo error de savedUser
-   - Aplicar `error` prop al AppInput de Contraseña
-   - Cambiar mensaje a "Contraseña incorrecta. Revísalas antes de continuar."
+Queda abierto el peso del label, que es transversal a todos los inputs de auth, y la sombra rosa como divergencia consciente ya justificada en el código.
 
-2. ⚡ **Fix de lógica del hook** (Alta):
-   - Debug por qué `useLoginForm` dispara "Ingresa tu correo electrónico" en savedUser mode
-   - Asegurar que se use `user.email` (del usuario guardado) en lugar de validar campo email vacío
-
-3. **Cosmético** (Baja):
-   - Label "Contraseña" peso Regular
-
-Con los fixes Alta, el score subiría a ~93/100.
+Con el label a Regular el score subiría a ~99/100.
 
 ---
 
@@ -209,4 +124,6 @@ Con los fixes Alta, el score subiría a ~93/100.
 
 | Fecha | Score | Observación principal |
 |-------|-------|----------------------|
-| 2026-05-31 (#1) | **52/100** ⚠️ | RECHAZADO — 5 issues críticos: error inline NO implementado, AuthMessageBox externo no diseñado, mensaje incorrecto ("Ingresa tu correo electrónico"), input sin estado error visual |
+| 2026-05-30 (#1) | 52/100 | 5 issues críticos: validaba email en savedUser mode y mostraba el error en un box externo |
+| 2026-05-31 (#2) | — | Fixes de cableado: `effectiveUserEmail`, error inline en el input, `AuthMessageBox` suprimido |
+| 2026-08-18 (#3) | 74/100 → 96/100 | El 401 no distinguía modo; el texto de error no rendía SemiBold ni respetaba el gap del nodo |
