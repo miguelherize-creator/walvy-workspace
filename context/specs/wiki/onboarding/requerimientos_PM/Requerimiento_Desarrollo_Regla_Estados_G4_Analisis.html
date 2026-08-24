@@ -1,0 +1,853 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Requerimiento Desarrollo - Regla de Estados G4 - Análisis</title>
+<style>
+  :root{
+    --ink:#17212b;
+    --muted:#5e6b76;
+    --line:#d9e2e8;
+    --paper:#ffffff;
+    --bg:#f4f7f9;
+    --primary:#0f5d66;
+    --primary-2:#0a4249;
+    --soft:#eaf4f5;
+    --info:#2563eb;
+    --warn:#b7791f;
+    --danger:#b42318;
+    --success:#18794e;
+    --purple:#6b46c1;
+    --code:#102a31;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    font-family:Inter, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Arial, sans-serif;
+    color:var(--ink);
+    background:var(--bg);
+    line-height:1.55;
+  }
+  .page{
+    max-width:1180px;
+    margin:32px auto;
+    background:var(--paper);
+    box-shadow:0 8px 30px rgba(15,42,49,.08);
+    border:1px solid var(--line);
+  }
+  header{
+    padding:34px 42px 26px;
+    background:linear-gradient(135deg,var(--primary-2),var(--primary));
+    color:white;
+  }
+  .eyebrow{
+    text-transform:uppercase;
+    letter-spacing:.12em;
+    font-size:12px;
+    font-weight:700;
+    opacity:.82;
+  }
+  h1{
+    margin:8px 0 6px;
+    font-size:32px;
+    line-height:1.15;
+  }
+  .subtitle{font-size:17px;opacity:.92;margin:0}
+  .meta{
+    margin-top:22px;
+    display:grid;
+    grid-template-columns:repeat(4,minmax(0,1fr));
+    gap:10px;
+  }
+  .meta div{
+    background:rgba(255,255,255,.10);
+    border:1px solid rgba(255,255,255,.16);
+    padding:10px 12px;
+    border-radius:8px;
+  }
+  .meta b{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.08em;opacity:.8}
+  .meta span{font-size:14px;font-weight:600}
+  main{padding:34px 42px 44px}
+  h2{
+    color:var(--primary-2);
+    font-size:23px;
+    margin:36px 0 14px;
+    padding-bottom:8px;
+    border-bottom:2px solid var(--soft);
+  }
+  h3{
+    font-size:17px;
+    color:var(--primary);
+    margin:24px 0 10px;
+  }
+  p{margin:8px 0 12px}
+  .lead{
+    font-size:17px;
+    background:var(--soft);
+    border-left:5px solid var(--primary);
+    padding:16px 18px;
+    border-radius:6px;
+  }
+  .callout{
+    margin:16px 0;
+    border:1px solid var(--line);
+    border-left:5px solid var(--info);
+    background:#f8fbff;
+    padding:14px 16px;
+    border-radius:6px;
+  }
+  .callout.warn{border-left-color:var(--warn);background:#fffaf1}
+  .callout.danger{border-left-color:var(--danger);background:#fff7f6}
+  .callout.success{border-left-color:var(--success);background:#f5fbf8}
+  .callout strong{display:block;margin-bottom:3px}
+  table{
+    width:100%;
+    border-collapse:collapse;
+    margin:14px 0 20px;
+    font-size:14px;
+  }
+  th{
+    text-align:left;
+    background:var(--primary-2);
+    color:white;
+    padding:11px 10px;
+    vertical-align:top;
+  }
+  td{
+    border:1px solid var(--line);
+    padding:10px;
+    vertical-align:top;
+  }
+  tr:nth-child(even) td{background:#fbfcfd}
+  code{
+    font-family:"SFMono-Regular",Consolas,"Liberation Mono",monospace;
+    font-size:.92em;
+    background:#edf2f4;
+    color:var(--code);
+    padding:2px 5px;
+    border-radius:4px;
+  }
+  pre{
+    background:#0f2930;
+    color:#eaf7f7;
+    padding:16px;
+    border-radius:8px;
+    overflow:auto;
+    font-size:13px;
+    line-height:1.5;
+  }
+  ul{margin:8px 0 14px;padding-left:22px}
+  li{margin:5px 0}
+  .chips{display:flex;flex-wrap:wrap;gap:7px;margin:10px 0}
+  .chip{
+    display:inline-block;
+    border:1px solid var(--line);
+    background:#fff;
+    padding:5px 9px;
+    border-radius:999px;
+    font-size:12px;
+    font-weight:700;
+  }
+  .flow{
+    margin:18px 0 26px;
+    display:grid;
+    grid-template-columns:repeat(6,minmax(0,1fr));
+    gap:9px;
+    align-items:stretch;
+  }
+  .state{
+    border:1px solid var(--line);
+    border-top:5px solid var(--info);
+    border-radius:8px;
+    padding:13px 11px;
+    background:#fff;
+    min-height:125px;
+    position:relative;
+  }
+  .state.warn{border-top-color:var(--warn)}
+  .state.danger{border-top-color:var(--danger)}
+  .state.success{border-top-color:var(--success)}
+  .state b{display:block;margin-bottom:5px}
+  .state small{display:block;color:var(--muted)}
+  .arrow{
+    grid-column:1/-1;
+    text-align:center;
+    color:var(--muted);
+    font-size:13px;
+    margin:-2px 0 2px;
+  }
+  .rule-grid{
+    display:grid;
+    grid-template-columns:repeat(2,minmax(0,1fr));
+    gap:12px;
+    margin:12px 0;
+  }
+  .rule-card{
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:14px 15px;
+    background:#fff;
+  }
+  .rule-card b{color:var(--primary-2)}
+  .req{
+    display:flex;
+    gap:10px;
+    align-items:flex-start;
+    margin:8px 0;
+  }
+  .req-id{
+    flex:0 0 auto;
+    background:var(--primary-2);
+    color:white;
+    border-radius:5px;
+    padding:3px 7px;
+    font-size:11px;
+    font-weight:800;
+  }
+  .source-list{
+    border:1px solid var(--line);
+    border-radius:8px;
+    overflow:hidden;
+  }
+  .source-item{
+    padding:12px 14px;
+    border-bottom:1px solid var(--line);
+    background:#fff;
+  }
+  .source-item:last-child{border-bottom:0}
+  .source-item b{color:var(--primary-2)}
+  footer{
+    border-top:1px solid var(--line);
+    padding:18px 42px 26px;
+    color:var(--muted);
+    font-size:12px;
+    background:#fbfcfd;
+  }
+  @media(max-width:900px){
+    .page{margin:0;border:0}
+    header,main,footer{padding-left:22px;padding-right:22px}
+    .meta{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .flow{grid-template-columns:repeat(2,minmax(0,1fr))}
+    .rule-grid{grid-template-columns:1fr}
+  }
+  @media print{
+    body{background:white}
+    .page{max-width:none;margin:0;border:0;box-shadow:none}
+    header{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    th,.req-id{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    h2{break-after:avoid}
+    table,.rule-card,.callout{break-inside:avoid}
+  }
+</style>
+</head>
+<body>
+<div class="page">
+<header>
+  <div class="eyebrow">Walvy · Módulo 1 · Onboarding y Diagnóstico Inicial</div>
+  <h1>Requerimiento de Desarrollo — Regla de Estados G4</h1>
+  <p class="subtitle">Puerta G4 — Análisis: procesamiento, demoras, persistencia, retoma, éxito y fallo</p>
+  <div class="meta">
+    <div><b>ID</b><span>REQ-M1-G4-ANALISIS</span></div>
+    <div><b>Versión</b><span>1.0</span></div>
+    <div><b>Fecha</b><span>23-08-2026</span></div>
+    <div><b>Plataformas</b><span>Backend · iOS · Android</span></div>
+  </div>
+</header>
+
+<main>
+  <section>
+    <h2>1. Objetivo</h2>
+    <p class="lead">
+      Implementar la puerta funcional <strong>G4 — Análisis</strong> como una máquina de estados trazable.
+      El usuario entra a G4 cuando inicia el análisis desde la etapa de revisión/suficiencia; la puerta avanza a
+      <strong>G5 — Diagnóstico inicial</strong> únicamente cuando el procesamiento termina exitosamente.
+      Una demora o un error no deben reiniciar el onboarding ni perder el avance del usuario.
+    </p>
+
+    <div class="callout warn">
+      <strong>Regla clave de implementación</strong>
+      Los umbrales de demora de <strong>45 s</strong> y <strong>90 s</strong> son valores iniciales recomendados y
+      deben mantenerse como parámetros configurables/versionados. <strong>No hardcodear</strong> la lógica en frontend.
+    </div>
+  </section>
+
+  <section>
+    <h2>2. Definición funcional de la puerta G4</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Elemento</th>
+          <th>Definición</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Puerta</td>
+          <td><strong>G4 — Análisis</strong></td>
+        </tr>
+        <tr>
+          <td>Entrada</td>
+          <td>El usuario inicia el análisis después de G3 — Revisión y suficiencia.</td>
+        </tr>
+        <tr>
+          <td>Condición de avance</td>
+          <td>Procesamiento exitoso.</td>
+        </tr>
+        <tr>
+          <td>Bloqueo / excepción</td>
+          <td>Demora o error de procesamiento.</td>
+        </tr>
+        <tr>
+          <td>Salida normal</td>
+          <td>G5 — Diagnóstico inicial.</td>
+        </tr>
+        <tr>
+          <td>Salida por demora</td>
+          <td>Modal/estado de demora, con posibilidad de esperar o salir sin perder avance.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout">
+      <strong>Precondición</strong>
+      G4 no debe usarse para saltarse las reglas de suficiencia de G3. Si los datos críticos son insuficientes,
+      corresponde permanecer en G3 y solicitar completar información; G4 comienza cuando el análisis está permitido.
+    </div>
+  </section>
+
+  <section>
+    <h2>3. Máquina de estados requerida</h2>
+    <div class="flow">
+      <div class="state">
+        <b>QUEUED</b>
+        <small>Análisis solicitado y pendiente de ejecución.</small>
+        <code>queued</code>
+      </div>
+      <div class="state">
+        <b>IN PROGRESS</b>
+        <small>Procesamiento normal. Incluye estado inicial y guiado.</small>
+        <code>in_progress</code>
+      </div>
+      <div class="state warn">
+        <b>DELAYED SOFT</b>
+        <small>Desde umbral suave: 45 s sin resultado.</small>
+        <code>delayed_soft</code>
+      </div>
+      <div class="state warn">
+        <b>DELAYED LONG</b>
+        <small>Desde umbral extendido: 90 s sin resultado.</small>
+        <code>delayed_long</code>
+      </div>
+      <div class="state success">
+        <b>COMPLETED</b>
+        <small>Indicadores y diagnóstico generados.</small>
+        <code>completed</code>
+      </div>
+      <div class="state danger">
+        <b>FAILED</b>
+        <small>No fue posible completar el procesamiento.</small>
+        <code>failed</code>
+      </div>
+      <div class="arrow">Flujo esperado: queued → in_progress → delayed_soft → delayed_long → completed, con posibilidad de terminar en failed desde el procesamiento.</div>
+    </div>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Estado funcional</th>
+          <th>Condición</th>
+          <th>Comportamiento UI/UX requerido</th>
+          <th>Acciones / salida</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><strong>Análisis en curso inicial</strong></td>
+          <td>0 a 10 s desde el inicio.</td>
+          <td>Mostrar estado normal de análisis y preparar la primera lectura.</td>
+          <td>Continuar esperando. Mantener persistencia de estado y progreso.</td>
+        </tr>
+        <tr>
+          <td><strong>Análisis en curso guiado</strong></td>
+          <td>10 a 45 s.</td>
+          <td>Mostrar progreso por pasos, por ejemplo: archivos recibidos, leyendo movimientos, detectando señales, preparando lectura.</td>
+          <td>Continuar esperando o salir sin perder avance.</td>
+        </tr>
+        <tr>
+          <td><strong>Demora suave</strong></td>
+          <td>≥ 45 s sin resultado.</td>
+          <td>Mostrar modal/estado indicando que el análisis está tardando más de lo esperado, sin lenguaje alarmista.</td>
+          <td>CTA dominante: <strong>Quiero esperar</strong>. Secundarios: <strong>Avisarme cuando esté listo</strong> / <strong>Continuar más tarde</strong>.</td>
+        </tr>
+        <tr>
+          <td><strong>Demora prolongada</strong></td>
+          <td>≥ 90 s sin resultado.</td>
+          <td>Reforzar una salida segura y la posibilidad de retomar posteriormente.</td>
+          <td>CTA dominante: <strong>Avisarme cuando esté listo</strong>. Secundarios: <strong>Quiero esperar</strong> / <strong>Continuar más tarde</strong>.</td>
+        </tr>
+        <tr>
+          <td><strong>Análisis completado</strong></td>
+          <td>Se generaron indicadores y diagnóstico.</td>
+          <td>Finalizar G4 y presentar la primera lectura.</td>
+          <td>Avanzar a <strong>G5 — Diagnóstico inicial</strong>. Al continuar desde diagnóstico, destino preferente: Mi Perfil Financiero.</td>
+        </tr>
+        <tr>
+          <td><strong>Análisis fallido</strong></td>
+          <td>No se pudo procesar el documento o un dato crítico.</td>
+          <td>Mostrar un error controlado, sin marcar el procesamiento como exitoso.</td>
+          <td>Pedir nueva carga o completar información clave. Registrar código de error/fallback.</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>4. Reglas funcionales obligatorias</h2>
+    <div class="rule-grid">
+      <div class="rule-card">
+        <b>G4-R01 · Avance solo por éxito</b>
+        <p>La transición G4 → G5 ocurre solamente cuando <code>analysis_status = completed</code>.</p>
+      </div>
+      <div class="rule-card">
+        <b>G4-R02 · Demora no es fallo</b>
+        <p><code>delayed_soft</code> y <code>delayed_long</code> representan procesamiento pendiente, no un error.</p>
+      </div>
+      <div class="rule-card">
+        <b>G4-R03 · Umbrales configurables</b>
+        <p>45 s y 90 s deben leerse desde parámetros versionados; frontend no debe definirlos como constantes de negocio.</p>
+      </div>
+      <div class="rule-card">
+        <b>G4-R04 · Salida sin pérdida</b>
+        <p>Durante el análisis el usuario puede abandonar la vista; el procesamiento y el avance quedan persistidos.</p>
+      </div>
+      <div class="rule-card">
+        <b>G4-R05 · Retoma inteligente</b>
+        <p>Al regresar, si el análisis sigue pendiente se retoma G4; si terminó, se presenta el resultado correspondiente. No reiniciar el flujo.</p>
+      </div>
+      <div class="rule-card">
+        <b>G4-R06 · Un CTA dominante</b>
+        <p>Cada variante debe tener una acción principal; las acciones secundarias no compiten visualmente con ella.</p>
+      </div>
+      <div class="rule-card">
+        <b>G4-R07 · Error trazable</b>
+        <p>Todo fallo debe registrar <code>processing_error_code</code> y conservar el contexto de ejecución.</p>
+      </div>
+      <div class="rule-card">
+        <b>G4-R08 · Estado real, no simulado</b>
+        <p>La UI debe representar el estado efectivo del backend. No avanzar por temporizador si el backend no confirmó <code>completed</code>.</p>
+      </div>
+      <div class="rule-card">
+        <b>G4-R09 · Persistencia temporal</b>
+        <p>Guardar <code>started_at</code>, <code>completed_at</code> y el estado vigente para auditar tiempos y disparar las demoras.</p>
+      </div>
+      <div class="rule-card">
+        <b>G4-R10 · Versionamiento</b>
+        <p>La evaluación y sus parámetros deben conservar versión de regla para auditoría y recálculo.</p>
+      </div>
+    </div>
+  </section>
+
+  <section>
+    <h2>5. Modelo de datos / contrato esperado</h2>
+    <p>La implementación debe contemplar al menos los siguientes campos productivos para la ejecución de análisis:</p>
+
+    <table>
+      <thead>
+        <tr>
+          <th>Entidad</th>
+          <th>Campo</th>
+          <th>Tipo / valores</th>
+          <th>Uso</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>document_processing_run</code></td>
+          <td><code>processing_run_id</code></td>
+          <td>uuid</td>
+          <td>Identificador único de la ejecución de análisis.</td>
+        </tr>
+        <tr>
+          <td><code>document_processing_run</code></td>
+          <td><code>analysis_status</code></td>
+          <td>enum: queued, in_progress, delayed_soft, delayed_long, completed, failed</td>
+          <td>Estado canónico de G4.</td>
+        </tr>
+        <tr>
+          <td><code>document_processing_run</code></td>
+          <td><code>started_at</code> / <code>completed_at</code></td>
+          <td>timestamp</td>
+          <td>Control de tiempo y trazabilidad.</td>
+        </tr>
+        <tr>
+          <td><code>document_processing_run</code></td>
+          <td><code>analysis_delay_soft_threshold_seconds</code></td>
+          <td>int · valor inicial recomendado 45</td>
+          <td>Disparador de demora suave.</td>
+        </tr>
+        <tr>
+          <td><code>document_processing_run</code></td>
+          <td><code>analysis_delay_long_threshold_seconds</code></td>
+          <td>int · valor inicial recomendado 90</td>
+          <td>Disparador de demora prolongada.</td>
+        </tr>
+        <tr>
+          <td><code>document_processing_run</code></td>
+          <td><code>processing_error_code</code></td>
+          <td>enum</td>
+          <td>Motivo de falla cuando aplique.</td>
+        </tr>
+        <tr>
+          <td><code>onboarding_session</code></td>
+          <td><code>current_gate</code></td>
+          <td>enum · <code>G4_analisis</code></td>
+          <td>Identifica la puerta activa.</td>
+        </tr>
+        <tr>
+          <td><code>onboarding_session</code></td>
+          <td><code>onboarding_resume_state</code></td>
+          <td>enum/json</td>
+          <td>Punto de mayor valor para retomar.</td>
+        </tr>
+        <tr>
+          <td><code>onboarding_session</code></td>
+          <td><code>last_completed_gate</code></td>
+          <td>enum</td>
+          <td>Última puerta completada.</td>
+        </tr>
+        <tr>
+          <td><code>onboarding_session</code></td>
+          <td><code>pending_best_action</code></td>
+          <td>enum</td>
+          <td>Siguiente mejor acción calculada.</td>
+        </tr>
+        <tr>
+          <td><code>onboarding_session</code></td>
+          <td><code>rule_version</code></td>
+          <td>string</td>
+          <td>Versión de reglas/parámetros usada.</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>6. Eventos mínimos de trazabilidad</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Evento</th>
+          <th>Disparador</th>
+          <th>Campos mínimos</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td><code>analysis_started</code></td>
+          <td>Usuario inicia análisis.</td>
+          <td><code>processing_run_id</code>, <code>started_at</code></td>
+        </tr>
+        <tr>
+          <td><code>analysis_delay_soft_triggered</code></td>
+          <td>Se alcanza el umbral suave sin resultado.</td>
+          <td><code>processing_run_id</code>, <code>elapsed_seconds</code></td>
+        </tr>
+        <tr>
+          <td><code>analysis_delay_long_triggered</code></td>
+          <td>Se alcanza el umbral prolongado sin resultado.</td>
+          <td><code>processing_run_id</code>, <code>elapsed_seconds</code></td>
+        </tr>
+        <tr>
+          <td><code>onboarding_paused</code></td>
+          <td>Usuario decide continuar más tarde.</td>
+          <td><code>current_gate</code>, <code>resume_state</code>, <code>pending_best_action</code></td>
+        </tr>
+        <tr>
+          <td><code>onboarding_resumed</code></td>
+          <td>Usuario regresa al flujo.</td>
+          <td><code>resume_state</code>, <code>last_completed_gate</code></td>
+        </tr>
+        <tr>
+          <td><code>diagnostic_evaluated</code></td>
+          <td>El análisis termina y se calcula diagnóstico.</td>
+          <td><code>sufficiency_status</code>, semáforo, presión, CTA, <code>rule_version</code></td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>7. Reglas de transición</h2>
+    <pre>G3 (base suficiente / parcial permitido)
+    |
+    | usuario inicia análisis
+    v
+QUEUED
+    |
+    v
+IN_PROGRESS (0-45 s)
+    | \
+    |  \ error de procesamiento
+    |   -----------------------> FAILED
+    |
+    | sin resultado >= soft_threshold
+    v
+DELAYED_SOFT (>= 45 s)
+    |
+    | sin resultado >= long_threshold
+    v
+DELAYED_LONG (>= 90 s)
+    |
+    | procesamiento exitoso desde cualquier estado activo
+    v
+COMPLETED
+    |
+    v
+G5 - DIAGNÓSTICO INICIAL</pre>
+
+    <div class="callout danger">
+      <strong>Transiciones prohibidas</strong>
+      No se debe pasar a G5 por timeout, por completar una animación, por salir y volver a la app, ni por un estado local del frontend.
+      G5 exige confirmación efectiva de procesamiento exitoso y diagnóstico generado.
+    </div>
+  </section>
+
+  <section>
+    <h2>8. Persistencia, salida y retoma</h2>
+    <div class="req"><span class="req-id">MUST</span><div>Salir durante G4 no cancela ni reinicia automáticamente la ejecución en curso.</div></div>
+    <div class="req"><span class="req-id">MUST</span><div>Al salir, persistir la sesión, puerta actual, estado de análisis y siguiente acción pendiente.</div></div>
+    <div class="req"><span class="req-id">MUST</span><div>Al reingresar, consultar el estado real del procesamiento antes de decidir la pantalla a mostrar.</div></div>
+    <div class="req"><span class="req-id">MUST</span><div>Si continúa pendiente, volver a la experiencia de análisis correspondiente a su estado actual.</div></div>
+    <div class="req"><span class="req-id">MUST</span><div>Si ya terminó exitosamente mientras el usuario estaba fuera, presentar el diagnóstico/resultados sin volver a ejecutar el análisis.</div></div>
+    <div class="req"><span class="req-id">MUST</span><div>Si terminó en fallo, presentar el tratamiento de error y la acción para nueva carga o completar información.</div></div>
+  </section>
+
+  <section>
+    <h2>9. Controles técnicos transversales aplicables a G4</h2>
+    <p>Estos controles complementan la regla funcional de G4 y deben verificarse en la implementación:</p>
+    <div class="chips">
+      <span class="chip">ERR · Manejo de errores</span>
+      <span class="chip">AUD · Auditoría</span>
+      <span class="chip">DAT · Integridad</span>
+      <span class="chip">INT · Integraciones</span>
+      <span class="chip">PERF · Rendimiento</span>
+      <span class="chip">COMP · iOS / Android</span>
+    </div>
+    <ul>
+      <li>No exponer información técnica o sensible en mensajes de error.</li>
+      <li>No registrar un documento/análisis como exitoso si el procesamiento falló.</li>
+      <li>Evitar ejecuciones duplicadas ante doble toque o reenvío de la misma acción crítica.</li>
+      <li>Bloquear o controlar acciones repetidas mientras exista una operación crítica en curso.</li>
+      <li>Registrar trazabilidad técnica suficiente para conocer qué ocurrió, cuándo, qué ejecución fue afectada y cuál fue el resultado.</li>
+      <li>Los reintentos o nuevas ejecuciones no deben duplicar datos ya persistidos.</li>
+    </ul>
+    <div class="callout">
+      <strong>Nota de alcance</strong>
+      Estos controles son transversales de implementación; no modifican los estados funcionales definidos para G4.
+    </div>
+  </section>
+
+  <section>
+    <h2>10. Criterios de aceptación</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>ID</th>
+          <th>Dado / Cuando</th>
+          <th>Entonces</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>CA-G4-01</td>
+          <td>Dado un análisis iniciado, cuando el backend lo mantiene en ejecución durante menos de 45 s.</td>
+          <td>La UI refleja procesamiento normal y no muestra demora.</td>
+        </tr>
+        <tr>
+          <td>CA-G4-02</td>
+          <td>Dado un análisis sin resultado, cuando alcanza el umbral suave configurado.</td>
+          <td>El estado cambia a <code>delayed_soft</code> y se muestran las acciones correspondientes.</td>
+        </tr>
+        <tr>
+          <td>CA-G4-03</td>
+          <td>Dado un análisis aún pendiente, cuando alcanza el umbral prolongado configurado.</td>
+          <td>El estado cambia a <code>delayed_long</code> y se refuerza la salida segura/aviso.</td>
+        </tr>
+        <tr>
+          <td>CA-G4-04</td>
+          <td>Dado que el usuario sale mientras el análisis sigue activo.</td>
+          <td>El avance se conserva y, al regresar, se retoma desde el estado real del procesamiento.</td>
+        </tr>
+        <tr>
+          <td>CA-G4-05</td>
+          <td>Dado un análisis completado exitosamente.</td>
+          <td>Se registra <code>completed</code>, se conserva resultado/versión de regla y se habilita G5.</td>
+        </tr>
+        <tr>
+          <td>CA-G4-06</td>
+          <td>Dado un error de procesamiento.</td>
+          <td>Se registra <code>failed</code> y <code>processing_error_code</code>; no se muestra diagnóstico como exitoso.</td>
+        </tr>
+        <tr>
+          <td>CA-G4-07</td>
+          <td>Dado que se modifican los parámetros 45/90 s.</td>
+          <td>La aplicación respeta los nuevos valores sin requerir cambio de lógica en frontend.</td>
+        </tr>
+        <tr>
+          <td>CA-G4-08</td>
+          <td>Dado que el usuario vuelve después de que el análisis terminó en segundo plano.</td>
+          <td>La aplicación consulta el estado persistido y muestra el resultado o fallo; no reinicia el análisis.</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>11. Casos mínimos de prueba QA</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Caso</th>
+          <th>Tipo</th>
+          <th>Resultado esperado</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Validar todos los estados de procesamiento.</td>
+          <td>Funcional · iOS/Android</td>
+          <td>La UI refleja el estado real del backend y conserva trazabilidad.</td>
+        </tr>
+        <tr>
+          <td>Salir durante procesamiento y retomar.</td>
+          <td>Regresión · iOS/Android</td>
+          <td>El avance se conserva y se retoma en el punto correcto.</td>
+        </tr>
+        <tr>
+          <td>Forzar demora suave.</td>
+          <td>Integración · Backend/iOS/Android</td>
+          <td>Se muestra la variante asociada al parámetro de demora suave.</td>
+        </tr>
+        <tr>
+          <td>Forzar demora prolongada.</td>
+          <td>Integración · Backend/iOS/Android</td>
+          <td>Se muestra la variante asociada al parámetro de demora prolongada.</td>
+        </tr>
+        <tr>
+          <td>Procesamiento exitoso.</td>
+          <td>Funcional/Integración</td>
+          <td>Estado completed y transición a G5.</td>
+        </tr>
+        <tr>
+          <td>Procesamiento fallido.</td>
+          <td>Negativo/Integración</td>
+          <td>Estado failed, error trazable y sin diagnóstico exitoso.</td>
+        </tr>
+        <tr>
+          <td>Doble ejecución del CTA de análisis.</td>
+          <td>Técnico/Concurrencia</td>
+          <td>No se generan ejecuciones o registros duplicados de forma incorrecta.</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>12. Trazabilidad documental</h2>
+    <table>
+      <thead>
+        <tr>
+          <th>Elemento</th>
+          <th>Referencia</th>
+          <th>Cobertura en este requerimiento</th>
+        </tr>
+      </thead>
+      <tbody>
+        <tr>
+          <td>Historia de usuario</td>
+          <td><strong>M1-HU-021 — Conocer el estado de procesamiento</strong></td>
+          <td>Estados listo/subiendo/procesando/demoras/completado/fallido; salida sin pérdida; umbrales trazables.</td>
+        </tr>
+        <tr>
+          <td>Regla de negocio</td>
+          <td><strong>M1-RN-ONB-013 — Demora configurable</strong></td>
+          <td>Umbrales versionados; 45/90 s como valores iniciales propuestos.</td>
+        </tr>
+        <tr>
+          <td>Regla de negocio</td>
+          <td><strong>M1-RN-ONB-014 — Retoma sin reinicio</strong></td>
+          <td>Persistencia y retorno al punto de mayor valor pendiente.</td>
+        </tr>
+        <tr>
+          <td>Regla de negocio</td>
+          <td><strong>M1-RN-ONB-018 — Versionamiento</strong></td>
+          <td><code>rule_version</code> y trazabilidad para auditoría/recálculo.</td>
+        </tr>
+        <tr>
+          <td>Prueba</td>
+          <td><strong>CP-M1-ONB-004</strong></td>
+          <td>Validación de estados de procesamiento.</td>
+        </tr>
+        <tr>
+          <td>Prueba</td>
+          <td><strong>CP-M1-ONB-005</strong></td>
+          <td>Salida durante procesamiento y retoma.</td>
+        </tr>
+        <tr>
+          <td>Prueba</td>
+          <td><strong>CP-M1-ONB-006</strong></td>
+          <td>Demora suave y prolongada según parámetros.</td>
+        </tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section>
+    <h2>13. Pendientes / decisiones que no deben inventarse en desarrollo</h2>
+    <div class="callout warn">
+      <strong>Notificación “Avisarme cuando esté listo”</strong>
+      La regla funcional contempla esta acción, pero el mecanismo técnico final de notificación debe usar la solución definida por la arquitectura/producto.
+      No asumir push, email u otro canal si no existe una definición aprobada.
+    </div>
+    <div class="callout warn">
+      <strong>Códigos de error y fallback</strong>
+      La documentación exige definir y persistir códigos de error, pero no entrega en esta fuente un catálogo exhaustivo.
+      El desarrollo debe usar el catálogo acordado técnicamente o levantar la definición faltante.
+    </div>
+    <div class="callout warn">
+      <strong>Copy final</strong>
+      Los textos exactos de botones, modales y mensajes pueden variar según Figma/copy aprobado. Este requerimiento fija la lógica, prioridad y comportamiento, no el microcopy definitivo.
+    </div>
+  </section>
+
+  <section>
+    <h2>14. Fuentes utilizadas</h2>
+    <div class="source-list">
+      <div class="source-item">
+        <b>Walvy_Onboarding_Diagnostico_Fase3_Reglas_Contextuales_Suficiencia_Semaforo_CTA_v1_0</b><br/>
+        Fuente principal para puerta G4, estados de análisis, demoras, salida/retoma y tratamiento de fallo.
+      </div>
+      <div class="source-item">
+        <b>Walvy_Onboarding_Diagnostico_Fase3_Anexo_BDD_Reglas_Productivas_v1_0</b><br/>
+        Fuente para enums, campos productivos, parámetros configurables, eventos y persistencia.
+      </div>
+      <div class="source-item">
+        <b>Walvy_M1_Documentacion_Formal_Consolidada_Completa_v3.0</b><br/>
+        Fuente para M1-HU-021, M1-RN-ONB-013/014/018 y casos CP-M1-ONB-004/005/006.
+      </div>
+      <div class="source-item">
+        <b>Respuesta correo cliente — Controles técnicos/transversales</b><br/>
+        Fuente complementaria para manejo de errores, concurrencia, trazabilidad e integridad técnica.
+      </div>
+    </div>
+  </section>
+</main>
+
+<footer>
+  Documento preparado para implementación de la puerta G4 — Análisis. La lógica funcional prevalece sobre interpretaciones visuales.
+  Cualquier diferencia con Figma, backend existente o catálogo técnico no documentado debe levantarse como brecha y no resolverse mediante supuestos.
+</footer>
+</div>
+</body>
+</html>

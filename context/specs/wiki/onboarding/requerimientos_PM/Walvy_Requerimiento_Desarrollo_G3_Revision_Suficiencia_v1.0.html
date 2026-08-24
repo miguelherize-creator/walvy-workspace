@@ -1,0 +1,597 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>WALVY · Requerimiento Desarrollo · G3 Revisión y Suficiencia</title>
+<style>
+  :root{
+    --ink:#17222b;
+    --muted:#5c6872;
+    --line:#d8e0e5;
+    --soft:#f5f8fa;
+    --brand:#0d5964;
+    --brand2:#123f49;
+    --ok:#19733e;
+    --warn:#9b6800;
+    --risk:#a63b32;
+    --info:#245a8d;
+    --white:#fff;
+  }
+  *{box-sizing:border-box}
+  html{scroll-behavior:smooth}
+  body{
+    margin:0;
+    font-family:Arial, Helvetica, sans-serif;
+    color:var(--ink);
+    background:#eef2f4;
+    line-height:1.48;
+  }
+  .page{
+    width:min(1180px, calc(100% - 32px));
+    margin:28px auto;
+    background:var(--white);
+    box-shadow:0 8px 30px rgba(20,40,50,.08);
+    border-radius:14px;
+    overflow:hidden;
+  }
+  header{
+    background:linear-gradient(135deg,var(--brand2),var(--brand));
+    color:#fff;
+    padding:34px 42px 30px;
+  }
+  .eyebrow{
+    text-transform:uppercase;
+    letter-spacing:.08em;
+    font-weight:700;
+    font-size:12px;
+    opacity:.84;
+  }
+  h1{margin:8px 0 8px;font-size:31px;line-height:1.16}
+  .subtitle{font-size:17px;max-width:900px;opacity:.94}
+  .meta{
+    margin-top:22px;
+    display:grid;
+    grid-template-columns:repeat(4,minmax(0,1fr));
+    gap:10px;
+  }
+  .meta div{
+    background:rgba(255,255,255,.11);
+    border:1px solid rgba(255,255,255,.18);
+    border-radius:8px;
+    padding:10px 12px;
+  }
+  .meta b{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.04em;margin-bottom:2px;opacity:.8}
+  main{padding:32px 42px 48px}
+  h2{
+    color:var(--brand2);
+    font-size:22px;
+    margin:34px 0 12px;
+    padding-bottom:8px;
+    border-bottom:2px solid #dfeaed;
+  }
+  h2:first-child{margin-top:0}
+  h3{font-size:17px;color:var(--brand);margin:22px 0 8px}
+  p{margin:8px 0 12px}
+  ul{margin:8px 0 16px;padding-left:22px}
+  li{margin:5px 0}
+  code{
+    font-family:Consolas, Monaco, monospace;
+    background:#f0f3f5;
+    border:1px solid #e3e8eb;
+    padding:1px 5px;
+    border-radius:4px;
+    font-size:.92em;
+  }
+  .callout{
+    border-left:5px solid var(--brand);
+    background:#f2f8f9;
+    padding:14px 16px;
+    border-radius:7px;
+    margin:14px 0;
+  }
+  .callout.warn{border-left-color:var(--warn);background:#fff8e8}
+  .callout.risk{border-left-color:var(--risk);background:#fff3f1}
+  .callout.info{border-left-color:var(--info);background:#f2f7fc}
+  .gate{
+    display:grid;
+    grid-template-columns:repeat(5,minmax(0,1fr));
+    gap:0;
+    border:1px solid var(--line);
+    border-radius:10px;
+    overflow:hidden;
+    margin:14px 0 22px;
+  }
+  .gate>div{padding:13px;border-right:1px solid var(--line);background:#fff}
+  .gate>div:last-child{border-right:0}
+  .gate strong{display:block;color:var(--brand2);font-size:12px;text-transform:uppercase;margin-bottom:5px}
+  .table-wrap{overflow-x:auto;margin:12px 0 22px}
+  table{width:100%;border-collapse:collapse;font-size:13.5px}
+  th{
+    background:var(--brand2);
+    color:#fff;
+    text-align:left;
+    padding:10px 11px;
+    border:1px solid var(--brand2);
+    vertical-align:top;
+  }
+  td{
+    padding:10px 11px;
+    border:1px solid var(--line);
+    vertical-align:top;
+  }
+  tbody tr:nth-child(even){background:#fafcfd}
+  .tag{
+    display:inline-block;
+    padding:3px 8px;
+    border-radius:999px;
+    font-size:11px;
+    font-weight:700;
+    white-space:nowrap;
+  }
+  .tag.ok{background:#e8f5ec;color:var(--ok)}
+  .tag.warn{background:#fff2d8;color:var(--warn)}
+  .tag.risk{background:#fde9e6;color:var(--risk)}
+  .tag.info{background:#e8f1fb;color:var(--info)}
+  .tag.gray{background:#edf1f3;color:#52606a}
+  .flow{
+    display:flex;
+    align-items:stretch;
+    gap:8px;
+    flex-wrap:wrap;
+    margin:14px 0 22px;
+  }
+  .step{
+    flex:1 1 150px;
+    border:1px solid var(--line);
+    border-radius:9px;
+    padding:12px;
+    background:#fff;
+  }
+  .step b{color:var(--brand2);display:block;margin-bottom:4px}
+  .arrow{align-self:center;font-weight:700;color:#7b8c95}
+  pre{
+    background:#17242b;
+    color:#eef7f8;
+    padding:18px;
+    border-radius:9px;
+    overflow:auto;
+    font-size:12.5px;
+    line-height:1.5;
+  }
+  .req{
+    display:grid;
+    grid-template-columns:110px 1fr;
+    gap:12px;
+    border-bottom:1px solid var(--line);
+    padding:11px 0;
+  }
+  .req:last-child{border-bottom:0}
+  .req-id{font-weight:700;color:var(--brand)}
+  .checklist td:first-child{width:72px;font-weight:700;color:var(--brand)}
+  .no-invent{
+    background:#fff4f2;
+    border:1px solid #f0c7c2;
+    border-radius:9px;
+    padding:15px 17px;
+  }
+  footer{
+    border-top:1px solid var(--line);
+    background:#f7f9fa;
+    padding:18px 42px 24px;
+    color:var(--muted);
+    font-size:12px;
+  }
+  @media (max-width:820px){
+    .page{width:100%;margin:0;border-radius:0}
+    header,main,footer{padding-left:20px;padding-right:20px}
+    .meta{grid-template-columns:1fr 1fr}
+    .gate{display:block}
+    .gate>div{border-right:0;border-bottom:1px solid var(--line)}
+    .gate>div:last-child{border-bottom:0}
+    .req{grid-template-columns:1fr}
+  }
+  @media print{
+    body{background:#fff}
+    .page{width:100%;margin:0;box-shadow:none;border-radius:0}
+    header{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    th{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    .tag,.callout,.no-invent{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    table{font-size:11px}
+    h2{break-after:avoid}
+    tr{break-inside:avoid}
+  }
+</style>
+</head>
+<body>
+<div class="page">
+<header>
+  <div class="eyebrow">WALVY · Módulo 1 · Onboarding + Diagnóstico</div>
+  <h1>Requerimiento de Desarrollo — Puerta G3: Revisión y Suficiencia</h1>
+  <div class="subtitle">
+    Especificación funcional y técnica para calcular la suficiencia de los datos detectados,
+    permitir o bloquear el diagnóstico y controlar los estados/CTAs de la revisión documental.
+  </div>
+  <div class="meta">
+    <div><b>Puerta</b>G3 — Revisión y suficiencia</div>
+    <div><b>Versión</b>1.0</div>
+    <div><b>Fecha</b>23-08-2026</div>
+    <div><b>Destinatario</b>Desarrollo / QA</div>
+  </div>
+</header>
+
+<main>
+<h2>1. Objetivo</h2>
+<p>
+Implementar la Puerta G3 como una <strong>evaluación de suficiencia</strong> y no solamente como una pantalla de revisión.
+Al ingresar a G3 el sistema ya debe disponer de una carga documental usable y de los indicadores extraídos; G3 determina
+si la información habilita un diagnóstico completo, un diagnóstico parcial controlado o si debe bloquearse el avance.
+</p>
+<div class="callout">
+  <strong>Regla central:</strong> G3 avanza hacia análisis cuando existe <strong>Base suficiente</strong> o cuando existe
+  <strong>Datos por confirmar</strong> y la condición permite diagnóstico parcial. Los <strong>datos clave insuficientes</strong>
+  bloquean el diagnóstico y obligan a completar/corregir información.
+</div>
+
+<h2>2. Definición de la puerta G3</h2>
+<div class="gate">
+  <div><strong>Entrada</strong>Sistema detecta indicadores desde documento(s) cargado(s).</div>
+  <div><strong>Condición de avance</strong>Base suficiente o datos por confirmar no bloqueantes.</div>
+  <div><strong>Bloqueo</strong>Datos clave insuficientes o confianza global insuficiente.</div>
+  <div><strong>Salida</strong>Análisis (G4) o completar información clave.</div>
+  <div><strong>Guardrail</strong>No mostrar diagnóstico como certeza si falta evidencia crítica.</div>
+</div>
+
+<h2>3. Indicadores que G3 debe evaluar</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Indicador</th><th>Criticidad</th><th>Uso</th><th>Estados esperados</th></tr></thead>
+<tbody>
+<tr><td><strong>Ingreso principal</strong></td><td><span class="tag risk">Crítico</span></td><td>Dimensiona la lectura del mes y relaciona compromisos con capacidad.</td><td>Detectado / por confirmar / no detectado</td></tr>
+<tr><td><strong>Compromisos base</strong></td><td><span class="tag risk">Crítico</span></td><td>Estima obligaciones recurrentes y piso de gastos.</td><td>Detectado / por confirmar / no detectado</td></tr>
+<tr><td><strong>Pagos recurrentes</strong></td><td><span class="tag risk">Crítico</span></td><td>Identifica pagos repetidos, suscripciones y presión mensual.</td><td>Detectado / por confirmar / no detectado</td></tr>
+<tr><td><strong>Movimientos recientes</strong></td><td><span class="tag risk">Crítico</span></td><td>Permite leer comportamiento del mes, fugas y suficiencia del registro.</td><td>Detectado / por confirmar / no detectado</td></tr>
+<tr><td><strong>Instrumentos de pago</strong></td><td><span class="tag warn">Importante</span></td><td>Contextualiza origen de movimientos y posibles fuentes.</td><td>Detectado / por confirmar</td></tr>
+<tr><td><strong>Fugas o movimientos a revisar</strong></td><td><span class="tag info">Condicionado</span></td><td>Puede generar presión principal o acción sugerida.</td><td>Detectado / inferido / no aplica</td></tr>
+<tr><td><strong>Calidad del dato</strong></td><td><span class="tag gray">Transversal</span></td><td>Controla certeza, parcialidad o bloqueo.</td><td>Alta / media / baja / insuficiente</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2>4. Estados de cada indicador</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Estado funcional</th><th>Definición</th><th>Efecto en G3</th><th>Valor técnico sugerido/documentado</th></tr></thead>
+<tbody>
+<tr><td><span class="tag ok">Detectado</span></td><td>Dato identificado con fuente suficiente y coherente.</td><td>Puede alimentar diagnóstico.</td><td><code>detectado</code></td></tr>
+<tr><td><span class="tag warn">Por confirmar</span></td><td>El dato aparece, pero requiere confirmación, categorización o corrección puntual.</td><td>Puede permitir diagnóstico parcial si no es bloqueante.</td><td><code>por_confirmar</code></td></tr>
+<tr><td><span class="tag risk">No detectado</span></td><td>Dato inexistente o no utilizable.</td><td>Bloquea si corresponde a un requisito mínimo crítico.</td><td><code>no_detectado</code></td></tr>
+<tr><td><span class="tag warn">Desactualizado</span></td><td>Dato fuera del período o sin vigencia suficiente.</td><td>Reduce confianza y exige corrección cuando afecte lectura.</td><td><code>desactualizado</code></td></tr>
+<tr><td><span class="tag info">Inferido</span></td><td>Dato deducido por patrón/documento/movimiento sin confirmación.</td><td>Debe mostrarse como aproximación; no como certeza.</td><td><code>inferido</code></td></tr>
+<tr><td><span class="tag gray">Manual/asistido</span></td><td>Dato completado después de una carga documental válida.</td><td>Complementa; no reemplaza la fuente documental y tiene menor confianza.</td><td><code>manual_asistido</code> / origen <code>manual</code> o <code>assisted</code></td></tr>
+</tbody>
+</table>
+</div>
+
+<div class="no-invent">
+  <strong>No inventar estado técnico “Verificado”.</strong>
+  Los estados funcionales documentados para el indicador son los anteriores. Si UX desea mostrar una etiqueta visible
+  “Verificado”, esta debe ser solamente un <em>label</em> de presentación mapeado a un estado soportado (por ejemplo,
+  dato detectado/confirmado) y no un nuevo valor de persistencia sin definición de Producto/BDD.
+</div>
+
+<h2>5. Máquina de estados de suficiencia G3</h2>
+<div class="table-wrap">
+<table>
+<thead>
+<tr>
+  <th>Estado</th><th>Condición obligatoria</th><th>Modo diagnóstico</th><th>CTA dominante</th><th>CTA secundario</th><th>Avanza a G4</th>
+</tr>
+</thead>
+<tbody>
+<tr>
+<td><span class="tag ok">Base suficiente</span><br><code>base_suficiente</code></td>
+<td>
+Documento usable; ingreso principal y movimientos recientes detectados/confirmados; al menos
+<strong>compromisos base O pagos recurrentes</strong> detectados/confirmados; confianza global suficiente
+(documentación productiva: <code>high/medium</code>).
+</td>
+<td><code>complete</code></td>
+<td><code>comenzar</code><br>“Comenzar diagnóstico”</td>
+<td>Cargar más documentos / Continuar más tarde</td>
+<td><strong>Sí</strong></td>
+</tr>
+
+<tr>
+<td><span class="tag warn">Datos por confirmar — no bloqueantes</span><br><code>datos_por_confirmar</code></td>
+<td>
+Documento usable; ingreso y movimientos detectados o confirmables; al menos compromisos o pagos
+detectados/por confirmar; no más de un indicador crítico no detectado; faltantes no cambian la lectura central.
+</td>
+<td><code>partial</code> solo si <code>partial_diagnostic_allowed = true</code></td>
+<td><code>completar</code><br>“Completar información clave”</td>
+<td><code>comenzar_con_base</code><br>“Comenzar diagnóstico con esta base”</td>
+<td><strong>Sí, opcional</strong>, si usuario usa CTA secundario y está habilitado</td>
+</tr>
+
+<tr>
+<td><span class="tag risk">Datos por confirmar — críticos</span></td>
+<td>Existe un dato pendiente que puede cambiar la lectura central del mes.</td>
+<td><code>blocked</code> hasta confirmación</td>
+<td><code>completar</code></td>
+<td>Continuar más tarde</td>
+<td><strong>No</strong>. <code>partial_diagnostic_allowed = false</code></td>
+</tr>
+
+<tr>
+<td><span class="tag risk">Datos clave insuficientes</span><br><code>datos_clave_insuficientes</code></td>
+<td>
+Falta documento usable, ingreso principal, movimientos recientes, base mínima de compromisos/pagos,
+o la confianza global es insuficiente.
+</td>
+<td><code>blocked</code></td>
+<td><code>completar</code></td>
+<td>Continuar más tarde</td>
+<td><strong>No</strong></td>
+</tr>
+
+<tr>
+<td><span class="tag gray">Sin base documental</span><br><code>sin_base</code></td>
+<td>No existe documento cargado o se intenta evitar la carga documental inicial.</td>
+<td><code>not_available</code> / bloqueado</td>
+<td><code>cargar</code></td>
+<td>Continuar más tarde</td>
+<td><strong>No</strong></td>
+</tr>
+
+<tr>
+<td><span class="tag risk">Documento no procesable</span><br><code>documento_no_procesable</code></td>
+<td>Archivo inválido, ilegible, fuera del período o sin datos útiles.</td>
+<td><code>not_available</code> / bloqueado</td>
+<td>Subir otro documento o revisar archivo</td>
+<td>—</td>
+<td><strong>No</strong></td>
+</tr>
+</tbody>
+</table>
+</div>
+
+<div class="callout info">
+  <strong>Distinción técnica importante:</strong> “Datos por confirmar críticos” no aparece como un valor adicional del enum
+  <code>sufficiency_status</code>. Debe manejarse como una condición dentro de <code>datos_por_confirmar</code>,
+  forzando <code>partial_diagnostic_allowed = false</code> y evitando mostrar <code>comenzar_con_base</code>.
+</div>
+
+<h2>6. Reglas funcionales obligatorias</h2>
+
+<div class="req"><div class="req-id">REQ-G3-001</div><div><strong>Evaluación automática.</strong> Al ingresar a G3 el backend debe evaluar y persistir la suficiencia a partir de los indicadores detectados y su confianza.</div></div>
+<div class="req"><div class="req-id">REQ-G3-002</div><div><strong>Base suficiente.</strong> Debe cumplirse documento usable + ingreso + movimientos recientes + al menos compromisos base o pagos recurrentes + confianza global suficiente.</div></div>
+<div class="req"><div class="req-id">REQ-G3-003</div><div><strong>Diagnóstico parcial controlado.</strong> Solo puede habilitarse con base documental usable y faltantes no bloqueantes; se debe comunicar menor precisión.</div></div>
+<div class="req"><div class="req-id">REQ-G3-004</div><div><strong>Máximo un crítico no detectado para evaluar parcialidad.</strong> Si existen varios críticos no detectados, el diagnóstico debe quedar bloqueado.</div></div>
+<div class="req"><div class="req-id">REQ-G3-005</div><div><strong>Dato crítico por confirmar.</strong> Si su confirmación puede cambiar la lectura central, no se permite diagnóstico parcial.</div></div>
+<div class="req"><div class="req-id">REQ-G3-006</div><div><strong>Instrumentos de pago.</strong> Su ausencia no bloquea por sí sola el diagnóstico cuando existe la base mínima restante.</div></div>
+<div class="req"><div class="req-id">REQ-G3-007</div><div><strong>Carga útil pero insuficiente ≠ error.</strong> Debe tratarse como avance incompleto y orientar al usuario a completar evidencia, no como fallo técnico.</div></div>
+<div class="req"><div class="req-id">REQ-G3-008</div><div><strong>Insuficiencia no es riesgo.</strong> La falta de datos no puede producir estado financiero rojo. La salida posterior será “Sin diagnóstico” o bloqueo.</div></div>
+<div class="req"><div class="req-id">REQ-G3-009</div><div><strong>CTA dominante único.</strong> El estado G3 debe determinar un CTA principal. Los secundarios deben permanecer subordinados.</div></div>
+<div class="req"><div class="req-id">REQ-G3-010</div><div><strong>Recalcular tras corrección.</strong> Cada confirmación/corrección que afecte un indicador crítico debe volver a evaluar <code>sufficiency_status</code>, <code>diagnostic_mode</code> y CTAs.</div></div>
+<div class="req"><div class="req-id">REQ-G3-011</div><div><strong>Manual/texto/voz.</strong> Solo se habilita después de una carga documental válida y para completar/corregir indicadores puntuales; no puede reemplazar la carga inicial.</div></div>
+<div class="req"><div class="req-id">REQ-G3-012</div><div><strong>Trazabilidad.</strong> Toda modificación debe conservar origen, indicador afectado, documento/evidencia, confianza, confirmación del usuario y versión de regla.</div></div>
+<div class="req"><div class="req-id">REQ-G3-013</div><div><strong>No salto de puerta.</strong> Ningún estado bloqueado de G3 puede navegar a G4 mediante manipulación de frontend; el backend debe validar la condición.</div></div>
+<div class="req"><div class="req-id">REQ-G3-014</div><div><strong>Persistencia y retoma.</strong> Si el usuario sale mientras completa información, la aplicación debe conservar el estado y retomar en el punto pendiente de mayor valor.</div></div>
+
+<h2>7. Flujo de transición esperado</h2>
+<div class="flow">
+  <div class="step"><b>G2</b>Documento usable</div><div class="arrow">→</div>
+  <div class="step"><b>G3</b>Evaluar indicadores + suficiencia</div><div class="arrow">→</div>
+  <div class="step"><b>Base suficiente</b>Comenzar diagnóstico</div><div class="arrow">→</div>
+  <div class="step"><b>G4</b>Análisis</div>
+</div>
+
+<div class="flow">
+  <div class="step"><b>G3</b>Datos por confirmar</div><div class="arrow">→</div>
+  <div class="step"><b>Parcial habilitado</b>Completar o comenzar con esta base</div><div class="arrow">→</div>
+  <div class="step"><b>G4</b>Solo si <code>partial_diagnostic_allowed=true</code></div>
+</div>
+
+<div class="flow">
+  <div class="step"><b>G3</b>Datos críticos/insuficientes</div><div class="arrow">→</div>
+  <div class="step"><b>Bloqueo</b>Completar/corregir/cargar</div><div class="arrow">→</div>
+  <div class="step"><b>Reevaluar G3</b>No avanza hasta cumplir regla</div>
+</div>
+
+<h2>8. Campos y enums que debe consumir/persistir desarrollo</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Campo</th><th>Valores / tipo</th><th>Uso en G3</th></tr></thead>
+<tbody>
+<tr><td><code>indicator_detection_status</code></td><td>detectado, por_confirmar, no_detectado, desactualizado, inferido, manual_asistido</td><td>Estado individual de cada indicador.</td></tr>
+<tr><td><code>required_indicator_set</code></td><td>conjunto/versionado</td><td>Define mínimos necesarios para completo/parcial.</td></tr>
+<tr><td><code>data_origin</code></td><td>documental, inferred, manual, assisted, user_confirmed</td><td>Trazabilidad de procedencia.</td></tr>
+<tr><td><code>confidence_level</code></td><td>high, medium, low, insufficient</td><td>Controla certeza y bloqueo.</td></tr>
+<tr><td><code>sufficiency_status</code></td><td>base_suficiente, datos_por_confirmar, datos_clave_insuficientes, sin_base, documento_no_procesable</td><td>Estado principal de G3.</td></tr>
+<tr><td><code>diagnostic_mode</code></td><td>complete, partial, blocked, not_available</td><td>Resultado de suficiencia.</td></tr>
+<tr><td><code>partial_diagnostic_allowed</code></td><td>boolean</td><td>Habilita “Comenzar diagnóstico con esta base”.</td></tr>
+<tr><td><code>diagnostic_blocking_reason</code></td><td>sin_documento, documento_no_procesable, ingreso_faltante, movimientos_faltantes, pagos_compromisos_insuficientes, confianza_insuficiente</td><td>Razón obligatoria cuando está bloqueado.</td></tr>
+<tr><td><code>diagnostic_warning_reason</code></td><td>datos_por_confirmar, dato_inferido, dato_manual_asistido, dato_desactualizado</td><td>Advierte menor precisión en lectura parcial.</td></tr>
+<tr><td><code>dominant_cta_code</code></td><td>cargar, completar, comenzar, comenzar_con_base, revisar, esperar, avisarme, ver_perfil</td><td>Control de acción primaria.</td></tr>
+<tr><td><code>secondary_cta_codes</code></td><td>array/enum</td><td>Acciones secundarias subordinadas.</td></tr>
+<tr><td><code>rule_version</code> / <code>evaluated_at</code></td><td>versión + timestamp</td><td>Auditoría y recalculo reproducible.</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2>9. Reglas de frontend</h2>
+<ul>
+  <li>El frontend <strong>no decide</strong> por sí solo si el usuario puede iniciar G4; debe consumir el resultado de suficiencia del backend.</li>
+  <li>Mostrar el resumen de indicadores detectados y señalar cuáles requieren confirmación/corrección.</li>
+  <li>Con <code>base_suficiente</code>, el CTA principal es <strong>Comenzar diagnóstico</strong>. No solicitar información extra innecesaria.</li>
+  <li>Con <code>datos_por_confirmar</code> no bloqueantes, el CTA principal es <strong>Completar información clave</strong>; “Comenzar diagnóstico con esta base” solo aparece si <code>partial_diagnostic_allowed=true</code>.</li>
+  <li>Con dato crítico por confirmar o datos clave insuficientes, <strong>no mostrar</strong> ninguna acción que inicie diagnóstico.</li>
+  <li>Una carga insuficiente debe presentarse como un estado funcional de completitud, no como error técnico.</li>
+  <li>Datos inferidos/manuales/asistidos deben diferenciarse visualmente cuando corresponda y nunca mostrarse con certeza equivalente a dato documental confirmado.</li>
+  <li>Al confirmar/corregir un dato, refrescar el resultado de suficiencia recibido desde backend y actualizar CTAs sin reiniciar el flujo.</li>
+</ul>
+
+<h2>10. Regla de backend — pseudocódigo de referencia</h2>
+<pre>
+evaluateG3(context):
+
+  if no_document_uploaded:
+      sufficiency_status = "sin_base"
+      diagnostic_mode = "not_available"
+      partial_diagnostic_allowed = false
+      dominant_cta_code = "cargar"
+      return
+
+  if document_not_processable:
+      sufficiency_status = "documento_no_procesable"
+      diagnostic_mode = "not_available"
+      partial_diagnostic_allowed = false
+      blocking_reason = "documento_no_procesable"
+      return
+
+  if confidence_level == "insufficient":
+      block("datos_clave_insuficientes", "confianza_insuficiente")
+      return
+
+  if main_income_missing:
+      block("datos_clave_insuficientes", "ingreso_faltante")
+      return
+
+  if recent_movements_missing:
+      block("datos_clave_insuficientes", "movimientos_faltantes")
+      return
+
+  if neither(base_commitments_available, recurring_payments_available):
+      block("datos_clave_insuficientes", "pagos_compromisos_insuficientes")
+      return
+
+  if main_income_confirmed
+     and recent_movements_confirmed
+     and (base_commitments_confirmed or recurring_payments_confirmed)
+     and confidence_level in ["high", "medium"]:
+
+      sufficiency_status = "base_suficiente"
+      diagnostic_mode = "complete"
+      partial_diagnostic_allowed = false
+      dominant_cta_code = "comenzar"
+      return
+
+  # Existe base, pero quedan elementos por confirmar.
+  sufficiency_status = "datos_por_confirmar"
+  dominant_cta_code = "completar"
+
+  if pending_critical_can_change_central_reading:
+      diagnostic_mode = "blocked"
+      partial_diagnostic_allowed = false
+      secondary_cta_codes = ["continuar_mas_tarde"]
+      return
+
+  if critical_not_detected_count &lt;= 1
+     and missing_items_are_non_blocking
+     and minimum_basis_is_interpretable:
+
+      diagnostic_mode = "partial"
+      partial_diagnostic_allowed = true
+      secondary_cta_codes = ["comenzar_con_base"]
+      warning_reason = "datos_por_confirmar"
+      return
+
+  block("datos_clave_insuficientes", calculated_blocking_reason)
+</pre>
+<div class="callout warn">
+  El pseudocódigo expresa la regla funcional. No debe utilizarse para introducir umbrales o equivalencias no documentadas.
+  La decisión “puede cambiar la lectura central” debe quedar encapsulada/versionada en la capa de reglas y ser trazable.
+</div>
+
+<h2>11. Matriz de trazabilidad funcional</h2>
+<div class="table-wrap">
+<table>
+<thead><tr><th>Regla formal M1</th><th>Aplicación en G3</th><th>REQ asociado</th></tr></thead>
+<tbody>
+<tr><td><code>M1-RN-ONB-002</code> Ruta documental preferente</td><td>G3 parte de información originada en documentos; manual no sustituye carga.</td><td>REQ-G3-011</td></tr>
+<tr><td><code>M1-RN-ONB-003</code> Sin sustituto manual</td><td>Texto/voz/formulario solo complementan después de carga válida.</td><td>REQ-G3-011</td></tr>
+<tr><td><code>M1-RN-ONB-004</code> Base suficiente</td><td>Define mínimo funcional para diagnóstico completo.</td><td>REQ-G3-002</td></tr>
+<tr><td><code>M1-RN-ONB-005</code> Diagnóstico parcial</td><td>Solo con base usable, faltantes no bloqueantes y advertencia.</td><td>REQ-G3-003 / 004 / 005</td></tr>
+<tr><td><code>M1-RN-ONB-006</code> Bloqueo por insuficiencia</td><td>Sin base mínima/confianza, no se permite diagnóstico.</td><td>REQ-G3-005 / 013</td></tr>
+<tr><td><code>M1-RN-ONB-007</code> Carga insuficiente no es error</td><td>Se mantiene experiencia de avance y completitud.</td><td>REQ-G3-007</td></tr>
+<tr><td><code>M1-RN-ONB-008</code> Trazabilidad del dato</td><td>Origen, estado, confianza, evidencia y confirmación.</td><td>REQ-G3-012</td></tr>
+<tr><td><code>M1-RN-ONB-010</code> Sin riesgo por falta de datos</td><td>Insuficiencia no se transforma en rojo.</td><td>REQ-G3-008</td></tr>
+<tr><td><code>M1-RN-ONB-012</code> CTA dominante</td><td>Un CTA principal y secundarios subordinados.</td><td>REQ-G3-009</td></tr>
+<tr><td><code>M1-RN-ONB-014</code> Retoma sin reinicio</td><td>Persistir avance y punto pendiente.</td><td>REQ-G3-014</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2>12. Criterios de aceptación / QA</h2>
+<div class="table-wrap">
+<table class="checklist">
+<thead><tr><th>ID</th><th>Escenario</th><th>Resultado esperado</th></tr></thead>
+<tbody>
+<tr><td>CA-01</td><td>Documento usable + ingreso + movimientos + compromisos/pagos + confianza high/medium.</td><td><code>base_suficiente</code>, modo <code>complete</code>, CTA “Comenzar diagnóstico”.</td></tr>
+<tr><td>CA-02</td><td>Base usable con faltantes no bloqueantes y máximo un crítico no detectado.</td><td><code>datos_por_confirmar</code>; CTA principal completar; diagnóstico parcial solo si booleano habilitado.</td></tr>
+<tr><td>CA-03</td><td>Dato crítico por confirmar puede cambiar lectura central.</td><td>No mostrar “Comenzar diagnóstico con esta base”; <code>partial_diagnostic_allowed=false</code>.</td></tr>
+<tr><td>CA-04</td><td>Falta ingreso principal.</td><td>Bloqueo con razón <code>ingreso_faltante</code>; no G4.</td></tr>
+<tr><td>CA-05</td><td>Faltan movimientos recientes.</td><td>Bloqueo con razón <code>movimientos_faltantes</code>; no G4.</td></tr>
+<tr><td>CA-06</td><td>No hay compromisos base ni pagos recurrentes utilizables.</td><td>Bloqueo con <code>pagos_compromisos_insuficientes</code>.</td></tr>
+<tr><td>CA-07</td><td>Confianza global insuficiente.</td><td>Bloqueo con <code>confianza_insuficiente</code>.</td></tr>
+<tr><td>CA-08</td><td>Instrumentos de pago no detectados pero existe base mínima.</td><td>No bloquear por esta causa aislada.</td></tr>
+<tr><td>CA-09</td><td>Documento útil pero insuficiente.</td><td>No mostrar error técnico; orientar a completar información.</td></tr>
+<tr><td>CA-10</td><td>Usuario completa dato manual después de carga válida.</td><td>Guardar origen, menor confianza y reevaluar G3.</td></tr>
+<tr><td>CA-11</td><td>Frontend intenta forzar navegación a G4 estando bloqueado.</td><td>Backend rechaza/impide inicio de análisis.</td></tr>
+<tr><td>CA-12</td><td>Usuario sale y vuelve a G3.</td><td>Se conserva estado, indicadores y punto pendiente; no reinicia.</td></tr>
+<tr><td>CA-13</td><td>Datos insuficientes.</td><td>No generar semáforo rojo por falta de información.</td></tr>
+<tr><td>CA-14</td><td>Respuesta de backend entrega estado no documentado “verificado”.</td><td>Debe rechazarse/corregirse el contrato o mapearse explícitamente; no persistir enum ad hoc.</td></tr>
+</tbody>
+</table>
+</div>
+
+<h2>13. Controles técnicos mínimos</h2>
+<ul>
+  <li><strong>Backend como autoridad:</strong> permisos de avance y bloqueo validados en API.</li>
+  <li><strong>Idempotencia:</strong> reevaluar G3 varias veces con la misma evidencia no debe crear evaluaciones inconsistentes ni duplicadas.</li>
+  <li><strong>Concurrencia:</strong> evitar que dos confirmaciones simultáneas dejen estados contradictorios.</li>
+  <li><strong>Auditoría:</strong> registrar evaluación, regla/version, momento, resultado y razón de bloqueo sin exponer datos financieros sensibles en logs.</li>
+  <li><strong>Persistencia:</strong> mantener el avance para retoma; la navegación o cierre de la app no debe perder la evaluación vigente.</li>
+  <li><strong>Contrato FE/BE:</strong> enums compartidos/versionados; no duplicar reglas de suficiencia en frontend con lógica independiente.</li>
+</ul>
+
+<h2>14. Fuera de alcance / no asumir</h2>
+<div class="callout risk">
+<ul>
+  <li>No crear nuevos estados de suficiencia, indicador o CTA fuera de los catálogos documentados sin decisión formal.</li>
+  <li>No permitir que voz/texto/formulario reemplacen la carga documental inicial.</li>
+  <li>No tratar un dato inferido o manual como equivalente a evidencia documental confirmada.</li>
+  <li>No convertir falta de información en “riesgo” financiero.</li>
+  <li>No hardcodear una decisión nueva sobre qué faltante “cambia la lectura central” sin regla versionada.</li>
+  <li>No iniciar G4 por decisión exclusiva del frontend.</li>
+</ul>
+</div>
+
+<h2>15. Definición de terminado (DoD)</h2>
+<p>La implementación de G3 se considera terminada cuando:</p>
+<ul>
+  <li>están implementados los cinco valores documentados de <code>sufficiency_status</code>;</li>
+  <li>el modo completo/parcial/bloqueado responde a las reglas anteriores;</li>
+  <li><code>partial_diagnostic_allowed</code> gobierna efectivamente el CTA “Comenzar diagnóstico con esta base”;</li>
+  <li>cada bloqueo contiene una razón trazable;</li>
+  <li>el frontend no mantiene lógica paralela contradictoria;</li>
+  <li>se reevalúa el estado después de confirmar/corregir datos;</li>
+  <li>se conserva el avance al abandonar/retomar;</li>
+  <li>los CA-01 a CA-14 cuentan con evidencia QA positiva/negativa/alternativa según corresponda.</li>
+</ul>
+
+<h2>16. Fuentes documentales de este requerimiento</h2>
+<ul>
+  <li><strong>Walvy_Onboarding_Diagnostico_Fase3_Reglas_Contextuales_Suficiencia_Semaforo_CTA_v1_0</strong> — definición funcional de G3, indicadores, suficiencia, diagnóstico parcial, CTAs y guardrails.</li>
+  <li><strong>Walvy_Onboarding_Diagnostico_Fase3_Anexo_BDD_Reglas_Productivas_v1_0</strong> — campos, enums y reglas productivas.</li>
+  <li><strong>Walvy_M1_Documentacion_Formal_Consolidada_Completa_v3.0</strong> — reglas formales M1 y criterios consolidados de onboarding/diagnóstico.</li>
+</ul>
+
+</main>
+<footer>
+  WALVY · Requerimiento de desarrollo G3 · Documento de bajada para implementación y QA · Versión 1.0
+</footer>
+</div>
+</body>
+</html>

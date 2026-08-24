@@ -1,0 +1,710 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>M1 – Implementación Semáforo de Diagnóstico Onboarding – Puerta G5</title>
+<style>
+  :root {
+    --bg: #f5f7fb;
+    --card: #ffffff;
+    --text: #172033;
+    --muted: #5f6b7a;
+    --line: #dfe5ee;
+    --primary: #173f5f;
+    --primary-2: #256d85;
+    --green: #1f9d55;
+    --yellow: #d6a000;
+    --red: #d64545;
+    --gray: #7b8794;
+    --soft-blue: #edf5f9;
+    --soft-yellow: #fff8db;
+    --soft-red: #fff0f0;
+    --soft-green: #edf9f1;
+  }
+
+  * { box-sizing: border-box; }
+
+  body {
+    margin: 0;
+    font-family: Arial, Helvetica, sans-serif;
+    background: var(--bg);
+    color: var(--text);
+    line-height: 1.55;
+  }
+
+  .container {
+    max-width: 1180px;
+    margin: 0 auto;
+    padding: 32px 22px 60px;
+  }
+
+  .hero {
+    background: linear-gradient(135deg, var(--primary), var(--primary-2));
+    color: white;
+    padding: 34px;
+    border-radius: 18px;
+    box-shadow: 0 10px 30px rgba(23,63,95,.18);
+    margin-bottom: 24px;
+  }
+
+  .hero h1 {
+    margin: 0 0 10px;
+    font-size: 30px;
+    line-height: 1.2;
+  }
+
+  .hero p {
+    margin: 0;
+    opacity: .92;
+  }
+
+  .meta {
+    display: flex;
+    flex-wrap: wrap;
+    gap: 10px;
+    margin-top: 18px;
+  }
+
+  .pill {
+    display: inline-block;
+    background: rgba(255,255,255,.16);
+    border: 1px solid rgba(255,255,255,.3);
+    padding: 7px 11px;
+    border-radius: 999px;
+    font-size: 13px;
+  }
+
+  .card {
+    background: var(--card);
+    border: 1px solid var(--line);
+    border-radius: 14px;
+    padding: 24px;
+    margin: 18px 0;
+    box-shadow: 0 5px 18px rgba(32,48,70,.05);
+  }
+
+  h2 {
+    color: var(--primary);
+    font-size: 22px;
+    margin: 0 0 14px;
+    border-bottom: 2px solid #e9eef4;
+    padding-bottom: 9px;
+  }
+
+  h3 {
+    color: var(--primary-2);
+    font-size: 17px;
+    margin: 20px 0 8px;
+  }
+
+  p { margin: 8px 0 12px; }
+
+  ul {
+    margin: 8px 0 14px 22px;
+  }
+
+  li { margin: 5px 0; }
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    margin: 14px 0 8px;
+    font-size: 14px;
+  }
+
+  th, td {
+    border: 1px solid var(--line);
+    padding: 10px 11px;
+    vertical-align: top;
+    text-align: left;
+  }
+
+  th {
+    background: #eef3f7;
+    color: #213547;
+    font-weight: 700;
+  }
+
+  code {
+    background: #eef2f6;
+    border: 1px solid #dde4eb;
+    border-radius: 5px;
+    padding: 2px 5px;
+    color: #24384b;
+    font-family: Consolas, Monaco, monospace;
+    font-size: 13px;
+  }
+
+  pre {
+    background: #14212f;
+    color: #f4f7fb;
+    padding: 14px 16px;
+    border-radius: 10px;
+    overflow-x: auto;
+    font-size: 13px;
+  }
+
+  .callout {
+    border-left: 5px solid var(--primary-2);
+    background: var(--soft-blue);
+    padding: 14px 16px;
+    border-radius: 8px;
+    margin: 14px 0;
+  }
+
+  .warning {
+    border-left-color: var(--yellow);
+    background: var(--soft-yellow);
+  }
+
+  .danger {
+    border-left-color: var(--red);
+    background: var(--soft-red);
+  }
+
+  .success {
+    border-left-color: var(--green);
+    background: var(--soft-green);
+  }
+
+  .traffic-grid {
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+    gap: 12px;
+    margin: 16px 0;
+  }
+
+  .traffic-card {
+    border: 1px solid var(--line);
+    border-radius: 12px;
+    padding: 16px;
+    background: white;
+  }
+
+  .traffic-card strong {
+    display: block;
+    margin-bottom: 5px;
+    font-size: 16px;
+  }
+
+  .dot {
+    display: inline-block;
+    width: 13px;
+    height: 13px;
+    border-radius: 50%;
+    margin-right: 7px;
+    vertical-align: -1px;
+  }
+
+  .green { background: var(--green); }
+  .yellow { background: var(--yellow); }
+  .red { background: var(--red); }
+  .gray { background: var(--gray); }
+
+  .rule-id {
+    font-family: Consolas, Monaco, monospace;
+    white-space: nowrap;
+  }
+
+  .footer {
+    color: var(--muted);
+    font-size: 12px;
+    text-align: center;
+    margin-top: 28px;
+  }
+
+  @media (max-width: 850px) {
+    .traffic-grid { grid-template-columns: 1fr 1fr; }
+    .hero h1 { font-size: 25px; }
+  }
+
+  @media (max-width: 560px) {
+    .traffic-grid { grid-template-columns: 1fr; }
+    .container { padding: 18px 12px 40px; }
+    .hero, .card { padding: 18px; }
+    table { font-size: 12px; }
+  }
+
+  @media print {
+    body { background: white; }
+    .container { max-width: none; padding: 0; }
+    .hero, .card { box-shadow: none; break-inside: avoid; }
+    .card { border-color: #bbb; }
+    a { color: black; text-decoration: none; }
+  }
+</style>
+</head>
+
+<body>
+<div class="container">
+
+  <section class="hero">
+    <h1>M1 – Implementación Semáforo de Diagnóstico Onboarding – Puerta G5</h1>
+    <p>Requerimiento funcional y técnico para Backend, Frontend y QA.</p>
+    <div class="meta">
+      <span class="pill">Módulo: M1 Onboarding</span>
+      <span class="pill">Puerta: G5 – Diagnóstico</span>
+      <span class="pill">Tipo: Requerimiento de Desarrollo</span>
+      <span class="pill">Versión: 1.0</span>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>1. Objetivo</h2>
+    <p>
+      Implementar la lógica de evaluación y respuesta del <strong>semáforo general del diagnóstico inicial del Onboarding</strong>,
+      correspondiente a la <strong>Puerta G5 – Diagnóstico</strong>, de manera que el usuario obtenga un estado coherente con la
+      suficiencia y calidad de la información disponible.
+    </p>
+
+    <div class="traffic-grid">
+      <div class="traffic-card">
+        <strong><span class="dot green"></span>En control</strong>
+        <code>in_control</code>
+        <p>La información permite una lectura suficiente y no existen señales de presión crítica.</p>
+      </div>
+      <div class="traffic-card">
+        <strong><span class="dot yellow"></span>Atención</strong>
+        <code>attention</code>
+        <p>Existe información usable, pero hay señales que requieren revisión.</p>
+      </div>
+      <div class="traffic-card">
+        <strong><span class="dot red"></span>Riesgo</strong>
+        <code>risk</code>
+        <p>Existe evidencia suficiente de una presión financiera relevante.</p>
+      </div>
+      <div class="traffic-card">
+        <strong><span class="dot gray"></span>Sin diagnóstico</strong>
+        <code>no_diagnosis</code>
+        <p>No existe información suficiente o confiable para emitir un diagnóstico.</p>
+      </div>
+    </div>
+
+    <p>Campo funcional definido:</p>
+    <pre>general_traffic_light_status</pre>
+
+    <p>Valores permitidos:</p>
+    <pre>in_control | attention | risk | no_diagnosis</pre>
+  </section>
+
+  <section class="card">
+    <h2>2. Alcance funcional</h2>
+    <p>La evaluación del semáforo se ejecutará como parte del diagnóstico inicial de la puerta <code>G5_diagnostico</code>.</p>
+
+    <table>
+      <thead>
+        <tr><th>Información</th><th>Uso</th></tr>
+      </thead>
+      <tbody>
+        <tr><td><code>sufficiency_status</code></td><td>Determina si existe base suficiente para diagnosticar.</td></tr>
+        <tr><td><code>confidence_level</code></td><td>Determina el nivel de certeza de los datos.</td></tr>
+        <tr><td>Ingreso principal</td><td>Indicador crítico para determinar suficiencia.</td></tr>
+        <tr><td>Movimientos recientes</td><td>Indicador crítico para determinar suficiencia.</td></tr>
+        <tr><td>Compromisos base</td><td>Señal para determinar obligaciones del usuario.</td></tr>
+        <tr><td>Pagos recurrentes</td><td>Puede complementar compromisos y generar señales de presión.</td></tr>
+        <tr><td>Margen</td><td>Señal visible del diagnóstico.</td></tr>
+        <tr><td>Compromisos</td><td>Señal visible del diagnóstico.</td></tr>
+        <tr><td>Movimientos</td><td>Señal visible del diagnóstico.</td></tr>
+        <tr><td>Presión dominante</td><td>Explica la principal razón del diagnóstico.</td></tr>
+      </tbody>
+    </table>
+
+    <div class="callout">
+      El diagnóstico debe generar de forma consistente:
+      <strong>Semáforo general + presión principal + CTA dominante.</strong>
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>3. Regla de suficiencia previa al semáforo</h2>
+
+    <h3>3.1 Base suficiente</h3>
+    <p>Se considera base suficiente cuando:</p>
+    <ul>
+      <li>Existe un documento usable.</li>
+      <li>El ingreso principal está detectado o confirmado.</li>
+      <li>Los movimientos recientes están detectados o confirmados.</li>
+      <li>Existe al menos información de compromisos base o pagos recurrentes detectados/confirmados.</li>
+      <li>La confianza global es <code>high</code> o <code>medium</code>.</li>
+      <li>No existe un bloqueo funcional que impida generar el diagnóstico.</li>
+    </ul>
+    <pre>diagnostic_mode = complete</pre>
+
+    <h3>3.2 Datos por confirmar</h3>
+    <p>
+      Cuando existe documento usable y la lectura central puede realizarse, pero existen datos no críticos pendientes de confirmación:
+    </p>
+    <pre>diagnostic_mode = partial</pre>
+    <p>Solo podrá generarse diagnóstico parcial cuando:</p>
+    <pre>partial_diagnostic_allowed = true</pre>
+    <p>Debe existir además una advertencia mediante:</p>
+    <pre>diagnostic_warning_reason</pre>
+    <div class="callout warning">
+      Los datos pendientes no deben transformarse automáticamente en Riesgo.
+    </div>
+
+    <h3>3.3 Base insuficiente</h3>
+    <p>Si falta información crítica o la confianza es insuficiente:</p>
+    <pre>diagnostic_mode = blocked | not_available
+general_traffic_light_status = no_diagnosis
+diagnostic_blocking_reason = &lt;motivo&gt;
+diagnosis_basis_note_variant = insufficient_basis</pre>
+  </section>
+
+  <section class="card">
+    <h2>4. Regla del semáforo – En control</h2>
+    <pre>general_traffic_light_status = in_control</pre>
+    <p>Asignar cuando exista una base suficiente para diagnóstico y no exista evidencia de una presión financiera relevante.</p>
+
+    <table>
+      <thead><tr><th>Condición</th><th>Comportamiento</th></tr></thead>
+      <tbody>
+        <tr><td>Base suficiente</td><td>Obligatoria.</td></tr>
+        <tr><td>Confianza suficiente</td><td>Obligatoria.</td></tr>
+        <tr><td>Margen sin presión relevante</td><td>Compatible con En control.</td></tr>
+        <tr><td>Compromisos interpretables y bajo control</td><td>Compatible con En control.</td></tr>
+        <tr><td>Movimientos sin alertas relevantes</td><td>Compatible con En control.</td></tr>
+        <tr><td>Sin presión dominante crítica</td><td>Obligatorio.</td></tr>
+        <tr><td>Oportunidad de optimización</td><td>Puede existir sin cambiar el estado a Atención/Riesgo.</td></tr>
+      </tbody>
+    </table>
+
+    <p>Presiones posibles según evaluación:</p>
+    <pre>optimization | monthly_focus | no_pressure</pre>
+  </section>
+
+  <section class="card">
+    <h2>5. Regla del semáforo – Atención</h2>
+    <pre>general_traffic_light_status = attention</pre>
+    <p>
+      Asignar cuando exista una base usable para diagnóstico, pero se detecten señales que requieren revisión y que
+      <strong>no alcanzan una condición de riesgo</strong>.
+    </p>
+
+    <table>
+      <thead><tr><th>Señal</th><th>Ejemplo de estado asociado</th></tr></thead>
+      <tbody>
+        <tr><td>Movimientos pendientes de revisar</td><td><code>pending_review</code></td></tr>
+        <tr><td>Fugas o movimientos detectados</td><td><code>leaks_detected</code></td></tr>
+        <tr><td>Datos no críticos por confirmar</td><td><code>data_to_confirm</code></td></tr>
+        <tr><td>Margen ajustado</td><td><code>adjusted</code></td></tr>
+        <tr><td>Compromisos en observación</td><td><code>observation</code></td></tr>
+        <tr><td>Movimientos que requieren atención</td><td><code>needs_attention</code></td></tr>
+      </tbody>
+    </table>
+
+    <p>Variantes documentadas posibles:</p>
+    <pre>attention_pending_movements
+attention_leaks_detected
+attention_data_to_confirm
+attention_adjusted_margin</pre>
+  </section>
+
+  <section class="card">
+    <h2>6. Regla del semáforo – Riesgo</h2>
+    <pre>general_traffic_light_status = risk</pre>
+
+    <p>
+      Asignar únicamente cuando exista <strong>evidencia suficiente de presión financiera relevante</strong>.
+    </p>
+
+    <table>
+      <thead><tr><th>Condición</th><th>Resultado</th></tr></thead>
+      <tbody>
+        <tr><td>Sobrecarga</td><td>Riesgo</td></tr>
+        <tr><td>Margen financieramente comprometido/presionado</td><td>Riesgo</td></tr>
+        <tr><td>Compromisos altos que presionan el mes</td><td>Riesgo</td></tr>
+        <tr><td>Evidencia suficiente de obligaciones que comprometen la estabilidad del mes</td><td>Riesgo</td></tr>
+      </tbody>
+    </table>
+
+    <p>Variantes documentadas:</p>
+    <pre>risk_overload
+risk_high_commitments</pre>
+
+    <div class="callout danger">
+      <strong>Regla obligatoria:</strong> ausencia de información ≠ Riesgo.
+      Para mostrar Riesgo debe existir evidencia suficiente y trazable que respalde esa evaluación.
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>7. Regla del semáforo – Sin diagnóstico</h2>
+    <pre>general_traffic_light_status = no_diagnosis</pre>
+
+    <p>Asignar cuando no exista base suficiente para generar una lectura confiable.</p>
+
+    <table>
+      <thead><tr><th>Motivo</th><th>Código</th></tr></thead>
+      <tbody>
+        <tr><td>Sin documento suficiente</td><td><code>sin_documento</code></td></tr>
+        <tr><td>Documento no procesable</td><td><code>documento_no_procesable</code></td></tr>
+        <tr><td>Ingreso faltante</td><td><code>ingreso_faltante</code></td></tr>
+        <tr><td>Movimientos faltantes</td><td><code>movimientos_faltantes</code></td></tr>
+        <tr><td>Información de compromisos/pagos insuficiente</td><td><code>pagos_compromisos_insuficientes</code></td></tr>
+        <tr><td>Confianza insuficiente</td><td><code>confianza_insuficiente</code></td></tr>
+      </tbody>
+    </table>
+
+    <pre>general_traffic_light_status = no_diagnosis
+diagnostic_mode = blocked | not_available
+diagnostic_blocking_reason = &lt;motivo&gt;
+diagnosis_basis_note_variant = insufficient_basis</pre>
+
+    <p>La acción principal deberá orientar al usuario a <strong>cargar o completar información</strong>.</p>
+  </section>
+
+  <section class="card">
+    <h2>8. Tratamiento obligatorio de <code>light = null</code></h2>
+
+    <div class="callout danger">
+      Una vez ejecutada y resuelta la evaluación G5, la respuesta no debe entregar <code>"light": null</code>.
+    </div>
+
+    <p>Si el campo técnico utilizado por la API es <code>light</code>, deberá mapearse al campo funcional:</p>
+    <pre>general_traffic_light_status</pre>
+
+    <p>Una vez ejecutada G5, <code>light</code> solo podrá contener:</p>
+    <pre>in_control | attention | risk | no_diagnosis</pre>
+
+    <h3>Regla de fallback</h3>
+    <p>Si el motor no puede determinar Verde, Amarillo o Rojo debido a falta de información, deberá devolver:</p>
+    <pre>light = no_diagnosis</pre>
+    <p>y no:</p>
+    <pre>light = null</pre>
+
+    <p>El resultado deberá acompañarse de:</p>
+    <pre>diagnostic_blocking_reason</pre>
+
+    <div class="callout warning">
+      La documentación funcional no define qué valor debe tener <code>light</code> antes de que exista una evaluación G5.
+      Por lo tanto, esta regla aplica a respuestas donde el diagnóstico G5 haya sido ejecutado o resuelto.
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>9. Presión dominante</h2>
+
+    <p>Cada evaluación debe contener <strong>una única presión dominante</strong>.</p>
+    <pre>dominant_pressure_code</pre>
+
+    <p>Valores documentados:</p>
+    <pre>overload
+margin_compromised
+recurring_payments
+high_commitments
+pending_movements
+leaks_detected
+data_to_confirm
+optimization
+monthly_focus
+no_pressure</pre>
+
+    <p>
+      Si existen múltiples señales simultáneamente, el motor deberá seleccionar una única presión dominante conforme a
+      las reglas/prioridades configuradas.
+    </p>
+  </section>
+
+  <section class="card">
+    <h2>10. CTA dominante</h2>
+
+    <p>Cada evaluación debe generar una única acción principal.</p>
+
+    <p>Tipos de acción documentados:</p>
+    <pre>optimize_recurring_payments
+review_pending_movements
+review_detected_leaks
+address_overload_risk
+review_commitments
+complete_key_information
+view_financial_profile</pre>
+
+    <p>Códigos de CTA disponibles:</p>
+    <pre>cargar
+completar
+comenzar
+comenzar_con_base
+revisar
+esperar
+avisarme
+ver_perfil</pre>
+
+    <div class="callout">
+      Los CTA secundarios podrán existir, pero no deberán competir visual o funcionalmente con la acción dominante.
+    </div>
+  </section>
+
+  <section class="card">
+    <h2>11. Señales del diagnóstico</h2>
+
+    <h3>Margen</h3>
+    <table>
+      <thead><tr><th>Valor</th><th>Significado</th></tr></thead>
+      <tbody>
+        <tr><td><code>healthy</code></td><td>Margen saludable.</td></tr>
+        <tr><td><code>observation</code></td><td>Margen en observación.</td></tr>
+        <tr><td><code>adjusted</code></td><td>Margen ajustado.</td></tr>
+        <tr><td><code>pressured</code></td><td>Margen presionado.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Compromisos</h3>
+    <table>
+      <thead><tr><th>Valor</th><th>Significado</th></tr></thead>
+      <tbody>
+        <tr><td><code>under_control</code></td><td>Compromisos bajo control.</td></tr>
+        <tr><td><code>observation</code></td><td>Compromisos que requieren observación.</td></tr>
+        <tr><td><code>high</code></td><td>Compromisos altos.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>Movimientos</h3>
+    <table>
+      <thead><tr><th>Valor</th><th>Significado</th></tr></thead>
+      <tbody>
+        <tr><td><code>no_relevant_alerts</code></td><td>Sin alertas relevantes.</td></tr>
+        <tr><td><code>pending_review</code></td><td>Pendientes de revisión.</td></tr>
+        <tr><td><code>leaks_detected</code></td><td>Fugas detectadas.</td></tr>
+        <tr><td><code>needs_attention</code></td><td>Requieren atención.</td></tr>
+      </tbody>
+    </table>
+
+    <p>
+      Estas señales alimentan la decisión general, pero no deben reemplazar el semáforo ni convertirse individualmente
+      en la única regla del diagnóstico.
+    </p>
+  </section>
+
+  <section class="card">
+    <h2>12. Trazabilidad requerida</h2>
+
+    <table>
+      <thead><tr><th>Campo</th><th>Requerimiento</th></tr></thead>
+      <tbody>
+        <tr><td><code>general_traffic_light_status</code></td><td>Estado resultante del semáforo.</td></tr>
+        <tr><td><code>diagnostic_mode</code></td><td>Complete, partial, blocked o not_available.</td></tr>
+        <tr><td><code>sufficiency_status</code></td><td>Estado de suficiencia utilizado.</td></tr>
+        <tr><td><code>confidence_level</code></td><td>Confianza global de la evaluación.</td></tr>
+        <tr><td><code>diagnosis_variant</code></td><td>Variante que explica el estado.</td></tr>
+        <tr><td><code>dominant_pressure_code</code></td><td>Presión principal.</td></tr>
+        <tr><td><code>diagnostic_blocking_reason</code></td><td>Obligatorio cuando existe bloqueo.</td></tr>
+        <tr><td><code>diagnostic_warning_reason</code></td><td>Obligatorio cuando existe diagnóstico parcial/advertencia.</td></tr>
+        <tr><td><code>diagnosis_basis_note_variant</code></td><td>Base utilizada para comunicar la certeza.</td></tr>
+        <tr><td><code>rule_version</code></td><td>Versión de reglas aplicada.</td></tr>
+        <tr><td><code>evaluated_at</code></td><td>Fecha/hora de evaluación.</td></tr>
+      </tbody>
+    </table>
+
+    <p>
+      Los indicadores utilizados deben conservar origen, confianza y evidencia para permitir explicar posteriormente
+      por qué se asignó el semáforo.
+    </p>
+  </section>
+
+  <section class="card">
+    <h2>13. Reglas de control</h2>
+
+    <table>
+      <thead><tr><th>ID</th><th>Regla</th></tr></thead>
+      <tbody>
+        <tr><td class="rule-id">M1-RN-ONB-004</td><td>Base suficiente requiere documento usable, ingreso, movimientos y compromisos o pagos recurrentes detectados/confirmados.</td></tr>
+        <tr><td class="rule-id">M1-RN-ONB-005</td><td>Diagnóstico parcial solo se habilita con faltantes no bloqueantes y advertencia de precisión.</td></tr>
+        <tr><td class="rule-id">M1-RN-ONB-006</td><td>Sin base mínima o confianza suficiente no se presenta diagnóstico como certeza.</td></tr>
+        <tr><td class="rule-id">M1-RN-ONB-008</td><td>Cada indicador debe registrar origen, estado, confianza, evidencia y confirmación.</td></tr>
+        <tr><td class="rule-id">M1-RN-ONB-009</td><td>El semáforo utiliza En control, Atención, Riesgo o Sin diagnóstico.</td></tr>
+        <tr><td class="rule-id">M1-RN-ONB-010</td><td>La falta de información genera Sin diagnóstico, nunca Riesgo por sí sola.</td></tr>
+        <tr><td class="rule-id">M1-RN-ONB-011</td><td>Debe existir una única presión dominante por evaluación.</td></tr>
+        <tr><td class="rule-id">M1-RN-ONB-012</td><td>Cada estado tiene una única acción principal.</td></tr>
+        <tr><td class="rule-id">M1-RN-ONB-017</td><td>La deuda puede alimentar el semáforo cuando existe información, pero no gobierna por sí sola el diagnóstico general.</td></tr>
+        <tr><td class="rule-id">M1-RN-ONB-018</td><td>Cada evaluación debe guardar versión de reglas y fecha de evaluación.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="card">
+    <h2>14. Criterios de aceptación</h2>
+
+    <table>
+      <thead><tr><th>ID</th><th>Criterio</th></tr></thead>
+      <tbody>
+        <tr><td>CA01</td><td>Dado que se ejecuta G5, el resultado deberá contener exclusivamente <code>in_control</code>, <code>attention</code>, <code>risk</code> o <code>no_diagnosis</code>.</td></tr>
+        <tr><td>CA02</td><td>Dado que G5 fue evaluada, <code>light/general_traffic_light_status</code> no deberá retornar <code>null</code>.</td></tr>
+        <tr><td>CA03</td><td>Si falta un indicador crítico o la confianza es insuficiente, el resultado debe ser <code>no_diagnosis</code> y deberá informarse <code>diagnostic_blocking_reason</code>.</td></tr>
+        <tr><td>CA04</td><td>La falta de datos no puede generar por sí sola el estado <code>risk</code>.</td></tr>
+        <tr><td>CA05</td><td>Con base suficiente y sin presión crítica, el resultado podrá ser <code>in_control</code>.</td></tr>
+        <tr><td>CA06</td><td>Con base usable y señales no críticas que requieren revisión, el resultado debe ser <code>attention</code>.</td></tr>
+        <tr><td>CA07</td><td>Solo con evidencia suficiente de presión relevante el resultado podrá ser <code>risk</code>.</td></tr>
+        <tr><td>CA08</td><td>Si existen múltiples señales simultáneas, solo una deberá quedar como <code>dominant_pressure_code</code>.</td></tr>
+        <tr><td>CA09</td><td>Cada diagnóstico deberá exponer una única acción dominante.</td></tr>
+        <tr><td>CA10</td><td>Cada evaluación deberá persistir <code>rule_version</code> y <code>evaluated_at</code>.</td></tr>
+        <tr><td>CA11</td><td>Frontend deberá representar el estado recibido sin reinterpretar la lógica financiera.</td></tr>
+        <tr><td>CA12</td><td>Al retomar el onboarding debe recuperarse o recalcularse la evaluación según la regla de versionamiento definida.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="card">
+    <h2>15. Casos mínimos para QA</h2>
+
+    <table>
+      <thead><tr><th>Caso</th><th>Entrada / condición</th><th>Resultado esperado</th></tr></thead>
+      <tbody>
+        <tr><td>SEM-01</td><td>Base suficiente, sin señales críticas.</td><td><code>in_control</code></td></tr>
+        <tr><td>SEM-02</td><td>Base suficiente + movimientos pendientes.</td><td><code>attention</code></td></tr>
+        <tr><td>SEM-03</td><td>Base suficiente + fugas detectadas.</td><td><code>attention</code></td></tr>
+        <tr><td>SEM-04</td><td>Base usable + dato no crítico por confirmar.</td><td><code>attention</code> o diagnóstico parcial según evaluación.</td></tr>
+        <tr><td>SEM-05</td><td>Base suficiente + margen ajustado.</td><td><code>attention</code></td></tr>
+        <tr><td>SEM-06</td><td>Evidencia suficiente de sobrecarga.</td><td><code>risk</code></td></tr>
+        <tr><td>SEM-07</td><td>Evidencia suficiente de compromisos altos.</td><td><code>risk</code></td></tr>
+        <tr><td>SEM-08</td><td>Falta ingreso crítico.</td><td><code>no_diagnosis</code></td></tr>
+        <tr><td>SEM-09</td><td>Faltan movimientos críticos.</td><td><code>no_diagnosis</code></td></tr>
+        <tr><td>SEM-10</td><td>Confianza insuficiente.</td><td><code>no_diagnosis</code></td></tr>
+        <tr><td>SEM-11</td><td>Documento no procesable.</td><td><code>no_diagnosis</code></td></tr>
+        <tr><td>SEM-12</td><td>Motor no puede determinar diagnóstico por falta de datos.</td><td><code>no_diagnosis</code>, nunca <code>null</code>.</td></tr>
+        <tr><td>SEM-13</td><td>Varias señales simultáneas.</td><td>Un solo <code>dominant_pressure_code</code>.</td></tr>
+        <tr><td>SEM-14</td><td>Diagnóstico generado.</td><td>Un solo CTA dominante.</td></tr>
+        <tr><td>SEM-15</td><td>Respuesta API de G5.</td><td><code>light</code> no puede ser <code>null</code>.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section class="card">
+    <h2>16. Fuera de este requerimiento / definiciones pendientes</h2>
+
+    <div class="callout warning">
+      La documentación disponible no define umbrales numéricos cerrados para determinar cuándo un margen pasa de
+      <code>adjusted</code> a <code>pressured</code>, cuándo un compromiso debe considerarse <code>high</code> o cuál es
+      la prioridad exacta entre todas las presiones simultáneas.
+    </div>
+
+    <p>
+      Estos valores no deben inventarse ni quedar hardcodeados sin definición de Producto.
+      Los parámetros y prioridades que gobiernen el cálculo deberán quedar configurables/versionados mediante la lógica
+      de <code>rule_parameter</code> y deberán ser aprobados antes de cerrar la implementación definitiva del motor.
+    </p>
+  </section>
+
+  <section class="card">
+    <h2>17. Definition of Done</h2>
+
+    <ul>
+      <li>Backend implementa y persiste la evaluación del semáforo.</li>
+      <li>La API entrega uno de los cuatro estados válidos al finalizar G5.</li>
+      <li>No se retorna <code>null</code> para el semáforo cuando G5 ya fue evaluada.</li>
+      <li>Frontend representa correctamente el resultado recibido.</li>
+      <li>Se mantiene una única presión dominante.</li>
+      <li>Se mantiene un único CTA dominante.</li>
+      <li>Se registra trazabilidad de la evaluación.</li>
+      <li>QA ejecuta satisfactoriamente escenarios En control, Atención, Riesgo y Sin diagnóstico.</li>
+    </ul>
+  </section>
+
+  <div class="footer">
+    Documento de requerimiento – M1 Onboarding / Puerta G5 – Versión 1.0
+  </div>
+
+</div>
+</body>
+</html>

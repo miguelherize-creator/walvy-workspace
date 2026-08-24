@@ -1,0 +1,572 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Requerimiento Semáforo Onboarding M1 - Walvy</title>
+<style>
+  :root{
+    --ink:#17212b;
+    --muted:#5c6b76;
+    --line:#dce4e8;
+    --soft:#f5f8f9;
+    --brand:#0f5967;
+    --brand2:#174c59;
+    --green:#18864b;
+    --yellow:#b87900;
+    --red:#b63a3a;
+    --gray:#69757d;
+    --blue:#176b87;
+    --warn-bg:#fff8e7;
+    --warn-line:#efd28b;
+    --danger-bg:#fff0f0;
+    --danger-line:#efb6b6;
+    --ok-bg:#eef9f2;
+    --ok-line:#b9e1c8;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    color:var(--ink);
+    background:#eef3f5;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Arial, Helvetica, sans-serif;
+    line-height:1.48;
+  }
+  .page{
+    max-width:1200px;
+    margin:28px auto;
+    background:#fff;
+    box-shadow:0 8px 26px rgba(0,0,0,.08);
+    border-radius:16px;
+    overflow:hidden;
+  }
+  header{
+    background:linear-gradient(135deg,var(--brand2),var(--brand));
+    color:#fff;
+    padding:34px 42px 30px;
+  }
+  header .eyebrow{
+    font-size:12px;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    opacity:.85;
+    font-weight:700;
+  }
+  h1{font-size:30px; margin:7px 0 10px; line-height:1.18}
+  header p{margin:0; max-width:900px; opacity:.93}
+  .meta{
+    display:grid;
+    grid-template-columns:repeat(4,minmax(0,1fr));
+    gap:12px;
+    padding:18px 42px;
+    background:#f7fafb;
+    border-bottom:1px solid var(--line);
+  }
+  .meta div{font-size:13px}
+  .meta b{display:block;color:var(--brand2);font-size:11px;text-transform:uppercase;letter-spacing:.05em;margin-bottom:3px}
+  main{padding:34px 42px 48px}
+  nav{
+    border:1px solid var(--line);
+    background:var(--soft);
+    padding:16px 20px;
+    border-radius:12px;
+    margin-bottom:28px;
+  }
+  nav b{color:var(--brand2)}
+  nav a{color:var(--brand);text-decoration:none;margin-right:18px;display:inline-block;margin-top:6px;font-size:13px}
+  h2{
+    color:var(--brand2);
+    font-size:22px;
+    margin:32px 0 12px;
+    border-bottom:2px solid #d7e8ec;
+    padding-bottom:7px;
+  }
+  h3{color:#244650;font-size:17px;margin:24px 0 8px}
+  p{margin:9px 0}
+  .lead{
+    font-size:16px;
+    background:#f2f8fa;
+    border-left:5px solid var(--brand);
+    padding:15px 18px;
+    border-radius:8px;
+  }
+  .callout{
+    padding:14px 16px;
+    border-radius:10px;
+    margin:14px 0;
+    border:1px solid var(--line);
+  }
+  .callout.ok{background:var(--ok-bg);border-color:var(--ok-line)}
+  .callout.warn{background:var(--warn-bg);border-color:var(--warn-line)}
+  .callout.danger{background:var(--danger-bg);border-color:var(--danger-line)}
+  .callout strong{color:#25353d}
+  table{
+    width:100%;
+    border-collapse:collapse;
+    margin:13px 0 22px;
+    font-size:13.5px;
+  }
+  th{
+    background:var(--brand2);
+    color:#fff;
+    text-align:left;
+    padding:10px 10px;
+    border:1px solid #d0dadd;
+    vertical-align:top;
+  }
+  td{
+    padding:9px 10px;
+    border:1px solid #d8e0e4;
+    vertical-align:top;
+  }
+  tr:nth-child(even) td{background:#fafcfc}
+  code{
+    font-family: ui-monospace, SFMono-Regular, Menlo, Consolas, "Liberation Mono", monospace;
+    background:#edf2f4;
+    color:#163c48;
+    padding:2px 5px;
+    border-radius:5px;
+    font-size:.94em;
+  }
+  pre{
+    overflow:auto;
+    background:#14252d;
+    color:#eef7f9;
+    padding:17px 19px;
+    border-radius:10px;
+    line-height:1.5;
+    font-size:13px;
+  }
+  pre code{background:transparent;color:inherit;padding:0}
+  .pill{
+    display:inline-block;
+    font-size:12px;
+    font-weight:700;
+    padding:4px 9px;
+    border-radius:999px;
+    white-space:nowrap;
+  }
+  .green{background:#e7f6ed;color:#116a3b}
+  .yellow{background:#fff3d4;color:#865900}
+  .red{background:#fde8e8;color:#9b2f2f}
+  .gray{background:#ebeff1;color:#4e5c65}
+  .blue{background:#e5f3f7;color:#0c5f78}
+  .flow{
+    display:grid;
+    grid-template-columns:repeat(4,1fr);
+    gap:12px;
+    margin:18px 0 24px;
+  }
+  .step{
+    border:1px solid var(--line);
+    border-radius:12px;
+    padding:14px;
+    background:#fff;
+    min-height:122px;
+  }
+  .step .n{font-weight:800;color:var(--brand);font-size:12px}
+  .step h4{margin:5px 0 7px;font-size:15px}
+  .step p{font-size:12.5px;color:var(--muted);margin:0}
+  ul,ol{padding-left:22px}
+  li{margin:5px 0}
+  .check td:first-child{font-weight:700;white-space:nowrap}
+  .sourcebox{
+    background:#f8fafb;
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:15px 18px;
+    font-size:13px;
+    color:#41515a;
+  }
+  .sourcebox ul{margin:8px 0 0}
+  .footer{
+    border-top:1px solid var(--line);
+    margin-top:36px;
+    padding-top:18px;
+    color:var(--muted);
+    font-size:12px;
+  }
+  .important{
+    font-weight:800;
+    color:#953737;
+  }
+  @media (max-width:800px){
+    .page{margin:0;border-radius:0}
+    header, main{padding-left:20px;padding-right:20px}
+    .meta{grid-template-columns:1fr 1fr;padding-left:20px;padding-right:20px}
+    .flow{grid-template-columns:1fr}
+    table{font-size:12px}
+  }
+  @media print{
+    body{background:#fff}
+    .page{box-shadow:none;margin:0;max-width:none;border-radius:0}
+    nav{display:none}
+    header{print-color-adjust:exact;-webkit-print-color-adjust:exact}
+    th{print-color-adjust:exact;-webkit-print-color-adjust:exact}
+  }
+</style>
+</head>
+<body>
+<div class="page">
+<header>
+  <div class="eyebrow">Walvy · Módulo 1 · Onboarding + Diagnóstico</div>
+  <h1>Requerimiento de Desarrollo — Semáforo General y Estados Documentales</h1>
+  <p>Definición funcional para implementar el comportamiento del semáforo del diagnóstico inicial (G5), incluyendo las dependencias de G2–G4, tratamiento del documento cargado, análisis, estado visual “Verificado” y manejo seguro de respuestas nulas.</p>
+</header>
+
+<section class="meta">
+  <div><b>Versión</b>1.0</div>
+  <div><b>Fecha</b>23-08-2026</div>
+  <div><b>Estado</b>Para desarrollo / QA</div>
+  <div><b>Impacto</b>Frontend + Backend + QA</div>
+</section>
+
+<main>
+<nav>
+  <b>Contenido:</b><br>
+  <a href="#objetivo">1. Objetivo</a>
+  <a href="#alcance">2. Alcance</a>
+  <a href="#modelo">3. Estados</a>
+  <a href="#g2">4. G2</a>
+  <a href="#analisis">5. Análisis</a>
+  <a href="#g5">6. Semáforo G5</a>
+  <a href="#null">7. light=null</a>
+  <a href="#front">8. Frontend</a>
+  <a href="#contrato">9. Contrato API</a>
+  <a href="#ca">10. Criterios de aceptación</a>
+  <a href="#qa">11. Casos QA</a>
+</nav>
+
+<section id="objetivo">
+<h2>1. Objetivo</h2>
+<p class="lead"><strong>Implementar un único comportamiento consistente entre Backend y Frontend para el semáforo del diagnóstico inicial, evitando mostrar una conclusión financiera cuando la evidencia todavía es insuficiente.</strong></p>
+<p>El semáforo pertenece a la <strong>Puerta G5 – Diagnóstico inicial</strong>. Para llegar a G5 deben cumplirse previamente las condiciones de carga documental, suficiencia y análisis. El semáforo general no es un indicador aislado y no debe calcularse únicamente a partir de un color recibido desde API.</p>
+</section>
+
+<section id="alcance">
+<h2>2. Alcance funcional</h2>
+<ul>
+  <li>Validación de estado documental en <strong>G2 – Carga documental</strong>.</li>
+  <li>Tratamiento del procesamiento documental y sus estados.</li>
+  <li>Separación entre estado funcional y copy visual <strong>“Verificado”</strong>.</li>
+  <li>Condiciones de habilitación y bloqueo del diagnóstico.</li>
+  <li>Estados permitidos del semáforo general de G5.</li>
+  <li>Reglas de Frontend cuando el API entregue un valor nulo o inconsistente.</li>
+  <li>Guardrails para evitar falsa certeza, rojo por falta de datos o mezcla con severidad S0–S4 de deuda.</li>
+</ul>
+
+<div class="callout warn">
+<strong>Importante:</strong> la documentación fuente define reglas funcionales, estados y enums, pero no define el copy visual final. Por ello, “Verificado” puede existir solo como texto de presentación si Producto/UX lo aprueba; no debe crearse como nuevo estado de negocio.
+</div>
+</section>
+
+<section id="modelo">
+<h2>3. Modelo de estados que debe respetar la implementación</h2>
+
+<h3>3.1 Estado del documento</h3>
+<table>
+<thead><tr><th>Campo</th><th>Valores permitidos</th><th>Uso</th></tr></thead>
+<tbody>
+<tr><td><code>document_upload_status</code></td><td><code>none</code>, <code>uploaded</code>, <code>usable</code>, <code>non_processable</code>, <code>outdated</code>, <code>duplicate</code>, <code>rejected</code></td><td>Define si existe una base documental válida para continuar.</td></tr>
+</tbody>
+</table>
+
+<h3>3.2 Estado del análisis</h3>
+<table>
+<thead><tr><th>Campo</th><th>Valores permitidos</th><th>Uso</th></tr></thead>
+<tbody>
+<tr><td><code>analysis_status</code></td><td><code>queued</code>, <code>in_progress</code>, <code>delayed_soft</code>, <code>delayed_long</code>, <code>completed</code>, <code>failed</code></td><td>Representa la ejecución del procesamiento/análisis.</td></tr>
+</tbody>
+</table>
+
+<h3>3.3 Estado del semáforo general</h3>
+<table>
+<thead><tr><th>Campo</th><th>Valores permitidos</th><th>Representación</th></tr></thead>
+<tbody>
+<tr><td><code>general_traffic_light_status</code></td><td><code>in_control</code>, <code>attention</code>, <code>risk</code>, <code>no_diagnosis</code></td><td>Verde, Amarillo, Rojo o Sin diagnóstico.</td></tr>
+</tbody>
+</table>
+
+<div class="callout danger">
+<strong>No están definidos como estados funcionales:</strong> <code>verified</code> ni <code>null</code>. Ninguno debe incorporarse al enum de negocio del documento o del semáforo.
+</div>
+</section>
+
+<section id="g2">
+<h2>4. Reglas de G2 — Carga documental</h2>
+<p>La Puerta G2 se supera únicamente cuando existe <strong>al menos un documento con <code>document_upload_status = usable</code></strong>.</p>
+
+<table>
+<thead>
+<tr><th>Estado documento</th><th>¿Supera G2?</th><th>Comportamiento Front</th><th>Observación</th></tr>
+</thead>
+<tbody>
+<tr><td><code>none</code></td><td><span class="pill red">NO</span></td><td>Solicitar carga documental.</td><td>No existe base documental.</td></tr>
+<tr><td><code>uploaded</code></td><td><span class="pill yellow">AÚN NO</span></td><td>Mostrar archivo cargado y estado de procesamiento.</td><td>“Cargado” no equivale a usable.</td></tr>
+<tr><td><code>usable</code></td><td><span class="pill green">SÍ</span></td><td>Permitir avanzar a revisión/suficiencia.</td><td>Es el único estado que satisface por sí mismo la condición documental de G2.</td></tr>
+<tr><td><code>non_processable</code></td><td><span class="pill red">NO</span></td><td>Informar que debe subir/revisar otro archivo.</td><td>Bloquea avance.</td></tr>
+<tr><td><code>outdated</code></td><td><span class="pill red">NO</span></td><td>Solicitar documento vigente.</td><td>No debe tratarse como base suficiente.</td></tr>
+<tr><td><code>duplicate</code></td><td><span class="pill red">NO</span></td><td>No generar una nueva base válida por duplicidad.</td><td>Debe conservarse trazabilidad del evento.</td></tr>
+<tr><td><code>rejected</code></td><td><span class="pill red">NO</span></td><td>Mostrar motivo controlado y solicitar corrección/nueva carga.</td><td>No avanzar.</td></tr>
+</tbody>
+</table>
+
+<h3>4.1 Regla específica para “Verificado”</h3>
+<div class="callout ok">
+<strong>RN-G2-VER-01.</strong> El Frontend no debe generar ni persistir un estado funcional <code>verified</code>. Si la interfaz muestra la palabra <strong>“Verificado”</strong>, ésta será únicamente un <strong>label visual</strong> y deberá corresponder a un estado funcional existente.
+</div>
+
+<p>Mapeo recomendado para evitar inconsistencias:</p>
+<table>
+<thead><tr><th>Condición técnica</th><th>Estado funcional</th><th>Label visual permitido</th></tr></thead>
+<tbody>
+<tr><td><code>analysis_status = completed</code> y <code>document_upload_status = usable</code></td><td>Documento usable + análisis completado</td><td>Puede mostrarse “Verificado” solo si el copy está aprobado por UX/Producto. Preferible: “Analizado” o “Procesado”.</td></tr>
+<tr><td><code>analysis_status = completed</code> pero documento no usable</td><td>No procesable / rechazado / desactualizado, según corresponda</td><td><span class="important">Nunca “Verificado”.</span></td></tr>
+<tr><td>Análisis aún en curso</td><td><code>uploaded</code> + estado de análisis en proceso</td><td><span class="important">Nunca “Verificado”.</span></td></tr>
+</tbody>
+</table>
+</section>
+
+<section id="analisis">
+<h2>5. Reglas de procesamiento documental — G4</h2>
+
+<div class="flow">
+  <div class="step"><div class="n">01</div><h4>queued</h4><p>Documento recibido y pendiente de iniciar análisis. No hay diagnóstico ni semáforo.</p></div>
+  <div class="step"><div class="n">02</div><h4>in_progress</h4><p>Análisis en ejecución. Mostrar progreso; no concluir estado financiero.</p></div>
+  <div class="step"><div class="n">03</div><h4>delayed_soft / delayed_long</h4><p>Demora controlada. Mantener avance y ofrecer salida segura.</p></div>
+  <div class="step"><div class="n">04</div><h4>completed / failed</h4><p>Completed habilita evaluación de suficiencia. Failed debe llevar a recuperación, no a semáforo.</p></div>
+</div>
+
+<table>
+<thead><tr><th>Estado</th><th>Regla de UI</th><th>Semáforo</th></tr></thead>
+<tbody>
+<tr><td><code>queued</code></td><td>Mostrar espera/progreso.</td><td>No mostrar color final.</td></tr>
+<tr><td><code>in_progress</code></td><td>Mostrar progreso por pasos.</td><td>No mostrar color final.</td></tr>
+<tr><td><code>delayed_soft</code></td><td>Desde umbral recomendado de 45 s: informar demora y permitir esperar/salir sin perder avance.</td><td>No mostrar color final.</td></tr>
+<tr><td><code>delayed_long</code></td><td>Desde umbral recomendado de 90 s: reforzar salida segura / “avisarme” / volver después.</td><td>No mostrar color final.</td></tr>
+<tr><td><code>completed</code></td><td>Continuar a evaluación de suficiencia y G5 si corresponde.</td><td>Se determina por reglas de diagnóstico, no solo por haber completado el análisis.</td></tr>
+<tr><td><code>failed</code></td><td>Mostrar recuperación: nueva carga o completar información clave.</td><td>Sin diagnóstico.</td></tr>
+</tbody>
+</table>
+</section>
+
+<section id="g5">
+<h2>6. Reglas del Semáforo General — Puerta G5</h2>
+
+<p>La Puerta G5 se considera funcionalmente resuelta cuando el sistema tiene definidos <strong>semáforo, presión principal y CTA dominante</strong>. El semáforo representa una lectura inicial de salud financiera del mes y <strong>no debe copiar la escala S0–S4 de deuda</strong>.</p>
+
+<table>
+<thead>
+<tr><th>Valor Backend</th><th>Estado visual</th><th>Condición funcional</th><th>Regla / CTA</th></tr>
+</thead>
+<tbody>
+<tr>
+<td><code>in_control</code></td>
+<td><span class="pill green">VERDE · En control</span></td>
+<td>Base documental suficiente, indicadores críticos disponibles y sin presión principal crítica. Puede existir una oportunidad menor de optimización.</td>
+<td>Optimizar pagos recurrentes o avanzar a Mi Perfil Financiero.</td>
+</tr>
+<tr>
+<td><code>attention</code></td>
+<td><span class="pill yellow">AMARILLO · Atención</span></td>
+<td>Base usable, con datos no bloqueantes por confirmar, movimientos pendientes, fugas detectadas, pagos recurrentes relevantes o margen ajustado sin evidencia crítica.</td>
+<td>Completar/revisar señal principal o continuar a Perfil con advertencia.</td>
+</tr>
+<tr>
+<td><code>risk</code></td>
+<td><span class="pill red">ROJO · Riesgo</span></td>
+<td>Existe base usable y evidencia suficiente de presión relevante: sobrecarga, compromisos altos, gastos/recurrentes que presionan la estabilidad u otra señal fuerte.</td>
+<td>Atender riesgo principal o revisar acción sugerida antes de continuar.</td>
+</tr>
+<tr>
+<td><code>no_diagnosis</code></td>
+<td><span class="pill gray">SIN DIAGNÓSTICO</span></td>
+<td>Falta documento usable, ingreso principal, movimientos recientes, base mínima de compromisos/pagos; hay documento no procesable o confianza insuficiente.</td>
+<td>Completar información clave, corregir o cargar documento usable.</td>
+</tr>
+</tbody>
+</table>
+
+<h3>6.1 Guardrails obligatorios</h3>
+<ol>
+  <li><strong>No mostrar rojo por falta de información.</strong> La ausencia de datos debe resolverse como <code>no_diagnosis</code> o bloqueo.</li>
+  <li><strong>No diagnosticar sin documento usable</strong> ni sin los datos críticos mínimos.</li>
+  <li><strong>No copiar S0–S4 de deuda</strong> al semáforo general del onboarding inicial.</li>
+  <li>Los datos inferidos, manuales o por confirmar deben afectar confianza y/o advertencia; no deben presentarse como certeza.</li>
+  <li>Debe existir una única <strong>presión principal</strong> y una única <strong>acción/CTA dominante</strong> por evaluación.</li>
+  <li>La ruta manual/texto/voz solo complementa después de carga documental válida; no sustituye G2.</li>
+</ol>
+</section>
+
+<section id="null">
+<h2>7. Tratamiento requerido cuando API entregue <code>light: null</code></h2>
+
+<div class="callout warn">
+<strong>Brecha de contrato identificada:</strong> la documentación no define <code>null</code> como un estado del semáforo. El enum funcional contempla <code>in_control</code>, <code>attention</code>, <code>risk</code> y <code>no_diagnosis</code>.
+</div>
+
+<h3>7.1 Regla propuesta de implementación</h3>
+<table>
+<thead><tr><th>Escenario</th><th>Tratamiento obligatorio</th></tr></thead>
+<tbody>
+<tr>
+<td>Usuario aún no llega a G5 o el análisis está <code>queued</code>/<code>in_progress</code>/<code>delayed_*</code></td>
+<td>El Front <strong>no debe renderizar un semáforo final</strong>. Mostrar estado de proceso correspondiente. <code>null</code> puede existir transitoriamente en transporte, pero no representa un color ni una evaluación.</td>
+</tr>
+<tr>
+<td>G5 intenta mostrarse y el backend retorna <code>light: null</code></td>
+<td>No asignar verde/amarillo/rojo por defecto. Validar los campos de suficiencia/modo. Si éstos indican bloqueo o falta real de datos, presentar <strong>Sin diagnóstico</strong>. Si los campos son contradictorios, tratar como inconsistencia de contrato y registrar error.</td>
+</tr>
+<tr>
+<td>Backend ya determinó falta de base o datos insuficientes</td>
+<td>El contrato objetivo debe responder <code>general_traffic_light_status = "no_diagnosis"</code>, no <code>null</code>.</td>
+</tr>
+<tr>
+<td><code>light: null</code> con diagnóstico marcado como completo</td>
+<td><span class="important">Inconsistencia técnica.</span> No inventar color en Front. Registrar/telemetría y usar fallback seguro sin falsa certeza.</td>
+</tr>
+</tbody>
+</table>
+
+<pre><code>// Pseudológica Frontend propuesta
+if (currentGate !== "G5_diagnostico" || analysisStatus !== "completed") {
+  hideFinalTrafficLight();
+  renderProcessState();
+} else if (trafficLightStatus == null) {
+  if (diagnosticMode === "blocked" ||
+      diagnosticMode === "not_available" ||
+      ["datos_clave_insuficientes","sin_base","documento_no_procesable"].includes(sufficiencyStatus)) {
+    renderNoDiagnosis();
+  } else {
+    renderSafeFallback();
+    logContractInconsistency("TRAFFIC_LIGHT_NULL_AT_G5");
+  }
+} else {
+  renderTrafficLight(trafficLightStatus);
+}</code></pre>
+</section>
+
+<section id="front">
+<h2>8. Requerimientos específicos de Frontend</h2>
+
+<table class="check">
+<thead><tr><th>ID</th><th>Requerimiento</th></tr></thead>
+<tbody>
+<tr><td>RF-FE-01</td><td>No crear un enum local <code>verified</code> para el estado documental.</td></tr>
+<tr><td>RF-FE-02</td><td>Usar <code>document_upload_status</code> como fuente del estado funcional del documento.</td></tr>
+<tr><td>RF-FE-03</td><td>Usar <code>analysis_status</code> para representar progreso, demora, término o falla del análisis.</td></tr>
+<tr><td>RF-FE-04</td><td>No mostrar un color de semáforo final mientras G4 no haya terminado y G5 no tenga evaluación válida.</td></tr>
+<tr><td>RF-FE-05</td><td>Renderizar exclusivamente los cuatro estados permitidos de <code>general_traffic_light_status</code>.</td></tr>
+<tr><td>RF-FE-06</td><td>No interpretar <code>null</code> como verde, amarillo o rojo.</td></tr>
+<tr><td>RF-FE-07</td><td>Cuando falte información crítica, mostrar “Sin diagnóstico” o el estado de bloqueo correspondiente.</td></tr>
+<tr><td>RF-FE-08</td><td>Si se mantiene el copy “Verificado”, debe ser solo visual y estar asociado a una combinación funcional válida; no persistirlo ni enviarlo como estado a Backend.</td></tr>
+<tr><td>RF-FE-09</td><td>Ante estados contradictorios, utilizar fallback seguro y registrar trazabilidad técnica.</td></tr>
+<tr><td>RF-FE-10</td><td>La navegación desde G5 debe respetar la acción dominante definida por la evaluación.</td></tr>
+</tbody>
+</table>
+</section>
+
+<section id="contrato">
+<h2>9. Contrato mínimo esperado Frontend ↔ Backend</h2>
+<p>El nombre real de los campos puede adaptarse al contrato técnico vigente, pero debe conservar la equivalencia funcional.</p>
+
+<pre><code>{
+  "current_gate": "G5_diagnostico",
+  "document": {
+    "document_upload_status": "usable"
+  },
+  "analysis": {
+    "analysis_status": "completed"
+  },
+  "diagnostic": {
+    "sufficiency_status": "base_suficiente",
+    "diagnostic_mode": "complete",
+    "diagnostic_status": "completed",
+    "general_traffic_light_status": "in_control",
+    "dominant_pressure_code": "no_pressure",
+    "dominant_cta_code": "ver_perfil",
+    "confidence_level": "high",
+    "rule_version": "onboarding_diagnosis_v1_0"
+  }
+}</code></pre>
+
+<p><strong>Contrato objetivo:</strong> cuando el diagnóstico no pueda determinarse por falta de datos, el backend debe informar explícitamente <code>general_traffic_light_status = "no_diagnosis"</code> junto con el motivo de bloqueo/suficiencia, evitando utilizar <code>null</code> como resultado funcional final.</p>
+</section>
+
+<section id="ca">
+<h2>10. Criterios de aceptación</h2>
+
+<table class="check">
+<thead><tr><th>ID</th><th>Criterio de aceptación</th></tr></thead>
+<tbody>
+<tr><td>CA-01</td><td>Dado un documento con estado <code>uploaded</code>, el usuario no supera G2 hasta que exista al menos un documento <code>usable</code>.</td></tr>
+<tr><td>CA-02</td><td>Dado un documento <code>non_processable</code>, el flujo bloquea avance y solicita corrección o nueva carga.</td></tr>
+<tr><td>CA-03</td><td>El sistema no utiliza <code>verified</code> como estado funcional de documento ni de análisis.</td></tr>
+<tr><td>CA-04</td><td>El término exitoso del análisis se representa con <code>analysis_status = completed</code>.</td></tr>
+<tr><td>CA-05</td><td>La aptitud documental se representa con <code>document_upload_status = usable</code>.</td></tr>
+<tr><td>CA-06</td><td>El semáforo solo puede tomar <code>in_control</code>, <code>attention</code>, <code>risk</code> o <code>no_diagnosis</code>.</td></tr>
+<tr><td>CA-07</td><td>Falta de documento usable o datos críticos nunca produce estado rojo por defecto.</td></tr>
+<tr><td>CA-08</td><td>Rojo/Riesgo requiere evidencia suficiente y una presión principal identificada.</td></tr>
+<tr><td>CA-09</td><td>Amarillo/Atención admite datos por confirmar únicamente cuando éstos no son bloqueantes.</td></tr>
+<tr><td>CA-10</td><td>Verde/En control requiere base suficiente y ausencia de presión principal crítica.</td></tr>
+<tr><td>CA-11</td><td>Si el API retorna <code>light: null</code> en G5, el Front no inventa un color y ejecuta el fallback seguro definido.</td></tr>
+<tr><td>CA-12</td><td>Cuando la falta de información es una condición válida de negocio, Backend normaliza el resultado a <code>no_diagnosis</code>.</td></tr>
+<tr><td>CA-13</td><td>Los estados de demora de análisis no generan diagnóstico ni color final.</td></tr>
+<tr><td>CA-14</td><td>La severidad S0–S4 de deuda no reemplaza el semáforo general del onboarding inicial.</td></tr>
+<tr><td>CA-15</td><td>Cada evaluación conserva versión de regla, presión principal y CTA dominante para trazabilidad.</td></tr>
+</tbody>
+</table>
+</section>
+
+<section id="qa">
+<h2>11. Matriz mínima de pruebas QA</h2>
+<table>
+<thead>
+<tr><th>#</th><th>Entrada / precondición</th><th>Resultado esperado</th></tr>
+</thead>
+<tbody>
+<tr><td>1</td><td>Sin documentos.</td><td>G2 bloqueado; semáforo no disponible / Sin diagnóstico.</td></tr>
+<tr><td>2</td><td>Documento <code>uploaded</code>, análisis pendiente.</td><td>No superar G2 por el solo hecho de estar cargado; mostrar procesamiento.</td></tr>
+<tr><td>3</td><td>Documento <code>usable</code>.</td><td>Permitir avanzar a G3.</td></tr>
+<tr><td>4</td><td>Documento <code>non_processable</code>.</td><td>Bloqueo y CTA de nueva carga/revisión.</td></tr>
+<tr><td>5</td><td><code>analysis_status = in_progress</code>.</td><td>Progreso visible; sin semáforo final.</td></tr>
+<tr><td>6</td><td>Demora ≥ 45 s.</td><td>Estado demorado suave; esperar o salir sin perder avance.</td></tr>
+<tr><td>7</td><td>Demora ≥ 90 s.</td><td>Estado demorado extendido y salida segura reforzada.</td></tr>
+<tr><td>8</td><td>Análisis completado + base suficiente + sin presión crítica.</td><td><code>in_control</code> / Verde.</td></tr>
+<tr><td>9</td><td>Base usable + dato no bloqueante por confirmar.</td><td><code>attention</code> / Amarillo.</td></tr>
+<tr><td>10</td><td>Base usable + evidencia fuerte de presión.</td><td><code>risk</code> / Rojo.</td></tr>
+<tr><td>11</td><td>Falta ingreso principal o movimientos recientes.</td><td><code>no_diagnosis</code>; nunca Rojo por ausencia.</td></tr>
+<tr><td>12</td><td><code>light = null</code> antes de G5.</td><td>No renderizar semáforo final; representar proceso actual.</td></tr>
+<tr><td>13</td><td><code>light = null</code> en G5 + modo bloqueado.</td><td>Fallback “Sin diagnóstico”.</td></tr>
+<tr><td>14</td><td><code>light = null</code> en G5 + diagnóstico completo.</td><td>Registrar inconsistencia; no inventar color.</td></tr>
+<tr><td>15</td><td>Front intenta usar estado <code>verified</code>.</td><td>No persistirlo como estado. Validar mapeo a estados funcionales existentes.</td></tr>
+</tbody>
+</table>
+</section>
+
+<section>
+<h2>12. Decisión de implementación resumida</h2>
+<div class="callout ok">
+<strong>Regla principal para desarrollo:</strong><br>
+G2 valida que exista al menos un documento <code>usable</code>. G4 controla el procesamiento mediante <code>analysis_status</code>. G5 calcula y muestra el semáforo únicamente con un diagnóstico válido. “Verificado” no es un estado funcional y <code>light: null</code> no es un resultado válido del semáforo final. Si falta evidencia, el resultado de negocio debe ser <code>no_diagnosis</code>, nunca un color inferido por el Front.
+</div>
+</section>
+
+<section>
+<h2>13. Fuentes documentales utilizadas</h2>
+<div class="sourcebox">
+  <ul>
+    <li><strong>Walvy_Onboarding_Diagnostico_Fase3_Reglas_Contextuales_Suficiencia_Semaforo_CTA_v1_0</strong> — reglas de suficiencia, puertas G2–G5, semáforo general, diagnóstico parcial, demoras y guardrails.</li>
+    <li><strong>Walvy_Onboarding_Diagnostico_Fase3_Anexo_BDD_Reglas_Productivas_v1_0</strong> — enums de <code>document_upload_status</code>, <code>analysis_status</code>, <code>general_traffic_light_status</code>, estados de diagnóstico y parámetros.</li>
+  </ul>
+  <p><strong>Nota:</strong> el tratamiento específico de <code>light: null</code> se presenta en este requerimiento como regla de implementación para cerrar una brecha de contrato, porque <code>null</code> no figura como estado funcional documentado.</p>
+</div>
+</section>
+
+<div class="footer">
+Documento preparado para handoff de desarrollo y QA. La definición técnica definitiva de nombres de endpoints/campos puede adaptarse a la arquitectura vigente sin alterar las reglas funcionales aquí descritas.
+</div>
+</main>
+</div>
+</body>
+</html>

@@ -1,0 +1,592 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>REQ G1 · Regla de estados · Foco del Mes · Walvy</title>
+<style>
+  :root{
+    --ink:#183238;
+    --muted:#63777b;
+    --teal:#0e5962;
+    --teal-2:#14747e;
+    --soft:#eef6f7;
+    --line:#d8e4e6;
+    --warn:#fff7df;
+    --warn-line:#e4bc45;
+    --ok:#eaf7ef;
+    --ok-line:#69a97d;
+    --danger:#fff0ef;
+    --danger-line:#d9756f;
+    --paper:#ffffff;
+    --bg:#f4f7f8;
+    --code:#f5f7f8;
+  }
+  *{box-sizing:border-box}
+  body{
+    margin:0;
+    color:var(--ink);
+    background:var(--bg);
+    font-family:Arial, Helvetica, sans-serif;
+    line-height:1.48;
+    font-size:15px;
+  }
+  .page{
+    max-width:1180px;
+    margin:28px auto;
+    background:var(--paper);
+    box-shadow:0 8px 28px rgba(26,57,64,.09);
+    border:1px solid var(--line);
+  }
+  header{
+    padding:34px 42px 28px;
+    background:linear-gradient(135deg,var(--teal),#153f47);
+    color:white;
+  }
+  header .eyebrow{
+    font-size:12px;
+    letter-spacing:.12em;
+    text-transform:uppercase;
+    opacity:.82;
+    font-weight:700;
+  }
+  h1{font-size:30px;line-height:1.15;margin:8px 0 8px}
+  header p{max-width:840px;margin:0;opacity:.92}
+  .meta{
+    display:grid;
+    grid-template-columns:repeat(4,minmax(0,1fr));
+    gap:10px;
+    margin-top:22px;
+  }
+  .meta div{
+    background:rgba(255,255,255,.09);
+    border:1px solid rgba(255,255,255,.18);
+    padding:10px 12px;
+    border-radius:8px;
+  }
+  .meta b{display:block;font-size:11px;text-transform:uppercase;letter-spacing:.08em;margin-bottom:3px}
+  main{padding:34px 42px 50px}
+  .toc{
+    padding:16px 18px;
+    background:var(--soft);
+    border:1px solid var(--line);
+    border-radius:10px;
+    margin-bottom:28px;
+  }
+  .toc strong{color:var(--teal)}
+  .toc a{color:var(--teal);text-decoration:none;margin-right:14px;white-space:nowrap}
+  h2{
+    font-size:22px;
+    margin:34px 0 12px;
+    padding-bottom:7px;
+    border-bottom:2px solid var(--teal);
+    color:var(--teal);
+  }
+  h3{font-size:17px;margin:22px 0 8px;color:#234b53}
+  p{margin:8px 0 12px}
+  ul{margin:8px 0 14px 20px;padding:0}
+  li{margin:5px 0}
+  .callout{
+    padding:14px 16px;
+    border-left:5px solid var(--teal-2);
+    background:var(--soft);
+    border-radius:6px;
+    margin:14px 0;
+  }
+  .warning{background:var(--warn);border-left-color:var(--warn-line)}
+  .success{background:var(--ok);border-left-color:var(--ok-line)}
+  .danger{background:var(--danger);border-left-color:var(--danger-line)}
+  .badge{
+    display:inline-block;
+    padding:3px 8px;
+    border-radius:999px;
+    font-size:12px;
+    font-weight:700;
+    background:var(--soft);
+    border:1px solid var(--line);
+    color:var(--teal);
+  }
+  .badge.source{background:#f7f1ff;color:#6f4b8a;border-color:#dfd0ef}
+  table{
+    width:100%;
+    border-collapse:collapse;
+    margin:12px 0 22px;
+    table-layout:fixed;
+  }
+  th,td{
+    border:1px solid var(--line);
+    padding:10px 11px;
+    vertical-align:top;
+    overflow-wrap:anywhere;
+  }
+  th{
+    background:var(--teal);
+    color:white;
+    text-align:left;
+    font-size:13px;
+  }
+  tbody tr:nth-child(even){background:#fafcfc}
+  code{
+    background:var(--code);
+    border:1px solid #e1e7e8;
+    padding:1px 5px;
+    border-radius:4px;
+    font-family:Consolas, Monaco, monospace;
+    font-size:.92em;
+  }
+  pre{
+    background:#102d33;
+    color:#eaf5f6;
+    padding:16px;
+    overflow:auto;
+    border-radius:8px;
+    font-size:13px;
+    line-height:1.45;
+  }
+  .flow{
+    display:flex;
+    flex-wrap:wrap;
+    gap:8px;
+    align-items:center;
+    margin:16px 0 22px;
+  }
+  .node{
+    min-width:145px;
+    border:1px solid var(--line);
+    border-radius:8px;
+    padding:10px 12px;
+    background:white;
+    text-align:center;
+  }
+  .node.main{background:var(--soft);border-color:#9fcbd0;font-weight:700}
+  .arrow{font-size:22px;color:var(--teal)}
+  .legend{
+    font-size:13px;
+    color:var(--muted);
+  }
+  .cols{
+    display:grid;
+    grid-template-columns:1fr 1fr;
+    gap:18px;
+  }
+  .card{
+    border:1px solid var(--line);
+    border-radius:10px;
+    padding:16px;
+    background:#fff;
+  }
+  .card h3{margin-top:0}
+  .source-list{
+    font-size:13px;
+    color:#425d62;
+  }
+  .req{
+    font-weight:700;
+    color:#173f46;
+  }
+  .small{font-size:13px;color:var(--muted)}
+  footer{
+    border-top:1px solid var(--line);
+    padding:18px 42px 24px;
+    color:var(--muted);
+    font-size:12px;
+    background:#fbfcfc;
+  }
+  @media(max-width:820px){
+    .page{margin:0;border:0}
+    header,main,footer{padding-left:20px;padding-right:20px}
+    .meta,.cols{grid-template-columns:1fr}
+    table{font-size:13px}
+  }
+  @media print{
+    body{background:white}
+    .page{margin:0;max-width:none;border:0;box-shadow:none}
+    header{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    th{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+    .toc{display:none}
+    h2{break-after:avoid}
+    table,.card,.callout{break-inside:avoid}
+  }
+</style>
+</head>
+<body>
+<div class="page">
+<header>
+  <div class="eyebrow">Walvy · Módulo 1 · Onboarding y Diagnóstico inicial</div>
+  <h1>Requerimiento de Desarrollo — Regla de estados G1 · Foco del Mes</h1>
+  <p>Especificación funcional y contrato lógico para implementar la puerta G1, sus estados, transiciones, persistencia, trazabilidad, reglas de prioridad y criterios de aceptación.</p>
+  <div class="meta">
+    <div><b>ID propuesto</b>REQ-M1-G1-ESTADOS-001</div>
+    <div><b>Versión</b>1.0</div>
+    <div><b>Destino</b>Desarrollo / QA</div>
+    <div><b>Estado</b>Para implementación y validación técnica</div>
+  </div>
+</header>
+
+<main>
+  <div class="toc">
+    <strong>Contenido:</strong>
+    <a href="#objetivo">Objetivo</a>
+    <a href="#fuentes">Fuentes</a>
+    <a href="#regla">Regla G1</a>
+    <a href="#estados">Estados</a>
+    <a href="#transiciones">Transiciones</a>
+    <a href="#prioridad">Prioridad</a>
+    <a href="#persistencia">Persistencia</a>
+    <a href="#qa">Criterios QA</a>
+    <a href="#pendientes">Pendientes</a>
+  </div>
+
+  <section id="objetivo">
+    <h2>1. Objetivo del requerimiento</h2>
+    <p>Implementar la puerta funcional <strong>G1 — Foco del Mes</strong> del onboarding de manera que el usuario pueda <strong>declarar un foco o continuar sin declararlo</strong>, sin que la ausencia de foco bloquee la continuidad hacia la carga documental.</p>
+    <div class="callout success">
+      <strong>Regla central de G1:</strong> el Foco del Mes es <strong>contextual y no bloqueante</strong>. Sirve para personalizar abandono, retoma y priorización secundaria de acciones. Una señal crítica posterior puede prevalecer sobre el foco.
+    </div>
+    <p>La implementación debe mantener trazabilidad suficiente para conocer el estado de G1, el foco vigente cuando exista, su origen, la fecha de la decisión y el punto correcto de retoma.</p>
+  </section>
+
+  <section id="fuentes">
+    <h2>2. Fuentes y nivel de autoridad</h2>
+    <table>
+      <thead><tr><th style="width:31%">Fuente</th><th style="width:23%">Estado documental</th><th>Uso en este requerimiento</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>Walvy_Onboarding_Diagnostico_Fase3_Reglas_Contextuales_Suficiencia_Semaforo_CTA_v1_0</td>
+          <td><span class="badge">Aprobado con advertencias operativas</span></td>
+          <td>Define G1, condición de avance, ausencia de bloqueo fuerte, salida, criticidad contextual del foco y estados declarado / no declarado / inferido.</td>
+        </tr>
+        <tr>
+          <td>Walvy_M1_Documentacion_Formal_Consolidada_Completa_v3.0</td>
+          <td><span class="badge">Borrador consolidado</span></td>
+          <td>Define M1-HU-019 y sus criterios: el foco puede ser declarado, no declarado o inferido; no bloquea carga documental; una señal crítica posterior puede prevalecer.</td>
+        </tr>
+        <tr>
+          <td>Walvy_Onboarding_Diagnostico_Fase3_Anexo_BDD_Reglas_Productivas_v1_0</td>
+          <td><span class="badge">Base funcional-productiva</span></td>
+          <td>Define <code>onboarding_session</code>, <code>current_gate</code>, retoma, versionamiento, entidad conceptual <code>onboarding_focus</code> y evento <code>focus_selected</code>. No constituye DDL SQL final.</td>
+        </tr>
+        <tr>
+          <td>Walvy_Regla_Priorizacion_CTA_por_Foco_Mes_v1_0</td>
+          <td><span class="badge source">Borrador QA interno</span></td>
+          <td>Se usa como regla complementaria para catálogo de focos y jerarquía de CTA. Debe confirmarse su aprobación productiva antes de tratar el catálogo completo como cerrado.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout warning">
+      <strong>Control de alcance:</strong> el catálogo de seis focos y las reglas RB-FM provienen de un documento todavía en QA interno. Se incluyen para que desarrollo conozca la dependencia y prepare una implementación configurable, pero no deben interpretarse como DDL ni contrato productivo definitivo hasta validación de Producto.
+    </div>
+  </section>
+
+  <section id="regla">
+    <h2>3. Definición funcional de la puerta G1</h2>
+    <table>
+      <thead><tr><th>Elemento</th><th>Regla</th></tr></thead>
+      <tbody>
+        <tr><td><strong>Puerta</strong></td><td>G1 — Foco del Mes.</td></tr>
+        <tr><td><strong>Entrada</strong></td><td>El usuario llega al paso donde puede declarar un objetivo / foco mensual.</td></tr>
+        <tr><td><strong>Condición de avance</strong></td><td>Existe un foco seleccionado <strong>o</strong> el usuario toma la decisión de continuar sin foco.</td></tr>
+        <tr><td><strong>Bloqueo</strong></td><td><strong>No existe bloqueo fuerte por falta de foco.</strong> La ausencia de foco no puede impedir el paso a G2.</td></tr>
+        <tr><td><strong>Salida normal</strong></td><td>G2 — Carga documental.</td></tr>
+        <tr><td><strong>Salida por abandono</strong></td><td>Se conserva avance y contexto para retoma; el flujo no debe marcarse como fallido solo por salir o postergar.</td></tr>
+        <tr><td><strong>Uso posterior del foco</strong></td><td>Personalización de abandono/retoma y priorización secundaria. Si aparece una señal crítica, ésta puede prevalecer sobre el foco.</td></tr>
+      </tbody>
+    </table>
+
+    <div class="flow" aria-label="Flujo resumido G1">
+      <div class="node">G0 · Activación</div><div class="arrow">→</div>
+      <div class="node main">G1 · Foco del Mes</div><div class="arrow">→</div>
+      <div class="node">Foco declarado</div><div class="arrow">→</div>
+      <div class="node">G2 · Carga documental</div>
+    </div>
+    <div class="flow">
+      <div class="node main">G1 · Foco del Mes</div><div class="arrow">→</div>
+      <div class="node">Continuar sin foco</div><div class="arrow">→</div>
+      <div class="node">G2 · Carga documental</div>
+    </div>
+    <div class="flow">
+      <div class="node main">G1 · Foco del Mes</div><div class="arrow">→</div>
+      <div class="node">Salir / postergar</div><div class="arrow">→</div>
+      <div class="node">Guardar retoma</div>
+    </div>
+  </section>
+
+  <section id="estados">
+    <h2>4. Estados funcionales de G1</h2>
+    <p>Los estados documentados para el indicador <strong>Foco del Mes</strong> son <strong>declarado, no declarado e inferido</strong>. Para implementación se recomienda separar esos estados de los estados operativos de la sesión.</p>
+
+    <table>
+      <thead><tr><th style="width:19%">Estado funcional</th><th style="width:28%">Definición</th><th>Efecto en G1 y flujo posterior</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><strong>DECLARADO</strong></td>
+          <td>El usuario selecciona explícitamente un Foco del Mes.</td>
+          <td>G1 queda resuelta. Se guarda foco y trazabilidad, y se avanza a G2. El foco puede influir en personalización y prioridad secundaria de CTA.</td>
+        </tr>
+        <tr>
+          <td><strong>NO DECLARADO</strong></td>
+          <td>El usuario decide continuar sin seleccionar un foco.</td>
+          <td>G1 queda igualmente resuelta. <strong>No bloquear G2.</strong> La experiencia posterior puede sugerir un foco si Producto lo habilita.</td>
+        </tr>
+        <tr>
+          <td><strong>INFERIDO</strong></td>
+          <td>El foco se deduce por comportamiento o indicadores, según lo permitido por Producto.</td>
+          <td>No debe presentarse como declaración explícita del usuario. Se usa como contexto o sugerencia y no debe reemplazar silenciosamente un foco declarado.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <h3>4.1 Estado técnico transitorio recomendado</h3>
+    <div class="callout">
+      <strong>Propuesta de implementación — no es un enum productivo cerrado en las fuentes:</strong> mientras el usuario está visualizando G1 y aún no decide, desarrollo puede manejar un estado transitorio <code>PENDING_DECISION</code> en frontend o en la capa de orquestación. Este estado no debe confundirse con <strong>NO DECLARADO</strong>, porque “no declarado” representa una decisión válida de continuar.
+    </div>
+
+    <h3>4.2 Estados globales de sesión que pueden coexistir con G1</h3>
+    <p>El Anexo BDD define para <code>onboarding_session.session_status</code>: <code>not_started</code>, <code>in_progress</code>, <code>waiting_documents</code>, <code>analyzing</code>, <code>completed</code>, <code>paused</code>, <code>abandoned</code> y <code>failed</code>. Estos estados son del onboarding completo y <strong>no reemplazan</strong> el estado funcional del foco.</p>
+  </section>
+
+  <section id="transiciones">
+    <h2>5. Matriz de transiciones G1</h2>
+    <table>
+      <thead><tr><th style="width:17%">Desde</th><th style="width:24%">Evento / condición</th><th style="width:19%">Resultado foco</th><th style="width:18%">Gate siguiente</th><th>Persistencia / efecto</th></tr></thead>
+      <tbody>
+        <tr>
+          <td>G1 activo</td>
+          <td>Usuario selecciona un foco válido</td>
+          <td><strong>DECLARADO</strong></td>
+          <td><code>G2_carga</code></td>
+          <td>Guardar foco; registrar evento de selección; actualizar último gate completado y retoma.</td>
+        </tr>
+        <tr>
+          <td>G1 activo</td>
+          <td>Usuario elige continuar sin foco</td>
+          <td><strong>NO DECLARADO</strong></td>
+          <td><code>G2_carga</code></td>
+          <td>Persistir que G1 fue resuelta sin foco. La ausencia de <code>focus_code</code> no puede interpretarse como error.</td>
+        </tr>
+        <tr>
+          <td>G1 activo</td>
+          <td>Usuario sale / posterga antes de decidir</td>
+          <td>Sin decisión cerrada</td>
+          <td>Retoma</td>
+          <td>Conservar avance y punto pendiente. No marcar la sesión como <code>failed</code> solo por postergación.</td>
+        </tr>
+        <tr>
+          <td>Flujo posterior</td>
+          <td>Sistema deduce un foco por comportamiento, si Producto lo permite</td>
+          <td><strong>INFERIDO</strong></td>
+          <td>No obliga a volver a G1</td>
+          <td>Debe conservarse el origen inferido y nunca presentarse como elección explícita.</td>
+        </tr>
+        <tr>
+          <td>Flujo posterior</td>
+          <td>Usuario modifica su foco explícito</td>
+          <td><strong>DECLARADO</strong> actualizado</td>
+          <td>Sin reinicio del onboarding</td>
+          <td>Regla complementaria del documento de Foco del Mes; conservar trazabilidad del cambio si se habilita en MVP.</td>
+        </tr>
+      </tbody>
+    </table>
+
+    <div class="callout danger">
+      <strong>Regla negativa obligatoria:</strong> no implementar una condición del tipo <code>focus_code IS NOT NULL</code> como prerrequisito para entrar a G2. Hacerlo contradice directamente la regla de G1 y el CA de M1-HU-019.
+    </div>
+  </section>
+
+  <section id="catalogo">
+    <h2>6. Catálogo complementario de Focos del Mes</h2>
+    <p>El documento específico de priorización de Foco del Mes define seis objetivos funcionales. Como esa fuente está aún en QA interno, se recomienda modelarlos como catálogo configurable y versionado.</p>
+    <table>
+      <thead><tr><th style="width:24%">Foco</th><th>Definición funcional resumida</th></tr></thead>
+      <tbody>
+        <tr><td>Bajar deuda</td><td>Ordenar deudas y priorizar próximos pasos.</td></tr>
+        <tr><td>Ordenar compromisos</td><td>Revisar pagos fijos, compromisos base y próximos vencimientos.</td></tr>
+        <tr><td>Ahorrar un monto</td><td>Separar dinero para un objetivo concreto.</td></tr>
+        <tr><td>Aumentar margen</td><td>Detectar pagos recurrentes o gastos ajustables.</td></tr>
+        <tr><td>Evitar atrasos</td><td>Anticiparse a pagos próximos, riesgo de mora o vencimientos críticos.</td></tr>
+        <tr><td>Cumplir presupuesto</td><td>Mantener el mes dentro de una regla o límite.</td></tr>
+      </tbody>
+    </table>
+    <p class="small">Nota funcional: “Ordenar compromisos” responde a claridad estructural del mes; “Evitar atrasos” responde a riesgo temporal o vencimiento. Pueden coexistir, pero no significan lo mismo.</p>
+  </section>
+
+  <section id="prioridad">
+    <h2>7. Regla de prioridad del foco frente a señales posteriores</h2>
+    <p>G1 captura contexto, pero <strong>no gobierna por sí sola el diagnóstico</strong>. La jerarquía funcional complementaria es:</p>
+    <div class="flow">
+      <div class="node main">1. Señal crítica</div><div class="arrow">›</div>
+      <div class="node">2. Foco declarado</div><div class="arrow">›</div>
+      <div class="node">3. Foco sugerido / inferido</div>
+    </div>
+    <table>
+      <thead><tr><th>Regla</th><th>Comportamiento esperado</th></tr></thead>
+      <tbody>
+        <tr><td>Señal crítica &gt; foco</td><td>Deuda presionada, mora, vencimiento crítico, disponible/margen insuficiente o dato crítico faltante pueden desplazar el CTA asociado al foco.</td></tr>
+        <tr><td>Sin señal crítica</td><td>El CTA dominante puede alinearse con el foco activo.</td></tr>
+        <tr><td>Foco no declarado</td><td>Walvy puede sugerir uno según indicadores, si esta capacidad queda aprobada.</td></tr>
+        <tr><td>Calidad de datos insuficiente</td><td>Completar o confirmar información tiene prioridad sobre accionar un foco.</td></tr>
+        <tr><td>Un solo CTA dominante</td><td>No deben existir dos CTAs con el mismo peso visual. El foco puede ajustar acción secundaria, lenguaje o desempate.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section id="persistencia">
+    <h2>8. Persistencia y contrato lógico para desarrollo</h2>
+    <h3>8.1 Campos documentados de <code>onboarding_session</code></h3>
+    <table>
+      <thead><tr><th>Campo</th><th>Obligatorio</th><th>Uso en G1</th></tr></thead>
+      <tbody>
+        <tr><td><code>onboarding_session_id</code></td><td>Sí</td><td>Identifica la sesión.</td></tr>
+        <tr><td><code>user_id</code></td><td>Sí</td><td>Asocia la sesión al usuario.</td></tr>
+        <tr><td><code>session_status</code></td><td>Sí</td><td>Debe reflejar el estado operativo del onboarding.</td></tr>
+        <tr><td><code>current_gate</code></td><td>Sí</td><td>Debe aceptar <code>G1_foco</code> y luego <code>G2_carga</code>.</td></tr>
+        <tr><td><code>onboarding_resume_state</code></td><td>Sí</td><td>Permite retomar desde el punto de mayor valor pendiente.</td></tr>
+        <tr><td><code>last_completed_gate</code></td><td>No</td><td>Al resolver G1, puede quedar en <code>G1_foco</code>.</td></tr>
+        <tr><td><code>pending_best_action</code></td><td>No</td><td>Siguiente mejor acción calculada.</td></tr>
+        <tr><td><code>started_at / completed_at / updated_at</code></td><td>Sí</td><td>Trazabilidad temporal.</td></tr>
+        <tr><td><code>rule_version</code></td><td>Sí</td><td>Versión de reglas aplicada.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>8.2 Entidad conceptual <code>onboarding_focus</code></h3>
+    <p>La fuente productiva define una entidad lógica <code>onboarding_focus</code> para guardar el foco del mes declarado y usarlo en personalización, abandono y desempate. La forma física SQL no está cerrada.</p>
+
+    <div class="callout">
+      <strong>Contrato lógico propuesto para implementación:</strong> independientemente del nombre físico definitivo, la solución debe poder distinguir al menos: sesión, usuario, estado funcional del foco, código de foco cuando corresponda, origen de la decisión y fecha/hora. Esta es una <strong>propuesta técnica</strong> derivada de la regla funcional; debe mapearse al modelo BBDD definitivo.
+    </div>
+
+    <table>
+      <thead><tr><th style="width:28%">Dato lógico propuesto</th><th>Regla de uso</th></tr></thead>
+      <tbody>
+        <tr><td><code>focus_status</code></td><td><code>declared</code> / <code>not_declared</code> / <code>inferred</code>. Nombre físico sujeto a validación BBDD.</td></tr>
+        <tr><td><code>focus_code</code></td><td>Nullable. Se completa cuando existe foco declarado o inferido/sugerido que deba persistirse.</td></tr>
+        <tr><td><code>focus_source</code></td><td>Debe permitir diferenciar elección explícita de origen inferido/sugerido. El enum exacto no está cerrado en la fuente.</td></tr>
+        <tr><td><code>decided_at</code></td><td>Fecha/hora de la decisión o detección.</td></tr>
+        <tr><td><code>rule_version</code></td><td>Permite explicar bajo qué versión se interpretó el estado.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>8.3 Evento de trazabilidad documentado</h3>
+    <p>Al seleccionar un foco debe registrarse el evento <code>focus_selected</code>, cuyos campos mínimos documentados son:</p>
+    <pre>focus_selected
+- focus_code
+- focus_source
+- timestamp</pre>
+
+    <p>Cuando el usuario continúa explícitamente sin foco, se debe conservar evidencia equivalente de que G1 fue resuelta. La fuente no cierra el nombre del evento para este caso; puede resolverse mediante actualización de sesión o un evento específico definido por arquitectura.</p>
+  </section>
+
+  <section id="backend">
+    <h2>9. Reglas obligatorias para backend y frontend</h2>
+    <div class="cols">
+      <div class="card">
+        <h3>Backend / motor de flujo</h3>
+        <ul>
+          <li><span class="req">REQ-G1-01.</span> Permitir transición <code>G1_foco → G2_carga</code> con foco declarado.</li>
+          <li><span class="req">REQ-G1-02.</span> Permitir la misma transición con foco no declarado.</li>
+          <li><span class="req">REQ-G1-03.</span> No considerar <code>null</code> en foco como error si existe decisión explícita de continuar.</li>
+          <li><span class="req">REQ-G1-04.</span> Persistir estado de sesión, retoma, versión de reglas y trazabilidad.</li>
+          <li><span class="req">REQ-G1-05.</span> Diferenciar foco declarado de foco inferido.</li>
+          <li><span class="req">REQ-G1-06.</span> No usar el foco para ocultar o degradar una señal crítica posterior.</li>
+          <li><span class="req">REQ-G1-07.</span> No reiniciar onboarding al retomar; volver al punto pendiente de mayor valor.</li>
+        </ul>
+      </div>
+      <div class="card">
+        <h3>Frontend móvil</h3>
+        <ul>
+          <li><span class="req">REQ-G1-08.</span> Debe existir una acción clara para seleccionar foco y una forma válida de continuar sin foco.</li>
+          <li><span class="req">REQ-G1-09.</span> No presentar la selección como obligatoria.</li>
+          <li><span class="req">REQ-G1-10.</span> Evitar doble envío o navegación duplicada ante múltiples taps.</li>
+          <li><span class="req">REQ-G1-11.</span> Si la persistencia falla, no mostrar el paso como completado hasta confirmar la operación.</li>
+          <li><span class="req">REQ-G1-12.</span> Si se retoma G1, restaurar el estado persistido sin borrar avance previo.</li>
+        </ul>
+      </div>
+    </div>
+    <p class="small">REQ-G1-10 y REQ-G1-11 son controles técnicos de robustez recomendados para implementar de forma segura la regla; no corresponden a una regla de negocio exclusiva de G1.</p>
+  </section>
+
+  <section id="qa">
+    <h2>10. Criterios de aceptación y casos mínimos de QA</h2>
+    <table>
+      <thead><tr><th style="width:14%">ID</th><th style="width:32%">Escenario</th><th>Resultado esperado</th></tr></thead>
+      <tbody>
+        <tr><td>CA-G1-01</td><td>Usuario entra a G1 y selecciona un foco.</td><td>El foco queda como <strong>DECLARADO</strong>, se registra su trazabilidad y el usuario avanza a G2.</td></tr>
+        <tr><td>CA-G1-02</td><td>Usuario entra a G1 y decide continuar sin foco.</td><td>G1 queda resuelta como <strong>NO DECLARADO</strong> y el usuario avanza a G2 sin error ni bloqueo.</td></tr>
+        <tr><td>CA-G1-03</td><td>Backend recibe transición a G2 sin <code>focus_code</code>, pero con decisión válida de continuar.</td><td>La transición es aceptada; no se interpreta como dato crítico faltante.</td></tr>
+        <tr><td>CA-G1-04</td><td>Usuario abandona/posterga antes de decidir.</td><td>Se conserva el punto de retoma; la sesión no queda fallida por esa razón.</td></tr>
+        <tr><td>CA-G1-05</td><td>Usuario tenía foco declarado y posteriormente existe un foco inferido.</td><td>El inferido no reemplaza silenciosamente la elección explícita del usuario.</td></tr>
+        <tr><td>CA-G1-06</td><td>Usuario tiene foco declarado, pero aparece una señal crítica.</td><td>La señal crítica puede dominar CTA/prioridad; el foco se conserva como contexto.</td></tr>
+        <tr><td>CA-G1-07</td><td>Se selecciona un foco.</td><td>Existe evento <code>focus_selected</code> con <code>focus_code</code>, <code>focus_source</code> y <code>timestamp</code>.</td></tr>
+        <tr><td>CA-G1-08</td><td>Usuario reingresa a onboarding tras salir.</td><td>La retoma utiliza <code>onboarding_resume_state</code> / <code>last_completed_gate</code> y no reinicia pasos ya válidos.</td></tr>
+        <tr><td>CA-G1-09</td><td>Usuario toca dos veces la acción de continuar o seleccionar.</td><td>No se crean duplicados ni se navega dos veces; el estado final queda consistente.</td></tr>
+        <tr><td>CA-G1-10</td><td>Se usa un foco fuera del catálogo configurado, si el catálogo de seis focos queda aprobado.</td><td>Backend rechaza o normaliza según contrato de catálogo; no persiste un código inválido.</td></tr>
+      </tbody>
+    </table>
+
+    <h3>10.1 Matriz de prueba por estado</h3>
+    <table>
+      <thead><tr><th>Estado</th><th>¿Avanza a G2?</th><th>¿Bloquea?</th><th>¿Debe quedar trazado?</th><th>Uso posterior</th></tr></thead>
+      <tbody>
+        <tr><td>DECLARADO</td><td>Sí</td><td>No</td><td>Sí</td><td>Personalización / prioridad secundaria.</td></tr>
+        <tr><td>NO DECLARADO</td><td>Sí</td><td>No</td><td>Sí, al menos como resolución de G1</td><td>Puede permitir sugerencia futura.</td></tr>
+        <tr><td>INFERIDO</td><td>No aplica como requisito de avance</td><td>No</td><td>Sí, diferenciando origen</td><td>Contexto / sugerencia / desempate.</td></tr>
+        <tr><td>Sin decisión, usuario sale</td><td>No en ese momento</td><td>No es error</td><td>Sí, como punto de retoma</td><td>Retomar G1 o el punto de mayor valor pendiente.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section id="pendientes">
+    <h2>11. Definiciones que la documentación no cierra y deben validarse técnicamente</h2>
+    <p>Para no convertir supuestos en reglas productivas, estos puntos deben resolverse con arquitectura / BBDD / Producto antes del cierre técnico:</p>
+    <table>
+      <thead><tr><th style="width:34%">Punto</th><th>Estado / recomendación</th></tr></thead>
+      <tbody>
+        <tr><td>DDL y estructura física de <code>onboarding_focus</code></td><td>No está cerrada. Mapear el contrato lógico a la arquitectura real sin cambiar la regla funcional.</td></tr>
+        <tr><td>Enum exacto de <code>focus_source</code></td><td>No está detallado en la fuente. Debe distinguir al menos origen explícito vs inferido/sugerido.</td></tr>
+        <tr><td>Persistencia de “NO DECLARADO”</td><td>Definir si se almacena como estado explícito, evento o combinación de sesión + ausencia de foco. No puede confundirse con error o G1 no resuelta.</td></tr>
+        <tr><td>Momento exacto para crear un foco INFERIDO</td><td>La documentación lo permite “según Producto”, pero no cierra el algoritmo ni el punto del flujo.</td></tr>
+        <tr><td>Endpoint / contrato HTTP</td><td>No está definido en estas fuentes. El equipo puede adaptar la regla al API existente.</td></tr>
+        <tr><td>Diferencia operativa <code>paused</code> vs <code>abandoned</code></td><td>Ambos existen en el catálogo de sesión, pero la regla específica para cada gesto de salida en G1 debe mapearse a navegación real.</td></tr>
+        <tr><td>Aprobación del catálogo de seis focos</td><td>Proviene de borrador QA interno. Implementar configurable y confirmar vigencia antes de congelar enum productivo.</td></tr>
+      </tbody>
+    </table>
+  </section>
+
+  <section id="definition-done">
+    <h2>12. Definition of Done del requerimiento</h2>
+    <p>El requerimiento se considera implementado cuando:</p>
+    <ul>
+      <li>G1 permite seleccionar foco o continuar sin foco y ambos caminos llegan correctamente a G2.</li>
+      <li>La falta de foco nunca se trata como bloqueo de carga documental.</li>
+      <li>El estado funcional del foco queda diferenciado de los estados globales de sesión.</li>
+      <li>La sesión conserva avance y permite retoma sin reinicio.</li>
+      <li>La selección explícita queda trazada mediante <code>focus_selected</code>.</li>
+      <li>El foco no desplaza señales críticas posteriores y no genera dos CTAs de igual prioridad.</li>
+      <li>QA ejecuta y evidencia CA-G1-01 a CA-G1-10 en iOS y Android donde corresponda.</li>
+      <li>Las decisiones abiertas de BBDD/API quedan documentadas sin alterar las reglas funcionales.</li>
+    </ul>
+  </section>
+
+  <section id="referencias">
+    <h2>13. Trazabilidad documental resumida</h2>
+    <table>
+      <thead><tr><th>Regla del requerimiento</th><th>Origen documental</th></tr></thead>
+      <tbody>
+        <tr><td>G1 avanza con foco seleccionado o decisión de continuar; sin bloqueo fuerte.</td><td>Fase 3 — Puertas funcionales de avance y bloqueo.</td></tr>
+        <tr><td>Estados del foco: declarado, no declarado, inferido; falta de foco no bloquea carga.</td><td>M1-HU-019 + Fase 3 — Indicadores funcionales.</td></tr>
+        <tr><td>Señal crítica posterior puede prevalecer.</td><td>M1-HU-019 CA3 + Regla de Priorización CTA por Foco del Mes.</td></tr>
+        <tr><td><code>current_gate = G1_foco</code>, retoma, versión y estados de sesión.</td><td>Anexo BDD / Reglas Productivas v1.0.</td></tr>
+        <tr><td>Entidad conceptual <code>onboarding_focus</code> y evento <code>focus_selected</code>.</td><td>Anexo BDD / Reglas Productivas v1.0.</td></tr>
+        <tr><td>Catálogo de seis focos y jerarquía señal crítica &gt; foco declarado &gt; sugerido.</td><td>Regla de Priorización CTA por Foco del Mes v1.0 — borrador QA.</td></tr>
+      </tbody>
+    </table>
+  </section>
+</main>
+
+<footer>
+  Documento de bajada para desarrollo. Las etiquetas “propuesto/recomendado” identifican decisiones de implementación que no están cerradas como esquema SQL o API en las fuentes funcionales. No reemplaza la documentación fuente ni la aprobación de Producto/BBDD.
+</footer>
+</div>
+</body>
+</html>

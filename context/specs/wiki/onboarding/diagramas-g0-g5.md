@@ -1,10 +1,10 @@
-# Onboarding G2 → G5 — diagramas del flujo real
+# Onboarding G0 → G5 — diagramas del flujo real
 
 Convención: **verde** = implementado y conforme · **naranja** = brecha nuestra · **rojo punteado** = falta decisión de Producto o no existe actor.
 
 ---
 
-## 1. Recorrido completo G2 → G5
+## 0. G0 — Activación (pantalla `onboarding.tsx`)
 
 ```mermaid
 flowchart TD
@@ -12,7 +12,98 @@ flowchart TD
     classDef gap fill:#fff3e0,stroke:#e65100,color:#4a2600
     classDef dec fill:#fdecea,stroke:#c62828,color:#5a1512,stroke-dasharray: 4 3
 
+    ENTRY(["Usuario llega a /(auth)/onboarding\n—primer login o retoma sin avance—"]):::ok
+    ADV["advanceOnboardingStep({ currentGate: 'G0_activacion' })"]:::ok
+
+    subgraph SLIDES["4 slides horizontales · auto-advance 5 s"]
+        S1["Slide 1 · Tu mes, en claro.\nLottie + sin botón"]:::ok
+        S2["Slide 2 · Claridad al instante."]:::ok
+        S3["Slide 3 · Tu diagnóstico toma forma."]:::ok
+        S4["Slide 4 · No te quedes fuera de foco.\n→ botón Comenzar"]:::ok
+    end
+
+    AS["AsyncStorage.setItem('onboarding_seen', '1')"]:::ok
+    G1(["→ /(auth)/onboarding-foco\ndeclara G1_foco"]):::ok
+    NOSAL["Sin CTA de salida en G0\n(spec permite postergar sin castigo\npero no hay botón explícito)"]:::gap
+
+    ENTRY --> ADV --> SLIDES
+    S1 --> S2 --> S3 --> S4
+    S4 -- "Comenzar (último slide)" --> AS --> G1
+    SLIDES -.-> NOSAL
+```
+
+**Observaciones:**
+- El auto-advance a 5 s sólo avanza al siguiente slide, no sale de G0. ✓
+- `onboarding_seen` en AsyncStorage es la señal para no volver a mostrar los slides tras el primer login. ✓
+- **Brecha menor**: la spec define G0 como postergable sin castigo, pero no existe botón "Más tarde" ni "Ahora no". Si el usuario cierra la app aquí, el `current_gate` queda en `G0_activacion` y retoma en G0 la próxima vez — funcionalmente correcto aunque sin CTA explícita.
+
+---
+
+## 1. G1 — Foco del Mes (pantalla `onboarding-foco.tsx`)
+
+```mermaid
+flowchart TD
+    classDef ok fill:#e8f5e9,stroke:#2e7d32,color:#1b3c1e
+    classDef gap fill:#fff3e0,stroke:#e65100,color:#4a2600
+    classDef dec fill:#fdecea,stroke:#c62828,color:#5a1512,stroke-dasharray: 4 3
+
+    ENTRY(["/(auth)/onboarding-foco"]):::ok
+    ADV["advanceOnboardingStep({ currentGate: 'G1_foco' })"]:::ok
+
+    subgraph GRID["Grid 2 columnas · 6 cards"]
+        F1["bajar_deuda"]:::ok
+        F2["ahorrar_monto"]:::ok
+        F3["aumentar_margen"]:::ok
+        F4["evitar_atrasos"]:::ok
+        F5["cumplir_presupuesto"]:::ok
+        F6["ordenar_compromisos"]:::ok
+    end
+
+    SEL{"¿Foco seleccionado?"}
+    BTN["Guardar mi foco (disabled hasta seleccionar)"]:::ok
+    SAVE["saveGoal(focusId)"]:::ok
+    ADV2["advanceOnboardingStep({ currentGate: 'G2_carga', goalsSet: true })"]:::ok
+    G2(["→ /(auth)/onboarding-doc\ndeclara G2_carga"]):::ok
+
+    LINK["Continuar más tarde"]:::ok
+    MODAL["ExitOnboardingModal"]:::ok
+    EXIT["advanceOnboardingStep({ resumeState: 'ready_to_resume' })"]:::ok
+    HOME(["→ /(tabs)\nonboarding queda en retoma"]):::ok
+
+    NOGAP["Sin opción 'Continuar sin foco' hacia G2\n(spec: 'foco seleccionado o decisión de continuar')\nla única salida sin foco es el home"]:::gap
+
+    ENTRY --> ADV --> GRID --> SEL
+    SEL -- sí --> BTN --> SAVE --> ADV2 --> G2
+    SAVE -- "error API" --> BTN
+    SEL -- no --> LINK --> MODAL
+    MODAL -- "Salir" --> EXIT --> HOME
+    MODAL -- "Volver" --> GRID
+    GRID -.-> NOGAP
+```
+
+**Observaciones:**
+- Los 6 focos del catálogo oficial están todos presentes en el código. ✓
+- El modal de salida muestra aviso antes de abandonar — alineado con la spec ("conservar avance y explicar en tono sereno"). ✓
+- **Brecha**: la spec define dos salidas de G1: (a) foco declarado → G2, (b) decisión de continuar sin foco → G2. Actualmente solo existe (a). "Continuar más tarde" sale al home, no avanza a G2 sin foco. Si producto quiere habilitar (b), requiere un botón "Continuar sin elegir" que declare `G2_carga` sin `goalsSet`.
+
+---
+
+## 2. Recorrido completo G0 → G5
+
+```mermaid
+flowchart TD
+    classDef ok fill:#e8f5e9,stroke:#2e7d32,color:#1b3c1e
+    classDef gap fill:#fff3e0,stroke:#e65100,color:#4a2600
+    classDef dec fill:#fdecea,stroke:#c62828,color:#5a1512,stroke-dasharray: 4 3
+
+    G0_START(["G0_activacion · 4 slides\nCTA Comenzar"]):::ok
+    G1_START(["G1_foco · selección de foco\no Continuar más tarde → home"]):::ok
+    G1_HOME(["→ /(tabs)\nonboarding en retoma"]):::ok
     START(["Foco guardado → declara G2_carga"]):::ok
+
+    G0_START --> G1_START
+    G1_START -- "Continuar más tarde" --> G1_HOME
+    G1_START -- "Foco guardado + goalsSet" --> START
 
     subgraph G2["G2_carga · onboarding-doc"]
         A1["Picker: PDF · XLSX · CSV<br/>máx 15 · máx 30 MB"]:::ok
@@ -82,7 +173,7 @@ flowchart TD
 
 ---
 
-## 2. Procesamiento de un documento dentro de G3
+## 3. Procesamiento de un documento dentro de G3
 
 ```mermaid
 flowchart TD
@@ -133,7 +224,7 @@ flowchart TD
 
 ---
 
-## 3. El gate de suficiencia de G4
+## 4. El gate de suficiencia de G4
 
 ```mermaid
 flowchart TD
@@ -178,16 +269,19 @@ flowchart TD
 
 ---
 
-## 4. Lo que estos diagramas dejan a la vista
+## 5. Lo que estos diagramas dejan a la vista
 
 | Punto | Diagrama | Estado |
 |---|---|---|
-| Contraseñas fuera de params y logs (`DP-003`) | 1 | Cerrado |
-| Dedup por huella de contenido por usuario (`DP-004`) | 2 | Cerrado, salvo avisar al usuario y el retén del determinista |
-| Umbrales 45/90 s configurables (`ONB-013`) | 2 | Brecha · #94 |
-| Aviso al terminar el análisis | 2 | Brecha · #95 |
-| `document_type` y `debts` de Kread | 2 | Brecha de contrato: el tipo del backend no los lee |
-| Estado, origen y confianza por indicador (`RGL-013`) | 3 | Backend cerrado; la UI muestra 2 de 6 estados |
-| Par compromisos / pagos recurrentes separable | 3 | Brecha: sin esto `V49` vs `V50` no es validable |
-| `partial_bloqueado` como etiqueta | 3 | Brecha de vocabulario, no de comportamiento |
-| Cierre del onboarding | 1 | Sin actor · #68 |
+| G0 · Sin CTA de salida/postergación explícita | 0 | Brecha menor — spec permite postergar sin castigo; en práctica el usuario simplemente cierra la app |
+| G1 · Sin opción "Continuar a G2 sin foco" | 1 | Brecha — spec define "foco seleccionado **o** decisión de continuar"; hoy solo existe la primera |
+| G1 · 6 focos del catálogo presentes | 1 | Cerrado |
+| Contraseñas fuera de params y logs (`DP-003`) | 2 | Cerrado |
+| Dedup por huella de contenido por usuario (`DP-004`) | 3 | Cerrado, salvo avisar al usuario y el retén del determinista |
+| Umbrales 45/90 s configurables (`ONB-013`) | 3 | Brecha · #94 |
+| Aviso al terminar el análisis | 3 | Brecha · #95 |
+| `document_type` y `debts` de Kread | 3 | Brecha de contrato: el tipo del backend no los lee |
+| Estado, origen y confianza por indicador (`RGL-013`) | 4 | Backend cerrado; la UI muestra 2 de 6 estados |
+| Par compromisos / pagos recurrentes separable | 4 | Brecha: sin esto `V49` vs `V50` no es validable |
+| `partial_bloqueado` como etiqueta | 4 | Brecha de vocabulario, no de comportamiento |
+| Cierre del onboarding | 2 | Sin actor · #68 |

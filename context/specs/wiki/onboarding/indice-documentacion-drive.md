@@ -69,15 +69,21 @@ Entregables formales del módulo 1 para el cliente.
 | `risk` | Presión principal con evidencia suficiente |
 | `no_diagnosis` | Sin base suficiente — no mostrar rojo por falta de datos |
 
+Figma de G5 solo tiene **3 cards** (verde / amarillo / rojo). `no_diagnosis` no es una cuarta card de semáforo: es “Sin diagnóstico” o el bloqueo de suficiencia. Detalle en `requerimiento_por_puerta/G5-diagnostico.md`.
+
 ### Puertas funcionales (G0–G6)
+
+La numeración **canónica** es `requerimiento_por_puerta/` (G3 = análisis, G4 = revisión/suficiencia, G5 = diagnóstico). Los HTML de `requerimientos PM` traen G3/G4 invertidos; el código sigue la carpeta por puerta.
+
+Flujo implementado (validaciones de archivo, buckets Kread, `flowType`, G4 y umbrales G5): `requerimiento_por_puerta/flujo-documento-kread-g5.md`.
 
 | Puerta | Nombre | Bloqueo |
 |---|---|---|
 | G0 | Activación | Salida sin foco |
 | G1 | Foco del mes | Sin bloqueo fuerte |
 | G2 | Carga documental | Sin documento o no procesable |
-| G3 | Revisión y suficiencia | Datos clave insuficientes |
-| G4 | Análisis | Demora o error de procesamiento |
+| G3 | Análisis | Demora o error de procesamiento |
+| G4 | Revisión y suficiencia | Datos clave insuficientes |
 | G5 | Diagnóstico inicial | Falta regla o datos insuficientes |
 | G6 | Retoma | No hay avance guardado |
 
