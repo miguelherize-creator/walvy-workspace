@@ -33,6 +33,7 @@ Todos los agentes parten de estos archivos:
 
 | Archivo | Contenido |
 |---------|-----------|
+| [`context/wiki-codigo/`](context/wiki-codigo/) | **Wiki de código (backend + frontend) sobre `origin/qa`** — arranque, capas, archivos clave, metodología. Reemplaza a `architecture.md`/`stack.md` donde se contradigan |
 | [`context/stack.md`](context/stack.md) | Stack tecnológico, versiones, package managers |
 | [`context/architecture.md`](context/architecture.md) | Capas del sistema, módulos, sprint status |
 | [`context/conventions.md`](context/conventions.md) | Naming, patrones de código, seguridad |

@@ -56,6 +56,7 @@ Todo el conocimiento del proyecto está en `context/`. Cada archivo tiene un pro
 
 | Archivo | Contenido |
 |---------|-----------|
+| `wiki-codigo/` | **Wiki de código backend + frontend** sobre `origin/qa` — la puerta de entrada al código |
 | `stack.md` | Versiones, package managers, comandos de arranque |
 | `architecture.md` | Capas del sistema, módulos, patrón Feature-First |
 | `conventions.md` | Naming, patrones de código, reglas de seguridad |
