@@ -7,39 +7,42 @@ la conversación empiece del hecho y no de la interpretación.
 Levantado del código en `qa` y de los paquetes documentales en
 `documentacion/modulo04-ini` y `modulo04-update`, contrastado contra Figma.
 
-Va a Producto y a Diseño: los puntos 1, 2 y 6 necesitan una decisión de
-producto; los 3, 4 y 5 necesitan frames o definición de diseño. Este documento
+Va a Producto y a Diseño: los puntos 2 y 6 necesitan una decisión de producto;
+los 3, 4 y 5 necesitan frames o definición de diseño. El punto 1 quedó resuelto
+y se conserva porque la documentación sigue sin cubrirlo. Este documento
 reemplaza el correo que se iba a enviar por separado.
 
 ---
 
 ## 1 · La pestaña de Ruta Despeje no está en la documentación
 
+**Resuelto por el prototipo de Figma.** Se deja escrito porque la documentación
+sigue sin cubrirlo y el próximo que la lea va a tropezar igual.
+
 **Lo que hay.** La barra inferior tiene una pestaña fija de Ruta despeje. Un
 usuario puede tocarla en cualquier momento, incluso sin haber cargado nada.
 
 **Lo que dice la doc.** Fase 2 define **dos entradas** al módulo, Perfil
 Financiero y Home, y aclara que *"no son pantallas propias del Módulo 4"*. La
-pestaña fija no aparece en ningún documento.
+pestaña fija no aparece en ningún documento. Con esas dos entradas, mandar a
+capturar tenía sentido: el usuario ya venía derivado desde otra pantalla.
 
-**Por qué importa.** Esa tercera entrada permite llegar al módulo sin datos, y
-la doc no modela ese caso. Hoy el backend resuelve mandarlo directo a la carga
-de documentos, así que el usuario toca "Ruta despeje" y aterriza en un
-formulario con un stepper, sin que nada le explique qué es Ruta Despeje.
+**Lo que dibujó diseño.** El frame `10145:24229` es esta pantalla completa e
+**incluye la barra inferior con "Ruta despeje" marcada**. El cable del prototipo
+va de su botón *Cargar documentos* a `5897:11646`, la Carga. O sea que el
+recorrido previsto es:
 
-**Lo que dibujó diseño.** El frame `10145:24232` es el estado vacío de RD-01:
-*"Todavía no hay deudas confirmadas"*, con **Cargar documentos** y **Continuar
-más tarde**. Ese frame sólo tiene sentido si un usuario sin datos llega a RD-01.
+```
+pestaña Ruta despeje → RD-01 estado vacío → "Cargar documentos" → OD-01 Carga
+```
 
-**La contradicción.** Fase 2 describe RD-01 como *"mostrar situación, señal
-principal, deuda prioritaria"* —supone que hay datos— y OD-01 como *"elegir cómo
-agregar, subir o confirmar deuda"* —la pantalla de quien no tiene nada—. Figma y
-Fase 2 responden a escenarios distintos porque la pestaña fija no existía cuando
-se escribió la doc.
+**Conclusión.** La documentación no está equivocada: está incompleta respecto de
+la app que existe. La pestaña permanente es posterior y crea una entrada sin
+contexto que el frame resuelve. El cambio está en back-walvy#239.
 
-**Qué necesitamos.** Si la pestaña se queda, RD-01 necesita su estado vacío y hay
-que cambiar la regla de entrada. Si no, sobra el frame. El cambio está listo y en
-borrador: back-walvy#239.
+**Lo que queda por decidir.** Con esto ninguna rama de la regla de entrada
+devuelve ya "ir a capturar". Si Producto quiere conservar ese empujón directo
+para algún caso, hace falta un disparador distinto de "no tiene deudas".
 
 ---
 
