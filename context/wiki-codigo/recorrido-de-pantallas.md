@@ -23,9 +23,10 @@ flowchart LR
         G4 --> G5["G5 diagnóstico<br/>/onboarding-first-ready"]
     end
 
-    GATE -->|"currentGate"| G0
-    GATE -->|completed| HOME
-    GATE -->|"G6 · sin pantalla"| HOME
+    GATE -->|"currentGate G0…G5"| G0
+    GATE -->|"completed · G6<br/>sin ruta que devolver"| SINRUTA{"lo decide<br/>el llamador"}
+    SINRUTA -->|"biometría: sin nombre ni alias<br/>clave: además sin gate"| ALIAS(["/(auth)/choose-alias"])
+    SINRUTA -->|resto| HOME
 
     G5 --> VAR{"¿Qué diagnóstico salió?<br/>light + dominantPressureCode<br/>→ 8 variantes"}
 
@@ -44,6 +45,7 @@ flowchart LR
     subgraph M2["MÓDULO 02 · Perfil"]
         PERFIL["Perfil Financiero<br/>/financial-profile"] --> CTAP{"routeForOnboardingCta"}
         CTAP -.->|"onboarding abierto"| G0
+        CTAP -.->|"completed · G6"| NADA["el botón no navega"]
     end
 
     subgraph M4["MÓDULO 04 · Ruta Despeje"]
@@ -68,9 +70,9 @@ flowchart LR
     class G0,G1,G2,G3,G4,G5 m1
     class PERFIL m2
     class RUTA,CARGA,ANAL,REV,RESULT m4
-    class GATE,VAR,CTA,CTAP,ENTRY,TABS decision
-    class VACIO roto
-    class LOGIN,HOME,ETAPA2,OTROS salto
+    class GATE,VAR,CTA,CTAP,ENTRY,TABS,SINRUTA decision
+    class VACIO,NADA roto
+    class LOGIN,HOME,ETAPA2,OTROS,ALIAS salto
 
     style M1 fill:#FFFDFD,stroke:#E6DED2
     style M2 fill:#FFFDFD,stroke:#E6DED2
@@ -96,11 +98,38 @@ Lee `GET /auth/onboarding` y traduce `currentGate` a pantalla.
 | `G3_analisis` | `/(auth)/onboarding-analyzing` |
 | `G4_revision` | `/(auth)/onboarding-analysis` |
 | `G5_diagnostico` | `/(auth)/onboarding-first-ready` |
-| `G6_retoma` | — sin pantalla, cae a tabs |
-| `onboardingStatus: completed` | — a tabs |
 
-`resumeState` **no** entra en esta decisión: "Salir por ahora" va a Home en esa
-sesión (RGL-007), y el próximo login retoma `currentGate` (V02, V58).
+**Fuera de esa tabla la función devuelve `undefined`**, y ahí no hay regla: la
+decisión pasa al llamador. Dos casos caen ahí, y no por el mismo motivo —
+`onboardingStatus: completed` sale por su propia guarda, y `G6_retoma` porque
+`ONBOARDING_GATE_ROUTE` sólo mapea G0…G5. Comparten el hueco, no la razón.
+
+`resumeState` **no** entra en la decisión: "Salir por ahora" va a Home en esa
+sesión (RGL-007) y el próximo login retoma `currentGate` (V02, V58).
+
+**G6 no tiene pantalla a propósito.** El backend lo dice en
+`user-onboarding.service.ts`: *no es una etapa que se atraviese, es dónde quedó
+el usuario al pausar*. Queda fuera de `ORDEN_DE_PUERTAS`, así que no avanza ni
+cuenta para `lastCompletedGate`. Y hoy la rama es puramente defensiva: el valor
+está en el enum de la migración 018, en el DTO y en los tipos del front, pero
+**ningún código lo escribe**.
+
+#### Los tres llamadores no hacen lo mismo
+
+| Llamador | Con `undefined` |
+|---|---|
+| `useLoginForm` | `choose-alias` si **no** está completed, **no** hay gate y el usuario no tiene nombre ni alias. Si no, Home |
+| `useBiometricLogin` | `choose-alias` si el usuario no tiene nombre ni alias — **sin mirar gate ni estado**. Si no, Home |
+| `FinancialProfileScreen` | `if (route) router.push(...)`: **no navega**. El botón no responde |
+
+Las dos primeras condiciones no son la misma. Un usuario sin `username`,
+`firstName` ni `lastName` y con el onboarding **cerrado** va a `choose-alias`
+entrando con huella, y a Home entrando con clave. Mismo estado, dos destinos
+según cómo firmó.
+
+La tercera es deliberada —`routeForOnboardingCta` devuelve `undefined` para
+completed y G6 con el comentario *"no reinician el flujo"*— pero para quien lo
+toca es un botón muerto.
 
 ### 2 · Fin del onboarding: la variante del diagnóstico
 
@@ -192,6 +221,17 @@ deudas confirmadas. Las dos condiciones se excluyen. El frame existe
 de `CTA_COPY`, que el propio archivo marca como borrador: Producto no cerró el
 catálogo. Tres de ellas además no tienen pantalla de destino —son de M03 y
 M05— y aterrizan en Perfil Financiero por fallback.
+
+**Los dos logins discrepan.** `useLoginForm` exige que no haya gate y que el
+onboarding no esté cerrado antes de mandar a `choose-alias`; `useBiometricLogin`
+sólo mira si el usuario tiene nombre. Un mismo usuario aterriza en pantallas
+distintas según haya entrado con clave o con huella. Ninguna de las dos condiciones
+está escrita como regla en ningún lado: viven en el `if` de cada hook.
+
+**"Preparar mi perfil" puede no hacer nada.** Con el onboarding cerrado o en G6,
+`routeForOnboardingCta` devuelve `undefined` y la pantalla no navega. Es
+deliberado —no se reinicia un flujo terminado— pero el botón sigue ahí y no
+responde.
 
 **"Ver resultado" en Revisión tiene tres reglas.** La pantalla habilita con una
 deuda confirmada, el backend expone `canViewResult` sólo cuando no queda ninguna
