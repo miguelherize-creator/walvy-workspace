@@ -27,11 +27,15 @@ flowchart LR
     GATE -->|completed| HOME
     GATE -->|"G6 · sin pantalla"| HOME
 
-    G5 --> CTA{"diagnosis.dominantCta<br/>ROUTE_BY_CTA"}
-    CTA -->|"upload_document"| G2
-    CTA -->|"improve_profile_precision<br/>no_dominant_cta"| PERFIL
-    CTA -->|"confirm_debt<br/>view_ruta_despeje"| ENTRY
-    CTA -.->|"review_payment · adjust_budget<br/>review_category · sin pantalla"| HOME
+    G5 --> VAR{"¿Qué diagnóstico salió?<br/>light + dominantPressureCode<br/>→ 8 variantes"}
+
+    VAR -->|"no_diagnosis"| G2
+    VAR -->|"in_control<br/>attention_data_to_confirm"| PERFIL
+    VAR -->|"risk_overload<br/>risk_high_commitments"| ENTRY
+    VAR -->|"attention_pending_movements · attention_leaks_detected<br/>attention_adjusted_margin<br/>sin destino propio"| CTA
+
+    CTA{"¿el tipo de CTA<br/>tiene pantalla?<br/>ROUTE_BY_CTA"}
+    CTA -->|"ninguna: M03 y M05<br/>son placeholders"| PERFIL
 
     HOME["Inicio · /"] --> TABS{"Barra inferior"}
     TABS -->|"Ruta despeje"| ENTRY
@@ -64,7 +68,7 @@ flowchart LR
     class G0,G1,G2,G3,G4,G5 m1
     class PERFIL m2
     class RUTA,CARGA,ANAL,REV,RESULT m4
-    class GATE,CTA,CTAP,ENTRY,TABS decision
+    class GATE,VAR,CTA,CTAP,ENTRY,TABS decision
     class VACIO roto
     class LOGIN,HOME,ETAPA2,OTROS salto
 
@@ -98,28 +102,60 @@ Lee `GET /auth/onboarding` y traduce `currentGate` a pantalla.
 `resumeState` **no** entra en esta decisión: "Salir por ahora" va a Home en esa
 sesión (RGL-007), y el próximo login retoma `currentGate` (V02, V58).
 
-### 2 · Fin del onboarding: `ROUTE_BY_CTA`
+### 2 · Fin del onboarding: la variante del diagnóstico
 
-`front-walvy/expo/features/auth/utils/onboardingDiagnosis.ts`
+`front-walvy/expo/features/auth/utils/onboardingDiagnosisVariant.ts`
 
-G5 muestra el diagnóstico y **un** botón, cuyo texto y destino los elige el
-backend con `diagnosis.dominantCta.type`.
+G5 muestra el diagnóstico y **un** botón. El texto lo elige `dominantCta.type`;
+el destino, **no**.
 
-| `type` | Texto del botón | Destino |
+Quien decide el destino es la `diagnosis_variant` (§6.4 del Anexo BDD), que el
+backend no emite como campo propio: se deriva en el front desde `light` +
+`dominantPressureCode`.
+
+**Por qué no basta el tipo de CTA.** El mismo código de CTA aparece en casos de
+producto distintos: `adjust_budget` sale tanto en `attention_adjusted_margin`
+(D5) como en `risk_overload` (D1), y `review_category` en
+`attention_pending_movements` (D3) y `attention_leaks_detected` (D4). Cuatro
+situaciones, dos códigos. Ramificar por el tipo de CTA daría el destino
+equivocado en la mitad.
+
+| `diagnosis_variant` | Prioridad | Destino |
 |---|---|---|
-| `upload_document` | Cargar documento | `/(auth)/onboarding-doc` |
-| `improve_profile_precision` | Revisar señal principal | `/financial-profile` |
-| `no_dominant_cta` | — | `/financial-profile` |
-| `confirm_debt` | Confirmar deuda detectada | `/(tabs)/debt-route` |
-| `view_ruta_despeje` | Atender riesgo de sobrecarga | `/(tabs)/debt-route` |
-| `complete_onboarding` · `review_payment` · `adjust_budget` · `review_category` | (copy propia) | `/(tabs)` — su pantalla no existe |
+| `no_diagnosis` | P0 | `/(auth)/onboarding-doc` — G2 |
+| `in_control` | D6/D8 | `/financial-profile` |
+| `attention_data_to_confirm` | D5 | `/financial-profile` |
+| `risk_overload` | D1 | `/(tabs)/debt-route` |
+| `risk_high_commitments` | D2 | `/(tabs)/debt-route` |
+| `attention_pending_movements` | D3 | sin destino propio → segunda etapa |
+| `attention_leaks_detected` | D4 | sin destino propio → segunda etapa |
+| `attention_adjusted_margin` | D5 | sin destino propio → segunda etapa |
 
-Las dos de deuda apuntan a la **puerta** del módulo, no a una pantalla concreta:
-la superficie la decide la regla 3. Apuntar directo a Revisión sería una segunda
-fuente de verdad para la misma decisión.
+**La segunda etapa.** Cuando la variante no tiene destino, el tipo de CTA vuelve
+a decidir por `ROUTE_BY_CTA`:
+
+```ts
+return byVariant ?? resolveCtaDestination(cta);
+```
+
+No es redundancia: las tres variantes sin destino son de M03 y M05, y el día que
+esas pantallas existan basta agregarlas a `ROUTE_BY_CTA` para que las tres las
+tomen solas.
+
+Hoy ninguna de las tres tiene entrada ahí, así que caen al **fallback: Perfil
+Financiero, no Inicio**. Fase 3 §16/§19 lo fija como destino preferente de salida
+del onboarding y prohíbe Home como salida principal, y §12 del Anexo deja
+`ver_perfil` como secundario de todo diagnóstico.
+
+Las dos variantes de riesgo apuntan a la **puerta** de M04, no a una pantalla
+concreta: la superficie la decide la regla 3. Apuntar directo a Revisión sería
+una segunda fuente de verdad para la misma decisión.
 
 `dominantCta.refId` —la deuda concreta que el backend nombra— no se usa: no hay
 pantalla de una deuda sola.
+
+Cinco de las ocho variantes no tienen maqueta; su copy sale de `CTA_COPY`, que el
+propio archivo marca como borrador de Producto.
 
 ### 3 · Entrada a M04: `resolveDebtEntryPoint`
 
@@ -152,11 +188,10 @@ Reintentar, nunca el vacío: un 401 no es "no tienes deudas".
 deudas confirmadas. Las dos condiciones se excluyen. El frame existe
 (`10145:24232`) y ninguna rama llega. O sobra el frame, o sobra esa rama.
 
-**Cuatro CTA de G5 caen a Inicio.** `complete_onboarding`, `review_payment`,
-`adjust_budget` y `review_category` tienen copy propia y ninguna pantalla. El
-fallback es deliberado —mejor Home que una ruta rota— pero se revisa cada vez
-que entrega un módulo: las dos de deuda estuvieron ahí hasta que M04 existió, y
-nadie volvió al mapa hasta que se notó.
+**Cinco de las ocho variantes del diagnóstico no tienen maqueta.** Su copy sale
+de `CTA_COPY`, que el propio archivo marca como borrador: Producto no cerró el
+catálogo. Tres de ellas además no tienen pantalla de destino —son de M03 y
+M05— y aterrizan en Perfil Financiero por fallback.
 
 **"Ver resultado" en Revisión tiene tres reglas.** La pantalla habilita con una
 deuda confirmada, el backend expone `canViewResult` sólo cuando no queda ninguna
