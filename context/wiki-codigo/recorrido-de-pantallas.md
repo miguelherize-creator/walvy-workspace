@@ -65,8 +65,13 @@ flowchart LR
 
         CARGA --> ANAL["Analizando"] --> REV
         CARGA -->|"solo deudas a mano"| REV
-        REV -->|"todas confirmadas"| RESULT["Resultado"]
+        REV -->|"todas confirmadas"| RESULT{"Resultado<br/>¿se habilita la Ruta?"}
         REV -.->|"con datos parciales"| RESULT
+
+        RESULT -->|"sí: Ver Ruta Despeje"| RUTA
+        RESULT -->|"no: Revisar mis pagos"| PAGOS(["M06 · Pagos<br/>Próximamente"])
+        RESULT -.->|"quedan pendientes"| REV
+        RESULT -.->|"Cargar nuevo documento"| CARGA
     end
 
     classDef m1 fill:#EAF4F4,stroke:#1B6B73,color:#103F43
@@ -78,10 +83,10 @@ flowchart LR
 
     class G0,G1,G2,G3,G4,G5 m1
     class PERFIL m2
-    class RUTA,VACIO,CARGA,ANAL,REV,RESULT m4
-    class GATE,VAR,CTA,CTAP,ENTRY,TABS,SINRUTA decision
+    class RUTA,VACIO,CARGA,ANAL,REV m4
+    class GATE,VAR,CTA,CTAP,ENTRY,TABS,SINRUTA,RESULT decision
     class NADA roto
-    class LOGIN,HOME,ETAPA2,OTROS,ALIAS salto
+    class LOGIN,HOME,ETAPA2,OTROS,ALIAS,PAGOS salto
 
     style M1 fill:#FFFDFD,stroke:#E6DED2
     style M2 fill:#FFFDFD,stroke:#E6DED2
