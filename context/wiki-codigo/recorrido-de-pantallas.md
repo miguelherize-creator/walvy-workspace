@@ -38,9 +38,9 @@ flowchart LR
     CTA{"¿el tipo de CTA<br/>tiene pantalla?<br/>ROUTE_BY_CTA"}
     CTA -->|"ninguna: M03 y M05<br/>son placeholders"| PERFIL
 
-    HOME["Inicio · /"] --> TABS{"Barra inferior"}
+    HOME["Inicio · /"] --> TABS{"Barra inferior<br/>5 pestañas"}
     TABS -->|"Ruta despeje"| ENTRY
-    TABS -->|"Presupuesto vivo · Añadir documento<br/>Asistente IA"| OTROS(["M03 · M05 · M07"])
+    TABS -->|"Presupuesto vivo → M05<br/>Pagos → M06<br/>Asistente IA → M07"| OTROS(["placeholders<br/>Próximamente"])
 
     subgraph M2["MÓDULO 02 · Perfil"]
         PERFIL["Perfil Financiero<br/>/financial-profile"] --> CTAP{"routeForOnboardingCta"}
