@@ -7,6 +7,10 @@ la conversación empiece del hecho y no de la interpretación.
 Levantado del código en `qa` y de los paquetes documentales en
 `documentacion/modulo04-ini` y `modulo04-update`, contrastado contra Figma.
 
+Va a Producto y a Diseño: los puntos 1, 2 y 6 necesitan una decisión de
+producto; los 3, 4 y 5 necesitan frames o definición de diseño. Este documento
+reemplaza el correo que se iba a enviar por separado.
+
 ---
 
 ## 1 · La pestaña de Ruta Despeje no está en la documentación
@@ -59,11 +63,11 @@ defina.
 
 ---
 
-## 3 · Tres pantallas sin frame
+## 3 · Lo que falta dibujar
 
-**Analizando** y **Resultado** están construidas contra ningún diseño. Se
-hicieron partiendo de las pantallas equivalentes del onboarding, así que son
-coherentes con el resto de la app, pero nadie de diseño las ha visto.
+**Resultado** está construida contra ningún diseño. Se hizo partiendo de la
+pantalla equivalente del onboarding, así que es coherente con el resto de la
+app, pero nadie de diseño la ha visto.
 
 En **Revisión** el caso es más fino: los frames `5897:13762` y `5897:12967`
 dibujan cada deuda como una fila **cerrada** con un chevron. No hay frame de lo
@@ -74,6 +78,8 @@ se resolvió a criterio del equipo.
 Dentro de eso, dos detalles: la **fila ya confirmada** no tiene estado dibujado
 —hoy usa el verde de "verificado" del módulo— y falta decidir si **"Dejar
 pendiente y salir"** es la única forma de posponer o si falta un gesto por deuda.
+
+*(Analizando ya tiene su frame: `6670:13533`. Ver el punto 4.)*
 
 ---
 
@@ -118,6 +124,34 @@ por casualidad, pero son cosas distintas.
 
 O el modelo gana un campo, o el formulario cambia a "Cuotas restantes". Abierto
 con backend en KabeliDev/back-walvy#234.
+
+---
+
+## Decisiones que tomamos para no detener el módulo
+
+Tres cosas se resolvieron a criterio del equipo porque bloqueaban el avance.
+Siguen el criterio del propio diseño, pero conviene confirmarlas.
+
+**Se sacó "Confirmar después" de Revisión.** No estaba en los frames nuevos y no
+hacía nada. Hoy la forma de posponer es un único "Dejar pendiente y salir" al pie
+de la pantalla, no un gesto por deuda. Si el gesto por deuda estaba pensado, hay
+que reponerlo.
+
+**"Dejar pendiente y salir" lleva a Inicio**, no a Ruta Despeje. Volviendo a Ruta
+Despeje la app rebota a Revisión otra vez, así que habría sido un botón que no
+sale de ninguna parte.
+
+**La fila ya confirmada usa el verde de "verificado"** del módulo, para no
+inventar un color que el diseño no definió.
+
+---
+
+## Un dato que el backend manda y no usamos
+
+Cuando el diagnóstico propone confirmar una deuda, el backend nombra **cuál**
+(`refId`). Hoy se ignora: no hay pantalla de una deuda sola a la que llevar al
+usuario, así que se abre la lista completa. Si esa pantalla va a existir, el dato
+ya está disponible.
 
 ---
 
