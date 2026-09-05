@@ -9,55 +9,60 @@ juntas: ahí está el *qué* se calcula, acá el *dónde aparece*.
 
 Levantado del código de `front-walvy` en `qa`, no del diseño.
 
+**El diagrama está en lenguaje de producto a propósito**: se comparte con PM y
+PMO tal cual. Los nombres de archivo, función y campo viven en las tres
+secciones de abajo, una por decisión — ahí está el puente entre cada caja y el
+código que la implementa.
+
 ## El recorrido
 
 ```mermaid
 flowchart LR
-    LOGIN(["Login · biometría"]) --> GATE{"GET /auth/onboarding<br/>routeForPendingOnboardingGate"}
+    LOGIN(["Inicia sesión<br/>clave o huella"]) --> GATE{"¿Dónde quedó<br/>su onboarding?"}
 
     subgraph M1["MÓDULO 01 · Onboarding"]
-        G0["G0 activación<br/>/onboarding"] --> G1["G1 foco<br/>/onboarding-foco"]
-        G1 --> G2["G2 carga<br/>/onboarding-doc"]
-        G2 --> G3["G3 análisis<br/>/onboarding-analyzing"]
-        G3 --> G4["G4 revisión<br/>/onboarding-analysis"]
-        G4 --> G5["G5 diagnóstico<br/>/onboarding-first-ready"]
+        G0["G0 · Activación"] --> G1["G1 · Foco del mes"]
+        G1 --> G2["G2 · Carga de documentos"]
+        G2 --> G3["G3 · Analizando"]
+        G3 --> G4["G4 · Revisión"]
+        G4 --> G5["G5 · Diagnóstico"]
     end
 
-    GATE -->|"currentGate G0…G5"| G0
-    GATE -->|"completed · G6<br/>sin ruta que devolver"| SINRUTA{"lo decide<br/>el llamador"}
-    SINRUTA -->|"biometría: sin nombre ni alias<br/>clave: además sin gate"| ALIAS(["/(auth)/choose-alias"])
+    GATE -->|"quedó en una puerta"| G0
+    GATE -->|"lo terminó, o lo pausó"| SINRUTA{"no hay puerta<br/>a la que volver"}
+    SINRUTA -->|"aún no tiene nombre<br/>ni alias"| ALIAS(["Elegir alias"])
     SINRUTA -->|resto| HOME
 
-    G5 --> VAR{"¿Qué diagnóstico salió?<br/>light + dominantPressureCode<br/>→ 8 variantes"}
+    G5 --> VAR{"¿Qué diagnóstico salió?<br/>semáforo + presión dominante<br/>→ 8 variantes"}
 
-    VAR -->|"no_diagnosis"| G2
-    VAR -->|"in_control<br/>attention_data_to_confirm"| PERFIL
-    VAR -->|"risk_overload<br/>risk_high_commitments"| ENTRY
-    VAR -->|"attention_pending_movements · attention_leaks_detected<br/>attention_adjusted_margin<br/>sin destino propio"| CTA
+    VAR -->|"Sin diagnóstico"| G2
+    VAR -->|"En control<br/>Atención · datos por confirmar"| PERFIL
+    VAR -->|"Riesgo · sobrecarga<br/>Riesgo · compromisos altos"| ENTRY
+    VAR -->|"Atención · movimientos pendientes<br/>Atención · fugas · margen ajustado"| CTA
 
-    CTA{"¿el tipo de CTA<br/>tiene pantalla?<br/>ROUTE_BY_CTA"}
-    CTA -->|"ninguna: M03 y M05<br/>son placeholders"| PERFIL
+    CTA{"su pantalla<br/>¿existe hoy?"}
+    CTA -->|"todavía no:<br/>son de M03 y M05"| PERFIL
 
-    HOME["Inicio · /"] --> TABS{"Barra inferior<br/>5 pestañas"}
+    HOME["Inicio"] --> TABS{"Barra inferior<br/>5 pestañas"}
     TABS -->|"Ruta despeje"| ENTRY
-    TABS -->|"Presupuesto vivo → M05<br/>Pagos → M06<br/>Asistente IA → M07"| OTROS(["placeholders<br/>Próximamente"])
+    TABS -->|"Presupuesto vivo → M05<br/>Pagos → M06<br/>Asistente IA → M07"| OTROS(["Próximamente"])
 
     subgraph M2["MÓDULO 02 · Perfil"]
-        PERFIL["Perfil Financiero<br/>/financial-profile"] --> CTAP{"routeForOnboardingCta"}
+        PERFIL["Perfil Financiero"] --> CTAP{"«Preparar mi perfil»"}
         CTAP -.->|"onboarding abierto"| G0
-        CTAP -.->|"completed · G6"| NADA["el botón no navega"]
+        CTAP -.->|"terminado o pausado"| NADA["el botón no responde"]
     end
 
     subgraph M4["MÓDULO 04 · Ruta Despeje"]
-        ENTRY{"GET /debts/route/current<br/>resolveDebtEntryPoint"}
-        ENTRY -->|"activa · elegible"| RUTA["/debt-route"]
-        ENTRY -->|"sin deudas vivas"| CARGA["/debts-upload"]
-        ENTRY -->|"por revisar o completar"| REV["/debts-review"]
-        CARGA --> ANAL["/debts-analyzing"] --> REV
-        CARGA -->|"solo manuales"| REV
-        REV --> RESULT["/debts-result"]
+        ENTRY{"¿Por dónde entra<br/>a Ruta Despeje?"}
+        ENTRY -->|"su ruta está activa<br/>o ya es elegible"| RUTA["Ruta Despeje"]
+        ENTRY -->|"no tiene deudas vivas"| CARGA["Carga de documentos"]
+        ENTRY -->|"le faltan deudas<br/>por revisar o completar"| REV["Revisión de deudas"]
+        CARGA --> ANAL["Analizando"] --> REV
+        CARGA -->|"solo deudas a mano"| REV
+        REV --> RESULT["Resultado"]
         RUTA --> ETAPA2(["Plan · Avance<br/>etapa 2"])
-        RUTA -.->|"0 confirmadas"| VACIO["Estado vacío<br/>ninguna rama llega"]
+        RUTA -.->|"sin deudas confirmadas"| VACIO["Estado vacío<br/>ninguna rama llega acá"]
     end
 
     classDef m1 fill:#EAF4F4,stroke:#1B6B73,color:#103F43
