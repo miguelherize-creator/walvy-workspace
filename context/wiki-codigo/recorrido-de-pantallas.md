@@ -56,13 +56,17 @@ flowchart LR
     subgraph M4["MÓDULO 04 · Ruta Despeje"]
         ENTRY{"¿Por dónde entra<br/>a Ruta Despeje?"}
         ENTRY -->|"su ruta está activa<br/>o ya es elegible"| RUTA["Ruta Despeje"]
-        ENTRY -->|"no tiene deudas vivas"| CARGA["Carga de documentos"]
+        ENTRY -->|"no tiene deudas vivas"| RUTA
         ENTRY -->|"le faltan deudas<br/>por revisar o completar"| REV["Revisión de deudas"]
+
+        RUTA -->|"sin deudas confirmadas"| VACIO["Estado vacío"]
+        VACIO -->|"Cargar documentos"| CARGA["Carga de documentos"]
+        RUTA --> ETAPA2(["Plan · Avance<br/>etapa 2"])
+
         CARGA --> ANAL["Analizando"] --> REV
         CARGA -->|"solo deudas a mano"| REV
-        REV --> RESULT["Resultado"]
-        RUTA --> ETAPA2(["Plan · Avance<br/>etapa 2"])
-        RUTA -.->|"sin deudas confirmadas"| VACIO["Estado vacío<br/>ninguna rama llega acá"]
+        REV -->|"todas confirmadas"| RESULT["Resultado"]
+        REV -.->|"con datos parciales"| RESULT
     end
 
     classDef m1 fill:#EAF4F4,stroke:#1B6B73,color:#103F43
@@ -74,9 +78,9 @@ flowchart LR
 
     class G0,G1,G2,G3,G4,G5 m1
     class PERFIL m2
-    class RUTA,CARGA,ANAL,REV,RESULT m4
+    class RUTA,VACIO,CARGA,ANAL,REV,RESULT m4
     class GATE,VAR,CTA,CTAP,ENTRY,TABS,SINRUTA decision
-    class VACIO,NADA roto
+    class NADA roto
     class LOGIN,HOME,ETAPA2,OTROS,ALIAS salto
 
     style M1 fill:#FFFDFD,stroke:#E6DED2
@@ -215,12 +219,6 @@ donde está —lo conservador—, y si la llamada falla sale la pantalla de erro
 Reintentar, nunca el vacío: un 401 no es "no tienes deudas".
 
 ## Lo que no cierra
-
-**El estado vacío de Ruta Despeje es inalcanzable.** Vive dentro de
-`/debt-route` y se muestra con **cero deudas confirmadas**; llegar a
-`/debt-route` exige elegibilidad `activa` o `elegible`, que no se alcanza sin
-deudas confirmadas. Las dos condiciones se excluyen. El frame existe
-(`10145:24232`) y ninguna rama llega. O sobra el frame, o sobra esa rama.
 
 **Cinco de las ocho variantes del diagnóstico no tienen maqueta.** Su copy sale
 de `CTA_COPY`, que el propio archivo marca como borrador: Producto no cerró el
