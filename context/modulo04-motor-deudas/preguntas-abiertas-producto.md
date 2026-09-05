@@ -7,8 +7,8 @@ la conversación empiece del hecho y no de la interpretación.
 Levantado del código en `qa` y de los paquetes documentales en
 `documentacion/modulo04-ini` y `modulo04-update`, contrastado contra Figma.
 
-Va a Producto y a Diseño: los puntos 2 y 6 necesitan una decisión de producto;
-los 3, 4 y 5 necesitan frames o definición de diseño. El punto 1 quedó resuelto
+Va a Producto y a Diseño: los puntos 2, 5 y 7 necesitan una decisión de
+producto; los 3, 4 y 6 necesitan frames o definición de diseño. El punto 1 quedó resuelto
 y se conserva porque la documentación sigue sin cubrirlo. Este documento
 reemplaza el correo que se iba a enviar por separado.
 
@@ -46,23 +46,19 @@ para algún caso, hace falta un disparador distinto de "no tiene deudas".
 
 ---
 
-## 2 · "Ver resultado" tiene tres reglas incompatibles
+## 2 · "Ver resultado" tenía tres reglas — le faltaba un botón
 
-En la pantalla de Revisión, tres fuentes dicen cosas distintas sobre cuándo se
-puede avanzar:
+**Resuelto por los frames del escenario A.** Se deja escrito porque la
+contradicción sigue en la documentación.
 
-| Fuente | Regla |
-|---|---|
-| La pantalla | habilita con **al menos una deuda confirmada** |
-| El backend | permite ver el resultado sólo cuando **no queda ninguna por confirmar** |
-| El aviso de la propia pantalla | *"las deudas pendientes quedarán guardadas"* |
+Tres fuentes decían cosas distintas sobre cuándo se puede avanzar: la pantalla
+habilitaba con una deuda confirmada, el backend sólo cuando no queda ninguna por
+confirmar, y el aviso prometía que las pendientes quedaban guardadas.
 
-**En la práctica.** Con 3 deudas confirmo 1, veo el resultado y salgo. Al volver,
-la app me devuelve a Revisión porque quedan pendientes. No hay forma de terminar
-sin resolver las tres, aunque la pantalla prometa lo contrario.
-
-**Qué necesitamos.** Cuál de las tres manda. No cambiamos ninguna hasta que se
-defina.
+El frame `5897:13872` tiene **dos botones**: `Ver resultado`, deshabilitado
+mientras quede algo por confirmar —que es exactamente lo que responde el
+backend— y `Ver resultado con datos parciales`, habilitado con al menos una. No
+eran tres reglas para una acción: eran dos acciones.
 
 ---
 
@@ -103,7 +99,43 @@ superficie.
 
 ---
 
-## 5 · Cuatro cosas menores sin definir
+## 5 · ¿A dónde lleva "Continuar más tarde"?
+
+**Lo que hay.** El estado vacío de Ruta Despeje tiene dos botones: `Cargar
+documentos`, que lleva a la captura, y `Continuar más tarde`, que hoy lleva a
+Inicio.
+
+**Lo que dice la documentación.** El documento de copy (Fase 4, sección OD-02)
+usa **"Volver al perfil"** como acción secundaria en los cuatro casos de
+abandonar el flujo de deudas:
+
+```
+Datos insuficientes   → Volver al perfil | Completar ahora
+Deuda no reconocida   → Volver al perfil | Revisar otra deuda
+Lote pendiente        → Volver al perfil | Revisar pendientes
+```
+
+Y para el lote pendiente lo dice explícito: *"Puedes retomarlas después desde tu
+perfil o completitud."* Fase 3 §19 refuerza lo mismo: Home no es salida
+principal.
+
+**La tensión.** El frame `10145:24229` rotula ese botón **"Continuar más
+tarde"**; el documento de copy lo rotula **"Volver al perfil"**. Son etiquetas
+distintas para lo que parece la misma acción, y cambiar el destino sin cerrar el
+copy deja un botón que dice una cosa y hace otra.
+
+**Qué necesitamos.** Si el destino es Perfil Financiero, ¿el botón se llama
+"Volver al perfil" como en la copy, o se queda "Continuar más tarde" como en el
+frame? Son cinco salidas del módulo con el mismo problema: el estado vacío, el
+resumen de la ruta, las dos del Resultado y el "Continúo más tarde" de
+Analizando.
+
+De paso quedó arreglado que esas cinco apuntaban a `"/(tabs)/index"`, que no es
+una ruta de expo-router: el botón no llevaba a ninguna parte.
+
+---
+
+## 6 · Cuatro cosas menores sin definir
 
 - **"Actualización de datos"**: la nota pide este CTA en Resultado, Resumen y
   Avance. No aparece en ninguno de los frames que tenemos.
@@ -118,7 +150,7 @@ superficie.
 
 ---
 
-## 6 · Un campo del formulario sin dónde guardarse
+## 7 · Un campo del formulario sin dónde guardarse
 
 **"Última cuota pagada"** está en el frame de deuda manual (`5946:6498`) y quedó
 fuera del formulario. El sistema guarda *cuotas que faltan* y el frame pide
