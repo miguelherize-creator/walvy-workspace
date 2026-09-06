@@ -16,3 +16,4 @@ Un archivo por operación. Título = lo que hace. Incluye el `SELECT` de inspecc
 |---|---|
 | Listar y borrar un usuario para re-probar registro / correo | [`borrar-usuario.md`](borrar-usuario.md) |
 | Devolver un usuario al welcome del onboarding sin borrarlo | [`resetear-onboarding-al-welcome.md`](resetear-onboarding-al-welcome.md) |
+| Ver status / restringir o reactivar una cuenta (M1-BC-005) | [`restringir-cuenta.md`](restringir-cuenta.md) |

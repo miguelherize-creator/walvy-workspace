@@ -82,11 +82,20 @@ La **entrada a G5** de esta wiki: G4 habilitó diagnóstico (`complete` o `parti
 
 Si el endpoint de summary igual corre (el batch de G5 calcula siempre), el resultado funcional es `no_diagnosis` + `diagnostic_blocking_reason`. Eso no autoriza a pintar En control / Atención / Riesgo.
 
-### Hueco que Figma y el §7 no dibujan
+### Período del snapshot G5 (propuesta PM, pendiente cliente)
 
-La tabla de motivos de `no_diagnosis` (PM G5 §7 y esta wiki) es de **suficiencia**: sin documento, no procesable, ingreso, movimientos, compromisos/pagos, confianza.
+La tabla de `no_diagnosis` sigue siendo de **suficiencia**. V56 se resuelve en G4.
 
-Queda un caso de motor, no de Figma: **mes no cerrado / sin ingreso en la ventana** (M1-V56). El PM G5 §8 obliga igual a `no_diagnosis` en vez de `null`. Hasta que Diseño entregue frame, la UI segura es estado neutro **sin** los tres puntos de color — no la card Roja.
+El hueco de “cómo se arma el mes” quedó **cerrado funcionalmente por PM** (2026-08-24) en cuatro RN propuestas. **No son RN vigente de M1** hasta que el cliente las apruebe. Texto: `bitacora/2026-08-24-periodo-snapshot-g5.md`.
+
+| ID | Cierre |
+|---|---|
+| **RN-G5-PER-001** | Ventana = `summary.period` de Kread. No min/max `occurredOn`. No obligatorio 1–último día calendario. |
+| **RN-G5-PER-002** | Las txs (`occurredOn` dentro de la ventana) llenan montos; no redefinen bordes. Faltar txs un día ≠ falta de cobertura. |
+| **RN-G5-PER-003** | Ingreso **usable y atribuible** al período — no se exige tx de ingreso exactamente dentro de `start`–`end`. Si no hay ingreso atribuible → G4 `ingreso_faltante`. |
+| **RN-G5-PER-004** | Ventana = documento usable con `end_date` más reciente; los demás aportan evidencia atribuible a esa ventana. Conflictos → confianza/suficiencia, no recortar bordes. |
+
+Orden: resolver `summary.period` **antes** de cerrar G4, para que G4 y G5 usen la misma referencia. Motor actual (criterio técnico): mes de `occurredOn` más reciente; aún no consume `summary.period` en G5.
 
 ---
 
@@ -97,6 +106,8 @@ Queda un caso de motor, no de Figma: **mes no cerrado / sin ingreso en la ventan
 | `margin` | `healthy` · `observation` · `adjusted` · `pressured` |
 | `commitments` | `under_control` · `observation` · `high` |
 | `movements` | `no_relevant_alerts` · `pending_review` · `leaks_detected` · `needs_attention` |
+
+API actual: `diagnosis.signals[]` con `type` + `state` (no campos sueltos `margin_signal_state`). El catálogo de 11 estados **ya es el modelo funcional**. Lo pendiente no es si existen, sino **qué disparador los emite**. Detalle de alcance: [Alcance implementado vs soporte parcial](#alcance-implementado-vs-soporte-parcial-2026-08-24). Texto de trabajo: `bitacora/2026-08-24-g5-senales-alcance-parcial.md`.
 
 ---
 
@@ -214,6 +225,82 @@ Cuando el usuario ya ve el diagnóstico, **el onboarding se considera cumplido**
 
 ---
 
+## Alcance implementado vs soporte parcial (2026-08-24)
+
+Motor `g5_signals_v1` (PR [back-walvy#133](https://github.com/KabeliDev/back-walvy/pull/133)). Fase 3 es cualitativa: no se inventan umbrales. **No emitir un estado ≠ el estado no existe.** Clasificar con `mvp_scope_status`: `supported` / `partially_supported` / `pending_mvp_validation`. No hardcodear disparadores abiertos; no sacar enums del contrato.
+
+### Cumple (supported)
+
+| Pieza | Qué hay |
+|---|---|
+| Catálogo visible | 3 señales, 11 estados, una `dominant_pressure_code`, un CTA |
+| Semáforo | `in_control` · `attention` · `risk` · `no_diagnosis`. Nunca `null`. Falta de datos ≠ Riesgo |
+| Margen `healthy` / `adjusted` / `pressured` | M1-DP-006: ratio &lt; 0.90 / [0.90, 1) / ≥ 1.00 |
+| Compromisos `under_control` | Default si no hay mora confirmada |
+| Compromisos `high` (parcial: ver abajo) | Mora confirmada (deuda confirmada, vencida, con saldo) → Riesgo |
+| Movimientos `no_relevant_alerts` / `pending_review` | Default / no categorizados. `pending_review` **no** es sinónimo de `needs_attention` |
+
+### Soporte parcial — disparadores abiertos (no son “estados indefinidos”)
+
+| Estado | Significado documentado | Hoy | `mvp_scope_status` | Cierre que falta (Producto) |
+|---|---|---|---|---|
+| Margen `observation` | Seguimiento, sin presión crítica | No se emite | `partially_supported` | Evidencia que lo diferencia de `healthy` (con `adjusted` ya en 0.90). ¿Cambia el semáforo o solo la señal? **No** preguntar si el estado existe. **No** sacarlo del contrato. |
+| Compromisos `observation` | Compromisos o pagos recurrentes requieren revisión | No se emite. Sin mora = siempre `under_control` (demasiado binario) | `partially_supported` | Evidencia concreta. Fase 3: recurrencias relevantes pueden explicar Atención. |
+| Compromisos `high` | Presionan el mes o explican Riesgo. **Documentalmente no es solo mora.** No copiar M04 entero a G5 | Solo mora (recorte técnico) | `partially_supported` | Lista cerrada de señales G5 **adicionales** que activan `high`. ¿Alguna basta sola para Riesgo? |
+| Movimientos `leaks_detected` | Atención / `attention_leaks_detected` / SEM-03. Falta de job ≠ RN fuera de v1 | No se emite (no hay detector) | `pending_mvp_validation` | ¿Operativo en M1 v1 o `partially_supported` formal? Si v1: qué es fuga y quién la calcula. |
+| Movimientos `needs_attention` | Distinto de `pending_review` | No se emite | `partially_supported` | Disparador concreto. No unificar con no-categorizados. |
+
+### Preguntas a Producto (operacionalizar, no reabrir el catálogo)
+
+1. Margen `observation`: ¿qué evidencia vs `healthy`? ¿mueve el semáforo?
+2. Compromisos `observation`: ¿qué evidencia? ¿Atención o solo la señal?
+3. Compromisos `high`: mora **no** es la única condición. ¿Qué señales G5 extra lo activan?
+4. `leaks_detected`: ¿M1 v1 operativo o `partially_supported` / `pending_mvp_validation`?
+5. `needs_attention`: ¿qué evidencia, distinta de `pending_review`?
+
+Al cerrar disparadores de señal, versionar `g5_signals_v1` → `g5_signals_v2`.
+
+### Escenario `attention_adjusted_margin` (ratio [0.90, 1), sin mora ni pendientes)
+
+G5 **sí** determina Atención y señal dominant Margen `adjusted` (SEM-05). Lo parcialmente soportado es la **traducción** de esa señal a presión, acción, copy y navegación: el catálogo vigente no contempla explícitamente este escenario en esas cuatro capas.
+
+El mapeo que emite `g5_signals_v1` **no es RN aprobada**. Es **fallback técnico** para no dejar vacíos `dominant_pressure_code` y el CTA (el contrato pide uno de cada). No usar `recurring_payments` como causa: el motor no detectó recurrencias que expliquen el ajuste. No usar `margin_compromised`: mezcla `adjusted` con presión más fuerte.
+
+| Componente G5 | Estado |
+|---|---|
+| `general_traffic_light_status = attention` | Cerrado |
+| `margin = adjusted` | Cerrado |
+| `commitments = under_control` | Cerrado para este escenario |
+| `movements = no_relevant_alerts` | Cerrado |
+| `dominant_pressure_code` | Pendiente Producto. Fallback técnico hoy: `recurring_payments` — **no RN** |
+| `dominant_cta.type` | Pendiente Producto. Fallback técnico hoy: `adjust_budget` (CHECK legado, fuera de catálogo PM) — **no RN** |
+| Copy del bloque | Pendiente Producto/UX. Borrador front (menciona recurrentes) — **no RN** |
+| Destino del CTA | Pendiente Producto. Hoy no hay pantalla “revisar margen” |
+| Perfil como acción secundaria | Ya respaldado (M1-RN-ONB-012 / BDD), salvo que Producto lo pase a dominante |
+
+**Consulta a Producto (cuatro cierres; no reabrir semáforo ni las 3 señales):**
+
+1. **Presión** — ¿qué código representa `attention_adjusted_margin` sin otra señal causal? ¿Código nuevo (p. ej. `adjusted_margin`), reutilizar uno del catálogo, o `no_pressure`?
+2. **Acción** — ¿cómo se materializa `revisar_senal_principal` si la señal es Margen y no existe `review_margin`? ¿Acción nueva, mapear a una existente (no `optimize_recurring_payments`), o Perfil en v1?
+3. **Copy** — texto que hable **solo de margen**, sin atribuir pagos recurrentes no medidos. Botón + Perfil secundario.
+4. **Destino** — ¿a qué pantalla lleva “revisar margen” en M1 v1? Perfil si M2 lo sostiene; CTA temporal a Perfil; u otra ruta.
+
+Al responder: registrar RN/DP + casos QA y versionar `g5_signals_v1` → `g5_signals_v2`.
+
+### Otros desvíos (no son el motor de las 3 filas)
+
+| Tema | Hoy | Destino |
+|---|---|---|
+| Margen sin ingreso | Card `healthy` + `no_diagnosis` | No pintar “Saludable” si no hay lectura |
+| Copy front | “Sin alertas” / “Pendientes de revisión” | “Sin alertas relevantes” / “Pendientes de revisar” |
+| CTA API | CHECK legado (`adjust_budget`, …); `deepLink` suele `null` | Tipos de producto (`optimize_recurring_payments`, …) |
+| `diagnosis_variant` | No viaja en el bloque | `attention_adjusted_margin`, etc. |
+| Cierre onboarding | No setea `financial_profile_completed` | Wiki: G5 declara puerta + perfil completado |
+| Ventana del mes | `occurredOn` más reciente | RN-G5-PER: `summary.period` (pendiente cliente) |
+| Front 3 señales | Local, sin PR | Subir cuando el back esté en main |
+
+---
+
 ## Guardrails
 
 - No terminar el onboarding en "perfil completado" — termina en diagnóstico con próxima acción
@@ -223,3 +310,4 @@ Cuando el usuario ya ve el diagnóstico, **el onboarding se considera cumplido**
 - La deuda puede alimentar el semáforo como señal solo cuando exista dato desde Perfil Financiero o Módulo 4
 - `rule_version` y `evaluated_at` son obligatorios — sin ellos no es posible recalcular ni auditar
 - No prometer ahorro garantizado ni resultados automáticos
+- Un estado del catálogo que el motor aún no emite es `partially_supported` / `pending_mvp_validation`, no un estado indefinido ni un recorte del contrato (ver alcance 2026-08-24)

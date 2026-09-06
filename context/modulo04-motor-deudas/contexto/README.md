@@ -9,6 +9,7 @@
 | Tema | Fuente |
 |---|---|
 | Backend Ruta Despeje (Carga · Revisión · Resultado) — fuente de verdad | [`debts-manual-entry.md`](debts-manual-entry.md) |
+| **REQ abierto:** Resultado paso 3 — semáforo vs elegibilidad | [`../req-resultado-onboarding-semaforo.md`](../req-resultado-onboarding-semaforo.md) |
 | Spec de gestión de deudas (snowball / plan) | [`../../specs/debts.md`](../../specs/debts.md) |
 | Schema / DB | [`../../db/modulo4.md`](../../db/modulo4.md) |
 

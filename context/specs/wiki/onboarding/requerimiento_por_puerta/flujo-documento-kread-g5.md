@@ -150,17 +150,16 @@ Figma tiene **3 cards**. El API tiene **4 valores**. `no_diagnosis` no es una cu
 
 Orden en `finalizeG5Semaforo`:
 
-1. Ratio del **mes cerrado** (M1-DP-006).
-2. Mora confirmada solo **sube** `in_control` / `attention` → `risk` (no pisa `no_diagnosis`).
-3. Suficiencia `insufficient`/`blocked` → `no_diagnosis`.
-4. Si quedó `no_diagnosis` pero G4 ya pasó: CTA `no_dominant_cta` (no decir “en control”).
+1. Ratio sobre la ventana del snapshot — hoy criterio técnico: mes de `occurredOn` más reciente. **Propuesta PM (no RN vigente):** `summary.period` de Kread (ver abajo).
+2. Sin ingreso **atribuible** al período → G4 `ingreso_faltante` (bloqueo). No hay `no_diagnosis` no bloqueante.
+3. Mora confirmada solo **sube** `in_control` / `attention` → `risk` (no pisa `no_diagnosis`).
+4. Suficiencia `insufficient`/`blocked` → `no_diagnosis` + CTA cargar/completar.
 
 ```mermaid
 flowchart TD
-  L["Líneas del batch · se ignoran isTransfer"] --> WIN{"Ventana de mes cerrado M1-V56"}
-  WIN -- "sin día 1 o sin último día<br/>y sin mes anterior que cierre" --> ND1["no_diagnosis"]
-  WIN -- mes evaluable --> INC2{"totalIncome > 0?"}
-  INC2 -- no --> ND1
+  L["Líneas del batch · se ignoran isTransfer"] --> WIN["Mes vigente = YYYY-MM de occurredOn más reciente"]
+  WIN --> INC2{"totalIncome > 0?"}
+  INC2 -- no --> ND1["no_diagnosis + G4 ingreso_faltante · bloquea"]
   INC2 -- sí --> R{"ratio = egreso / ingreso"}
   R -- "< 0.90" --> G["in_control · En control"]
   R -- "0.90 – 0.999…" --> Y["attention · Atención"]
@@ -175,25 +174,22 @@ flowchart TD
 
   COL --> G4{"sufficiency insufficient o blocked?"}
   RD --> G4
-  ND1 --> G4
   G4 -- sí --> ND2["no_diagnosis · CTA cargar/completar"]
   G4 -- no --> OUT["light + generalTrafficLightStatus<br/>nunca null"]
 ```
 
-**Mes cerrado** (ambos bordes, con `occurredOn` reales, no el título del PDF ni `kread.period`):
+No se exige día 1 ni último día calendario. 7–24 o 7–31 **no recortan** la cobertura si el documento declara otro período.
 
-- Fin: `maxDate` es el último día calendario de ese mes, **o** existe un mes posterior con datos (entonces el anterior cerró al final).
-- Inicio: `minDate` global ≤ `YYYY-MM-01` del mes elegido.
-- Si el mes vigente no cumple, se intenta **solo** el mes anterior. Si tampoco, `no_diagnosis`.
-
-Por eso una cartola 3–28 jul o 7–31 jul (falta el 1) no pinta color aunque G4 esté en *Base suficiente*.
-
-| Color | Condición en código |
+| Color | Condición en código hoy (criterio técnico) |
 |---|---|
-| Verde `in_control` | Mes cerrado + ingreso > 0 + ratio < 0.90 + G4 no bloquea + sin mora que suba |
+| Verde `in_control` | Ingreso > 0 en el mes vigente + ratio < 0.90 + G4 no bloquea + sin mora que suba |
 | Amarillo `attention` | Igual, ratio ∈ [0.90, 1.00) |
 | Rojo `risk` | Ratio ≥ 1.00 **o** mora confirmada sobre un color ya evaluable |
-| Sin diagnóstico `no_diagnosis` | Mes no cerrado, sin ingreso en la ventana, G4 insuficiente/bloqueado, o Kread sin datos usables. **Nunca** por “faltan datos” se pinta rojo |
+| Sin diagnóstico `no_diagnosis` | G4 insuficiente/bloqueado, o sin ingreso usable en el mes vigente. **Nunca** rojo por falta de datos |
+
+### RN propuestas (PM 2026-08-24) — pendiente aprobación cliente
+
+`RN-G5-PER-001` a `004`: ventana = `summary.period`; txs llenan, no crean bordes; ingreso **atribuible** al ciclo (no tx obligatoria dentro de `start`–`end`); batch = ventana del `end_date` más reciente + evidencia atribuible del resto. Orden: período **antes** de G4. Detalle: `bitacora/2026-08-24-periodo-snapshot-g5.md`.
 
 ---
 
@@ -201,4 +197,4 @@ Por eso una cartola 3–28 jul o 7–31 jul (falta el 1) no pinta color aunque G
 
 El panel llama, en orden: login → `users/me` + onboarding → lista de imports → `summary-batch` (G5 + G4) → `kread-result` + `/lines` del archivo seleccionado → deudas.
 
-El recuadro amarillo de “mes no evaluable” replica la regla M1-V56 sobre las fechas de las líneas, no sobre el período que Kread puso en el PDF.
+El recuadro de mes vigente muestra el `YYYY-MM` de `occurredOn` más reciente (criterio técnico actual). La propuesta PM usa `summary.period` de Kread como ventana; G5 aún no la consume. Bitácora 2026-08-24.
