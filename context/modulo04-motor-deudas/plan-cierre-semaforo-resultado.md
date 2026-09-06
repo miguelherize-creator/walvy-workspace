@@ -98,14 +98,14 @@ Reescribir `resolveResultVariant` para que lea presión + gate en vez de `eligib
 
 También aquí: hoy `ResultVariant` tiene tres valores y **dos renders** (`sin_presion` y `no_confirmed` son idénticos), y `no_elegible` —el único que legítimamente significa En Control— comparte render con `pendiente_datos`, que significa lo contrario. Esa colisión desaparece al pasar a los cinco estados.
 
-### Fase 3 · Cerrar la documentación
+### Fase 3 · Cerrar la documentación — ✅ cerrada 2026-09-06
 
-- `contexto/debts-manual-entry.md` §3 → marcar histórico (semáforo por vencimiento + `GET /debts/result`).
-- `deuda-tecnica/README.md` → reescribir: `evaluateDebtSeverity` existe pero es código muerto para esta pantalla; el endpoint que reclama quedó descartado.
-- `../wiki-codigo/recorrido-de-pantallas.md` → el Resultado deja de ser binario.
+- ✅ `contexto/debts-manual-entry.md` → banner de documento histórico + §3 marcada como superada.
+- ✅ `deuda-tecnica/README.md` → reescrito. La deuda real es el adaptador de `PressureInputs`, los tres estados sin frame y el 27%.
+- ✅ `../wiki-codigo/recorrido-de-pantallas.md` → el nodo `RESULT` ya no es binario y se agregó el párrafo de las cinco lecturas.
 - `preguntas-abiertas-producto.md` §3 → OD-03 es el frame funcional; ya no es bloqueo.
-- `back-walvy/docs/api/debts/route.md` → el nuevo contrato de Fase 1.
-- **`debt-severity.rule.ts`** → decidir: borrar, o dejar documentado que solo `hasMoraConfirmada` está vivo y que el aging pertenece a Salud/M06.
+- ✅ `back-walvy/docs/api/debts/route.md` → contrato nuevo, tabla de escenarios y reason codes (entró con la Fase 1).
+- ~~**`debt-severity.rule.ts`** → decidir: borrar, o dejar documentado~~ → **borrado**. `hasMoraConfirmada` se movió a `src/imports/rules/mora-confirmada.rule.ts`; el aging pertenece a Salud/M06.
 
 ---
 

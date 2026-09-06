@@ -52,8 +52,8 @@ El último cierra el rol de `debt-severity.rule.ts`: el aging pertenece a **Salu
 |---|---|
 | **Figma / QA del paso 3** — verde sin ruta; amarillo y rojo **ambos** con CTA de Ruta | **Rechazado en el escenario B.** Amarillo = Atención, y el contrato dice «no Ruta automática». El rojo tampoco expone Ruta si el gate está incompleto. Figma es referencia visual, no contrato (guardrail explícito). |
 | **Wiki de código** [`recorrido-de-pantallas.md`](../wiki-codigo/recorrido-de-pantallas.md) — binario ¿se habilita Ruta? | **Incompleto.** El CTA sí es binario (Ruta o no), pero la pantalla tiene tres lecturas de presión. Hay que actualizarla. |
-| **Diseño objetivo M04** [`contexto/debts-manual-entry.md`](contexto/debts-manual-entry.md) §3 — semáforo verde/amarillo/rojo/gris + `GET /debts/result` con `trafficLight` | **Obsoleto.** El contrato no define esta pantalla por vencimiento y no existe `trafficLight` como campo canónico. Marcar §3 como histórico. |
-| **Deuda técnica M04** [`deuda-tecnica/README.md`](deuda-tecnica/README.md) | **Falso en ambas mitades hoy.** `evaluateDebtSeverity` existe; y el `GET /debts/result` que reclama no debe construirse (§6). Reescribir. |
+| **Diseño objetivo M04** [`contexto/debts-manual-entry.md`](contexto/debts-manual-entry.md) §3 — semáforo verde/amarillo/rojo/gris + `GET /debts/result` con `trafficLight` | **Obsoleto y ya marcado como histórico** (2026-09-06). El contrato no define esta pantalla por vencimiento y no existe `trafficLight` como campo canónico. |
+| **Deuda técnica M04** [`deuda-tecnica/README.md`](deuda-tecnica/README.md) | Era **falso en ambas mitades**. **Reescrito** el 2026-09-06. |
 | **Preguntas abiertas** [`preguntas-abiertas-producto.md`](preguntas-abiertas-producto.md) §3 — «se construyó sin frame» | **Cierto históricamente, ya no vigente como bloqueo.** OD-03 es el frame funcional. Actualizar. |
 | **API M04-A** `back-walvy/docs/api/debts/route.md` | **Vigente pero incompleto.** Describe elegibilidad; no publica presión, que es lo que esta pantalla necesita (§5c). |
 | **G5 (M01)** [`G5-diagnostico.md`](../specs/wiki/onboarding/requerimiento_por_puerta/G5-diagnostico.md) | **Confirmado como otro producto.** Salud del mes ≠ presión de deuda. El copy y las mascotas se reutilizaron; la señal no. |
@@ -80,7 +80,7 @@ Con eso `computeC` y `computeK` no producen banda —correctamente, porque el co
 
 **`evaluateRouteEligibility()`** · `route-eligibility.rule.ts` — implementa el gate del contrato (deuda confirmada + datos mínimos + presión `riesgo`) y **no degrada**: con `pressure === null` devuelve `pendiente_datos` con razón `route_pressure_not_evaluated`. Es correcto y respeta el guardrail.
 
-**`evaluateDebtSeverity()`** · `debt-severity.rule.ts` — **código muerto**. Ningún controller ni servicio la llama. El único export vivo del archivo es `hasMoraConfirmada`, consumido desde `imports/services/statement-import.service.ts:1674` para otro fin. Evalúa vencimiento a 3/7 días, que por contrato es dominio de Salud/aging, no de esta pantalla.
+**`evaluateDebtSeverity()`** · `debt-severity.rule.ts` — era **código muerto** y **se borró** (2026-09-06). Ningún controller ni servicio la llamaba, y no tenía un solo test. Evaluaba vencimiento a 3/7 días, que por contrato es dominio de Salud/aging, no de esta pantalla. El único export vivo del archivo, `hasMoraConfirmada`, se movió a `src/imports/rules/mora-confirmada.rule.ts` — sirve al override del semáforo de G5 en M01, no a M04.
 
 **No existe `GET /debts/result`.** Los endpoints de deudas son `route/current`, `route/apply`, `route/close-debt`, `GET /`, `GET /summary`, `GET /:id`, `POST /`, `PATCH /:id`, `:id/confirm`, `:id/dismiss`, `:id/payments`.
 
@@ -172,7 +172,7 @@ Para trazabilidad de la v1 de este documento.
 | ¿El rojo es obligatorio en MVP? | Sí, pero **rojo ≠ Ruta**. Riesgo con gate incompleto va a F2/F1/F3. |
 | ¿«En Control» con presión no calculada? | **No.** Prohibido textualmente. Es el defecto §5a. |
 | ¿Es la misma lectura que G5? | **No.** Confirmado: G5 es salud del mes. |
-| ¿`evaluateDebtSeverity` es contrato? | **No** para esta pantalla. Aging pertenece a Salud/M06. Es código muerto: evaluar si se borra o se reserva documentadamente. |
+| ¿`evaluateDebtSeverity` es contrato? | **No.** Aging pertenece a Salud/M06. Era código muerto y **se borró**. |
 | ¿Se depreca para no tener dos verdades? | Sí. La única fuente de la señal es P4 + gate. |
 | ¿Cuándo es realista `elegible` en QA? | Cuando exista el adaptador de `PressureInputs` — no cuando «entregue el motor», que ya está. Ver pregunta 5. |
 | El copy ámbar «atraso confirmado» | **Incorrecto.** Riesgo es un estado financiero (C×K×D + floors), no una mora. Reescribir. |
@@ -213,7 +213,7 @@ Tests de front que fijan el binario actual y habrá que reescribir: `front-walvy
 | Adaptador Null de entradas M05/M06 | `back-walvy/src/debts/ports/pressure-inputs.port.ts` · `debts.module.ts:33` |
 | Serialización de `route/current` | `back-walvy/src/debts/services/route.service.ts` |
 | Gate de elegibilidad | `back-walvy/src/debts/rules/route-eligibility.rule.ts` |
-| Aging · código muerto para esta pantalla | `back-walvy/src/debts/rules/debt-severity.rule.ts` |
+| ~~Aging · código muerto~~ | **borrado.** `hasMoraConfirmada` vive en `back-walvy/src/imports/rules/mora-confirmada.rule.ts` |
 
 ---
 

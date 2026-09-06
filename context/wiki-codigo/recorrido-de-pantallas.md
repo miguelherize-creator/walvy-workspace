@@ -70,12 +70,13 @@ flowchart LR
         ANAL -->|"no leyó ninguno"| KFAIL["No pudimos leer<br/>tus documentos"]
         ANAL -->|"pide clave"| CARGA
         KFAIL -->|"Reintentar / otro documento"| CARGA
-        REV -->|"todas confirmadas"| RESULT{"Resultado<br/>¿se habilita la Ruta?"}
+        REV -->|"todas confirmadas"| RESULT{"Resultado<br/>¿qué presión salió?"}
         REV -.->|"con datos parciales"| RESULT
         REV -->|"descartó la última"| CARGA
 
-        RESULT -->|"sí: Ver Ruta Despeje"| RUTA
-        RESULT -->|"no: Revisar mis pagos"| PAGOS(["M06 · Pagos<br/>Próximamente"])
+        RESULT -->|"Riesgo + gate:<br/>Ver Ruta Despeje"| RUTA
+        RESULT -->|"En Control:<br/>Revisar mis pagos"| PAGOS(["M06 · Pagos<br/>Próximamente"])
+        RESULT -.->|"Atención · Riesgo sin gate ·<br/>no calculable → card neutra"| NEUTRA["Aún no podemos<br/>concluir"]
         RESULT -.->|"quedan pendientes"| REV
         RESULT -.->|"Cargar nuevo documento"| CARGA
     end
@@ -91,7 +92,7 @@ flowchart LR
     class PERFIL m2
     class RUTA,VACIO,CARGA,ANAL,REV m4
     class GATE,VAR,CTA,CTAP,ENTRY,TABS,SINRUTA,RESULT decision
-    class NADA,KFAIL roto
+    class NADA,KFAIL,NEUTRA roto
     class LOGIN,HOME,PLAN,AVANCE,OTROS,ALIAS,PAGOS salto
 
     style M1 fill:#FFFDFD,stroke:#E6DED2
@@ -258,6 +259,14 @@ de Deudas son tres (Carga, Revisión, Resultado). El feedback que falta no es un
 frame nuevo, es el modal / la oferta de RGL-010 en el caso parcial.
 
 ## Lo que no cierra
+
+**El Resultado de M04 tiene cinco lecturas y dos maquetas.** El contrato del cliente
+(OD-03) define En Control, Atención, Riesgo-con-gate-incompleto, Riesgo-con-gate y
+no-calculable. Figma dibujó verde y ámbar. Los otros tres comparten hoy una card neutra
+provisional que dice «Aún no podemos concluir» — honesta, pero no representa estados que
+el contrato exige. Y como faltan los insumos de M05 y M06, **`no calculable` es el único
+que ocurre en la app real**. El detalle en
+[`paso-3-resultado-en-detalle.md`](../modulo04-motor-deudas/paso-3-resultado-en-detalle.md).
 
 **Cinco de las ocho variantes del diagnóstico no tienen maqueta.** Su copy sale
 de `CTA_COPY`, que el propio archivo marca como borrador: Producto no cerró el
