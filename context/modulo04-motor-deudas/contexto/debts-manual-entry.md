@@ -93,7 +93,7 @@ Toda deuda debe ser confirmada por el usuario. A primera instancia no hay "Confi
 > Toda esta sección quedó sin efecto. El color **no** sale del vencimiento sino de la
 > presión C×K×D, el rojo se parte en dos según el gate, y existe un quinto estado
 > —`no calculable`— que este diseño no previó. Ver
-> [`../paso-3-resultado-en-detalle.md`](../paso-3-resultado-en-detalle.md).
+> [`../motor-m04-en-detalle.md`](../motor-m04-en-detalle.md) §6.
 >
 > Lo único que sobrevivió es el principio de arquitectura del párrafo siguiente: **el
 > backend decide, el front pinta.** Ese sigue vigente.

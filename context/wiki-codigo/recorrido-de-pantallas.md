@@ -266,7 +266,7 @@ no-calculable. Figma dibujó verde y ámbar. Los otros tres comparten hoy una ca
 provisional que dice «Aún no podemos concluir» — honesta, pero no representa estados que
 el contrato exige. Y como faltan los insumos de M05 y M06, **`no calculable` es el único
 que ocurre en la app real**. El detalle en
-[`paso-3-resultado-en-detalle.md`](../modulo04-motor-deudas/paso-3-resultado-en-detalle.md).
+[`motor-m04-en-detalle.md`](../modulo04-motor-deudas/motor-m04-en-detalle.md) §6.
 
 **Cinco de las ocho variantes del diagnóstico no tienen maqueta.** Su copy sale
 de `CTA_COPY`, que el propio archivo marca como borrador: Producto no cerró el
