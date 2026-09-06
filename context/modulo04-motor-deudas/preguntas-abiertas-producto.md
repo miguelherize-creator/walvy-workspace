@@ -9,8 +9,10 @@ Levantado del código en `qa` y de los paquetes documentales en
 
 Va a Producto y a Diseño: los puntos 2, 5 y 7 necesitan una decisión de
 producto; los 3, 4 y 6 necesitan frames o definición de diseño. El punto 1 quedó resuelto
-y se conserva porque la documentación sigue sin cubrirlo. Este documento
-reemplaza el correo que se iba a enviar por separado.
+y se conserva porque la documentación sigue sin cubrirlo. El punto 8 es un
+requerimiento formal de revisión (front + back): tres fuentes describen el
+Resultado distinto. Este documento reemplaza el correo que se iba a enviar por
+separado.
 
 ---
 
@@ -66,7 +68,8 @@ eran tres reglas para una acción: eran dos acciones.
 
 **Resultado** está construida contra ningún diseño. Se hizo partiendo de la
 pantalla equivalente del onboarding, así que es coherente con el resto de la
-app, pero nadie de diseño la ha visto.
+app, pero nadie de diseño la ha visto. El desfase de contrato (semáforo de tres
+colores vs binario de elegibilidad) está en el punto 8.
 
 En **Revisión** el caso es más fino: los frames `5897:13762` y `5897:12967`
 dibujan cada deuda como una fila **cerrada** con un chevron. No hay frame de lo
@@ -159,6 +162,20 @@ por casualidad, pero son cosas distintas.
 
 O el modelo gana un campo, o el formulario cambia a "Cuotas restantes". Abierto
 con backend en KabeliDev/back-walvy#234.
+
+---
+
+## 8 · Resultado: tres escenarios que la documentación no cierra
+
+Requerimiento de revisión (Producto + Backend + Frontend):
+[`req-resultado-onboarding-semaforo.md`](req-resultado-onboarding-semaforo.md).
+
+Figma / QA piden verde sin ruta y amarillo + rojo con ruta. El diseño objetivo
+de back (`debts-manual-entry` §3) pide un `GET /debts/result` con semáforo. El
+código pinta dos colores según `GET /debts/route/current.eligibility` y el botón
+de Ruta no abre Ruta. Las docs de contexto y deuda técnica además están
+desactualizadas. No se implementa nada hasta que esa revisión elija una fuente
+de verdad.
 
 ---
 

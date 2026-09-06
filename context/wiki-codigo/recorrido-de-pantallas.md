@@ -11,8 +11,8 @@ Levantado del código de `front-walvy` en `qa`, no del diseño.
 
 **El diagrama está en lenguaje de producto a propósito**: se comparte con PM y
 PMO tal cual. Los nombres de archivo, función y campo viven en las tres
-secciones de abajo, una por decisión — ahí está el puente entre cada caja y el
-código que la implementa.
+secciones de abajo — ahí está el puente entre cada caja y el código que la
+implementa.
 
 ## El recorrido
 
@@ -55,18 +55,24 @@ flowchart LR
 
     subgraph M4["MÓDULO 04 · Ruta Despeje"]
         ENTRY{"¿Por dónde entra<br/>a Ruta Despeje?"}
-        ENTRY -->|"su ruta está activa<br/>o ya es elegible"| RUTA["Ruta Despeje"]
+        ENTRY -->|"su ruta está activa<br/>o ya es elegible"| RUTA["1 · Resumen"]
         ENTRY -->|"no tiene deudas vivas"| RUTA
         ENTRY -->|"le faltan deudas<br/>por revisar o completar"| REV["Revisión de deudas"]
 
         RUTA -->|"sin deudas confirmadas"| VACIO["Estado vacío"]
         VACIO -->|"Cargar documentos"| CARGA["Carga de documentos"]
-        RUTA --> ETAPA2(["Plan · Avance<br/>etapa 2"])
+        RUTA --> PLAN(["2 · Plan"]) --> AVANCE(["3 · Avance"])
 
-        CARGA --> ANAL["Analizando"] --> REV
+        CARGA --> ANAL["Analizando"]
         CARGA -->|"solo deudas a mano"| REV
+        ANAL -->|"Kread leyó todos"| REV
+        ANAL -.->|"leyó algunos:<br/>el resto se calla"| REV
+        ANAL -->|"no leyó ninguno"| KFAIL["No pudimos leer<br/>tus documentos"]
+        ANAL -->|"pide clave"| CARGA
+        KFAIL -->|"Reintentar / otro documento"| CARGA
         REV -->|"todas confirmadas"| RESULT{"Resultado<br/>¿se habilita la Ruta?"}
         REV -.->|"con datos parciales"| RESULT
+        REV -->|"descartó la última"| CARGA
 
         RESULT -->|"sí: Ver Ruta Despeje"| RUTA
         RESULT -->|"no: Revisar mis pagos"| PAGOS(["M06 · Pagos<br/>Próximamente"])
@@ -85,18 +91,19 @@ flowchart LR
     class PERFIL m2
     class RUTA,VACIO,CARGA,ANAL,REV m4
     class GATE,VAR,CTA,CTAP,ENTRY,TABS,SINRUTA,RESULT decision
-    class NADA roto
-    class LOGIN,HOME,ETAPA2,OTROS,ALIAS,PAGOS salto
+    class NADA,KFAIL roto
+    class LOGIN,HOME,PLAN,AVANCE,OTROS,ALIAS,PAGOS salto
 
     style M1 fill:#FFFDFD,stroke:#E6DED2
     style M2 fill:#FFFDFD,stroke:#E6DED2
     style M4 fill:#FFFDFD,stroke:#E6DED2
 ```
 
-## Las tres decisiones
+## Las decisiones
 
-Todo salto entre módulos pasa por una de estas tres. Si el usuario aparece
-donde no esperabas, es una de ellas.
+Los saltos entre módulos pasan por las tres primeras. La cuarta es interna de
+M04: qué hace Analizando cuando Kread no lee el lote entero. Si el usuario
+aparece donde no esperabas, es una de estas.
 
 ### 1 · Post-login: `routeForPendingOnboardingGate`
 
@@ -223,6 +230,33 @@ Dos casos los decide el front: sin `entry` en la respuesta el usuario se queda
 donde está —lo conservador—, y si la llamada falla sale la pantalla de error con
 Reintentar, nunca el vacío: un 401 no es "no tienes deudas".
 
+### 4 · Analizando: qué hace Kread con cada documento
+
+`front-walvy/expo/features/debts/ui/DebtAnalyzingScreen.tsx` ·
+`onFinished` de `useStatementUploadQueue`.
+
+Carga con documento no va directo a Revisión: pasa por Analizando, que sube a
+Kread. El salto lo decide cuántos imports quedaron vivos, no un frame de
+"confirmación".
+
+| Resultado de la cola | Qué ve el usuario | Destino |
+|---|---|---|
+| Todos leídos (`importIds` ≥ 1, `failed` vacío) | Los cinco pasos en verde y avanza | `/(tabs)/debts-review` |
+| **Algunos fallaron** (`importIds` ≥ 1 y `failed` ≥ 1) | **Nada.** El fallo sólo se loguea en `__DEV__` | `/(tabs)/debts-review` igual |
+| Ninguno se leyó (`importIds` = 0 y hay `failed`) | *"No pudimos leer tus documentos."* + Reintentar / otro documento / manual | se queda en Analizando |
+| Pide clave | Vuelve a Carga con el campo de contraseña | `/(tabs)/debts-upload` |
+| Se venció la espera y no hay `failed` | El modal de demora; el backend sigue | se queda en Analizando |
+
+El mixto —unos pasan, otros no— es el hueco. M04-RGL-010 pide ofrecer
+**explícitamente** otro documento o registro manual cuando uno no es procesable
+(Fase 2 §9.3 y §22: modal *Documento no procesable* en Validación / completitud).
+Hoy esa oferta sólo aparece si **fallan todos**. Si Kread salvó al menos uno, el
+usuario aterriza en Revisión como si el lote entero hubiera salido bien.
+
+No hay pantalla núcleo de confirmación post-Kread en el contrato: el Onboarding
+de Deudas son tres (Carga, Revisión, Resultado). El feedback que falta no es un
+frame nuevo, es el modal / la oferta de RGL-010 en el caso parcial.
+
 ## Lo que no cierra
 
 **Cinco de las ocho variantes del diagnóstico no tienen maqueta.** Su copy sale
@@ -245,6 +279,11 @@ responde.
 deuda confirmada, el backend expone `canViewResult` sólo cuando no queda ninguna
 por confirmar, y el aviso de la propia pantalla promete que las pendientes
 quedan guardadas. Sin definir.
+
+**El fallo parcial de Kread es silencioso.** Si Analizando logra al menos un
+import, los documentos que fallaron no se anuncian y Revisión se abre como
+camino feliz. El contrato (M04-RGL-010) pide el aviso; el frame de Analizando
+sólo dibuja el proceso, no el resultado mixto. Ver §4.
 
 ## Cómo verificarlo
 
