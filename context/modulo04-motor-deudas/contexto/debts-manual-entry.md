@@ -1,6 +1,25 @@
 # Módulo 4 — Ruta Despeje · Backend
 
-> ⚠️ **Estado real (repo actual):** en `back-walvy/src/debts/` **solo existen las entidades DB** (`entities/`). El módulo NestJS (controller/service/DTOs/enums/reglas) y los endpoints **NO están implementados** — alineado con [`../../specs/debts.md`](../../specs/debts.md) ("módulo NestJS pendiente"). **Todo lo que sigue es el diseño objetivo del backend, no lo ya construido.**
+> # ⚠️ DOCUMENTO HISTÓRICO — no usar como contrato
+>
+> **Superado el 2026-09-06.** Escrito en jun-2026 como *diseño objetivo*, **dos meses antes
+> de que llegara el contrato del cliente** (`Walvy_M04_Entrega_Kabeli_v1.0`, 2026-08-31).
+> El backend que describe se construyó, pero **con otro modelo**.
+>
+> Se conserva por trazabilidad: explica de dónde salieron decisiones que después se
+> revirtieron. **No refleja el código ni el contrato vigentes.**
+>
+> | Lo que dice | Lo vigente |
+> |---|---|
+> | El módulo Nest «no está implementado» | Completo desde ago-2026: 16 reglas, 10 endpoints, 451 tests |
+> | Semáforo por **vencimiento** (3/7 días) | Presión **C×K×D** + floors — `pressure-matrix.rule.ts` |
+> | `evaluateDebtSeverity()` decide el color | Regla **borrada** el 2026-09-06. El aging pasó a Salud de Deuda (owner M06) |
+> | Contrato `GET /debts/result` con `trafficLight` | **Descartado.** Presión y gate van en `GET /debts/route/current` |
+> | Amarillo y rojo comparten CTA de Ruta | Sólo **Riesgo con el gate completo** ofrece Ruta — OD-03 |
+>
+> **Fuentes vigentes:** [`../motor-m04-en-detalle.md`](../motor-m04-en-detalle.md) ·
+> [`../req-resultado-onboarding-semaforo.md`](../req-resultado-onboarding-semaforo.md) ·
+> `back-walvy/docs/api/debts/route.md`
 
 **Módulo NestJS (objetivo):** `back-walvy/src/debts/`
 **Relacionado:** [`debts.md`](../../specs/debts.md) (snowball / plan)
@@ -69,13 +88,23 @@ Toda deuda debe ser confirmada por el usuario. A primera instancia no hay "Confi
 
 ---
 
-## 3. Resultado (semáforo)
+## 3. Resultado (semáforo) — ⛔️ SUPERADO
+
+> Toda esta sección quedó sin efecto. El color **no** sale del vencimiento sino de la
+> presión C×K×D, el rojo se parte en dos según el gate, y existe un quinto estado
+> —`no calculable`— que este diseño no previó. Ver
+> [`../motor-m04-en-detalle.md`](../motor-m04-en-detalle.md) §6.
+>
+> Lo único que sobrevivió es el principio de arquitectura del párrafo siguiente: **el
+> backend decide, el front pinta.** Ese sigue vigente.
 
 Pantalla tipo semáforo (verde / amarillo / rojo / gris) con mensaje, avatar y CTA.
 
 **Arquitectura:** el **backend decide** el bucket; el **frontend solo pinta** (color, avatar, copy, CTA). La decisión NO vive en el cliente para evitar drift entre superficies (Resultado, Home/salud financiera, notificaciones, IA).
 
-**Estado:** la regla `evaluateDebtSeverity()` está **diseñada pero AÚN NO existe en el código** (no hay `src/debts/rules/debt-severity.rule.ts`). Pendiente: implementarla como función pura y cablearla a `GET /debts/result` (carga las deudas `confirmed` y llama a la función), validando criterios con negocio.
+**Estado (obsoleto):** decía que `evaluateDebtSeverity()` no existía. Sí existía —desde el
+2026-06-28— y nunca se cableó; se **borró** el 2026-09-06. El `GET /debts/result` que
+propone no se construyó ni se construirá: quedó descartado por el contrato.
 
 **Forma del resultado (contrato propuesto):**
 ```jsonc
@@ -141,7 +170,7 @@ dto/create-debt.dto.ts
 dto/update-debt.dto.ts
 services/debts.service.ts          create / findAll / summary / findOne / update / confirm / dismiss
 controllers/debts.controller.ts    POST /debts · GET · GET/summary · GET/:id · PATCH/:id · POST/:id/confirm · POST/:id/dismiss
-rules/debt-severity.rule.ts        evaluateDebtSeverity() — regla del semáforo (v1_mvp, sin cablear)
+rules/debt-severity.rule.ts        BORRADO 2026-09-06 — ver deuda-tecnica/README.md
 debts.module.ts
 ```
 
