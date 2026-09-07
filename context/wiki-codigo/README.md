@@ -9,9 +9,9 @@ Cómo está construido el código hoy y cómo trabajamos sobre él. Pensado para
 | [`integracion-modulos.md`](integracion-modulos.md) | Cómo se conectan M01, M02 y M04, y dónde enchufan M05 y M06 |
 | [`reglas-financieras.md`](reglas-financieras.md) | La arquitectura del motor de reglas: capas, puertos, proyecciones e invariantes |
 
-**Foto de referencia:** `origin/qa` — back `4d6c9c4`, front `299bda4`, ambos del 2026-08-28.
-Los dos documentos de módulos son posteriores y se levantaron de
-`back-walvy` en `feature/m4-ruta-despeje`, que todavía no llega a `qa`.
+**Foto de referencia:** `origin/qa` — back `dd713df`, front `f64c1a5`, ambos del
+2026-09-06. M04 ya está en `qa`: el motor, sus 438 tests y los contratos de
+`back-walvy/docs/api/debts/` se levantaron de ahí.
 
 > Estos dos documentos **reemplazan** a `context/architecture.md` y `context/stack.md` en todo lo que se contradigan: esos dos están congelados en junio y describen NestJS 10, npm y un proyecto sin migraciones. Nada de eso es cierto hoy.
 

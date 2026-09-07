@@ -74,7 +74,7 @@ La regla es una: **lo que pertenece a un campo se muestra bajo el campo**; el ba
 | Ambos | 429 | **Banner**: “Demasiados intentos…” |
 | Ambos | Red / timeout / 5xx | **Banner** |
 
-Los tres `code` del 409 llegan en el cuerpo. Comparten status, así que sin `code` el cliente no puede saber cuál conflicto ocurrió — ver [`docs/api/auth/register.md`](../../../../../back-walvy/docs/api/auth/register.md).
+Los tres `code` del 409 llegan en el cuerpo. Comparten status, así que sin `code` el cliente no puede saber cuál conflicto ocurrió — ver [`docs/api/auth/register.md`](../../../../../../back-walvy/docs/api/auth/register.md).
 
 Dónde está en el código: `parseRegisterConflict` y `parseRegisterValidationError` en `expo/features/auth/utils/registerConflict.ts`; el reparto a campo o banner en `useRegisterForm.ts`.
 

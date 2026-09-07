@@ -57,7 +57,7 @@ Cada `.md` sigue el formato estándar de la skill:
 
 ## 🔗 Referencias cruzadas
 
-- **Bugs raíz detectados** → ver [`../debt.md`](../debt.md)
+- **Bugs raíz detectados** → la deuda técnica se sigue por módulo, en `context/moduloNN-*/deuda-tecnica/README.md`
 - **ADRs relacionados** → ver [`../decisions.md`](../decisions.md)
 - **Spec del módulo** → ver [`../specs/authentication.md`](../specs/authentication.md)
 - **Skill que genera estos reportes** → ver [`../../skills/ui-visual-qa-reviewer.md`](../../skills/ui-visual-qa-reviewer.md)

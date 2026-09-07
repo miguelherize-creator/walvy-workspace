@@ -2,7 +2,7 @@
 
 **Frontend:** `walvy-org/walvy-app-frontend` · rama `main` (`walvy/main`) · SHA `a929a2c`  
 **Alcance:** los **14 auth + 5 users + 4 profile** actualizados en backend.  
-**Complementa:** [`frontend-routes-graph.md`](../../frontend-routes-graph.md) (navegación) y [`authentication.md`](../authentication.md) (contrato auth).
+**Complementa:** [`frontend-routes-graph.md`](../frontend-routes-graph.md) (navegación) y [`authentication.md`](../authentication.md) (contrato auth).
 
 **Casos de prueba por pantalla** (endpoint × ID variante): [`pantallas/README.md`](pantallas/README.md).
 

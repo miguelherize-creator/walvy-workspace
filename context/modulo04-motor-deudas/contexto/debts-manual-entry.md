@@ -11,7 +11,7 @@
 >
 > | Lo que dice | Lo vigente |
 > |---|---|
-> | El módulo Nest «no está implementado» | Completo desde ago-2026: 16 reglas, 10 endpoints, 451 tests |
+> | El módulo Nest «no está implementado» | Completo desde ago-2026: 16 reglas, 12 endpoints, 438 tests |
 > | Semáforo por **vencimiento** (3/7 días) | Presión **C×K×D** + floors — `pressure-matrix.rule.ts` |
 > | `evaluateDebtSeverity()` decide el color | Regla **borrada** el 2026-09-06. El aging pasó a Salud de Deuda (owner M06) |
 > | Contrato `GET /debts/result` con `trafficLight` | **Descartado.** Presión y gate van en `GET /debts/route/current` |
@@ -22,10 +22,11 @@
 > `back-walvy/docs/api/debts/route.md`
 
 **Módulo NestJS (objetivo):** `back-walvy/src/debts/`
-**Relacionado:** [`debts.md`](../../specs/debts.md) (snowball / plan)
+**Vigente en su lugar:** `back-walvy/docs/api/debts/route.md` (motor, elegibilidad y Ruta) y
+`back-walvy/docs/api/debts/debts.md` (captura, revisión y pagos).
 
 Ruta Despeje tiene **3 funcionalidades**: **1. Carga** · **2. Revisión** · **3. Resultado**.
-Este documento es la fuente de verdad del backend de las 3.
+Este documento **ya no es fuente de verdad** de nada — ver el aviso de arriba.
 
 ---
 

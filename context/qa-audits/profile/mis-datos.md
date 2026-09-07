@@ -140,7 +140,7 @@ La pantalla "Mis datos" (viewMode datos del ProfileScreen) tenía 3 desviaciones
 
 Todos los fixes son ya código entregado. **Score 95/100**.
 
-Las 5 unidades restantes son por consideraciones menores (touch targets marginalmente bajo 44px en avatar edit y toggle, mismo issue compartido con M1-FE-04 en `debt.md`).
+Las 5 unidades restantes son por consideraciones menores (touch targets marginalmente bajo 44px en avatar edit y toggle, mismo issue compartido con M1-FE-04, hoy en `modulo01-identidad-autenticacion/deuda-tecnica/README.md`).
 
 ---
 

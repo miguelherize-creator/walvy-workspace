@@ -1,6 +1,10 @@
 # M1 — Deuda técnica
 
-Detalle completo y cadena de bloqueos en [`../../debt.md`](../../debt.md). Resumen:
+> **Heredado de `context/debt.md`, retirado el 2026-09-06** por estar congelado en
+> junio. Los IDs y bloqueos de esta tabla vienen de ahí y **no se reverificaron contra el
+> código**. `M1-DT-04` en particular ya está resuelto —ver
+> [`../../bitacora/2026-08-29-plan-onboarding-dev-nuevo.md`](../../bitacora/2026-08-29-plan-onboarding-dev-nuevo.md)—
+> así que tratar el resto como pendiente de confirmar, no como estado vigente.
 
 | ID | Tema | Bloqueante |
 |---|---|---|

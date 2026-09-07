@@ -1,6 +1,7 @@
 # M5 — Deuda técnica
 
-No hay items `M5-DT` formalizados en [`../../debt.md`](../../debt.md). Deuda documentada del módulo:
+Nunca hubo items `M5-DT` formalizados en el registro global (`context/debt.md`, retirado
+el 2026-09-06). Deuda documentada del módulo:
 
 - **Flujo Cartola / Statement Imports** → [`debt-cartola.md`](debt-cartola.md) (análisis del flujo completo de subida de documentos, 2026-06-17).
 

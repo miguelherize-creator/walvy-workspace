@@ -153,7 +153,7 @@ App arranca → AuthProvider restaura sesión (GET /users/me con token guardado)
 | `/(auth)/onboarding-foco` | OnboardingFocoScreen | Elegir foco financiero del mes |
 | `/(auth)/onboarding-first-ready` | OnboardingFirstReadyScreen | "¡Listo! Ya puedes entrar" |
 
-**Estado:** ✅ Todas conectadas al backend (onboarding ⚠️ parcial — ver M1-DT-04 en `debt.md`)
+**Estado:** ✅ Todas conectadas al backend. La deuda técnica de onboarding se sigue en `modulo01-identidad-autenticacion/deuda-tecnica/README.md`
 
 ---
 

@@ -23,7 +23,7 @@ Carpeta principal con la documentación más actualizada de M1 y M2.
 | `Walvy_Ruta_Despeje_v1.0.pdf` | Spec M4 | Ruta Despeje completa (pendiente leer) |
 | `Walvy_Reglas_Salud_Deuda_v1.0.pdf` | Reglas M4 | Reglas de salud de deuda S0–S4 (pendiente leer) |
 | `Walvy_Especificacion_UX_Perfil_Financiero_v1.0_consolidado.pdf` | Spec UX | Perfil Financiero consolidado (pendiente leer) |
-| `Walvy_Rector_Producto_y_Funcionalidades_MVP_v1.0_OLD_20260516.pdf` | Old rector | Versión OLD del rector de producto — referencia histórica |
+| ~~`Walvy_Rector_Producto_y_Funcionalidades_MVP_v1.0_OLD_20260516.pdf`~~ | Old rector | **Borrado del repo el 2026-09-06** — era la versión OLD de mayo. Sigue en Drive si se necesita |
 
 ### `1. Entregables Walvy_Módulo 1`
 Entregables formales del módulo 1 para el cliente.

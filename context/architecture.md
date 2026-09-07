@@ -1,5 +1,10 @@
 # Arquitectura del Sistema — Walvy
 
+> ⚠️ **SUPERADO · congelado en junio de 2026.**
+> Lo reemplaza [`wiki-codigo/`](wiki-codigo/), levantado sobre `origin/qa`. Este archivo
+> describe NestJS 10, npm y un proyecto sin migraciones — nada de eso es cierto hoy.
+> Se conserva por trazabilidad. **No usarlo para decidir.**
+
 ## Capas del sistema
 
 ```

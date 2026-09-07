@@ -78,7 +78,7 @@ Evolución futura progresiva: deploy automático a DEV → promoción con approv
 ## Estado actual vs. modelo objetivo (verificado 2026-07-31)
 
 - **back-walvy** ya tiene parte de la mecánica de deploy/release construida:
-  [`release-image.yml`](../../../back-walvy/.github/workflows/release-image.yml) (build+push imagen inmutable
+  [`release-image.yml`](../../../back-walvy/.github/workflows/build-deploy.yml) (build+push imagen inmutable
   desde un tag `vX.Y.Z` existente) y [`deploy.yml`](../../../back-walvy/.github/workflows/deploy.yml)
   (`workflow_dispatch` con `environment` + `image_tag`, verifica que el tag exista en ECR, actualiza ECS,
   smoke test). Convención de tag ahí es `vX.Y.Z`, no `backend-vX.Y.Z` como en el ejemplo de Erick — hay que

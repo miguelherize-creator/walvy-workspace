@@ -1,6 +1,8 @@
 # M2 — Deuda técnica
 
-Detalle completo y cadena de bloqueos en [`../../debt.md`](../../debt.md). Resumen:
+> **Heredado de `context/debt.md`, retirado el 2026-09-06** por estar congelado en
+> junio. Los IDs y bloqueos vienen de ahí y **no se reverificaron contra el código**:
+> tratarlos como pendientes de confirmar.
 
 | ID | Tema | Bloqueante |
 |---|---|---|

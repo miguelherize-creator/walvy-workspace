@@ -400,6 +400,6 @@ Si la pantalla tiene varios estados:
 - `context/qa-audits/` — Reportes generados por esta skill
 - `context/specs/` — Specs de cada módulo (contratos esperados)
 - `context/decisions.md` — ADRs para divergencias conscientes
-- `context/debt.md` — Deuda técnica detectada (bugs raíz, no solo UI)
+- `context/moduloNN-*/deuda-tecnica/README.md` — deuda técnica del módulo (bugs raíz, no solo UI)
 - `front-walvy/expo/constants/colors.ts` — Tokens de color
 - `front-walvy/expo/constants/theme.ts` — Tokens de tipografía/espaciado

@@ -8,8 +8,8 @@
 
 ## 1. Qué exige el registro inicial
 
-`POST /auth/register` — [`register.dto.ts`](../../../back-walvy/src/auth/dto/register.dto.ts)
-y [`auth.service.ts:45`](../../../back-walvy/src/auth/auth.service.ts)
+`POST /auth/register` — [`register.dto.ts`](../../../../back-walvy/src/auth/dto/register.dto.ts)
+y [`auth.service.ts:45`](../../../../back-walvy/src/auth/auth.service.ts)
 
 | Campo | Validación | Dónde se aplica |
 |---|---|---|
@@ -51,7 +51,7 @@ Ninguno es obligatorio para que la cuenta exista.
 
 ## 4. Qué exige el login local en el MVP
 
-[`auth.service.ts:108`](../../../back-walvy/src/auth/auth.service.ts): correo
+[`auth.service.ts:108`](../../../../back-walvy/src/auth/auth.service.ts): correo
 registrado **y `password_hash` no nulo**. Si el hash es null —el caso que
 tendría una cuenta creada por un proveedor externo— el login local devuelve
 credenciales inválidas, sin filtrar que la cuenta existe.
@@ -62,7 +62,7 @@ llamar a `/auth/email-verification/resend` y quedaría encerrada.
 
 ## 5. Cuándo se considera completo el onboarding
 
-[`user-onboarding.service.ts:52`](../../../back-walvy/src/auth/services/user-onboarding.service.ts):
+[`user-onboarding.service.ts:52`](../../../../back-walvy/src/auth/services/user-onboarding.service.ts):
 
 ```ts
 const allDone =
