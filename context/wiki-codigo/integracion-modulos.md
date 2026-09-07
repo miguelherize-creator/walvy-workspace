@@ -52,6 +52,14 @@ flowchart TD
 
 Las flechas punteadas son integraciones futuras. Las llenas existen y están probadas contra base real.
 
+> ⚠️ **La flecha de M05 al puerto no está respaldada por el paquete de M05.** Sale de la
+> entrega de **M04**, que declara a M05 «productor upstream» del ingreso canónico y el
+> headroom (`TEC-M4-007/008`). La entrega de M05 no menciona ninguno de los dos: define
+> su frontera con M04 al revés —deriva al usuario a Ruta Despeje con datos prellenados—.
+> Mientras eso no se resuelva, el motor de M04 no concluye aunque M05 entregue a tiempo.
+> Detalle en
+> [`../modulo05-presupuesto-vivo/deuda-tecnica/README.md`](../modulo05-presupuesto-vivo/deuda-tecnica/README.md).
+
 ## Las tres costuras
 
 Casi todo el acoplamiento entre módulos pasa por tres lugares. Si algo se rompe entre módulos, empezar por acá.

@@ -51,10 +51,11 @@ es) y a veces `utils/`.
 | [`context/modulo01-identidad-autenticacion/`](context/modulo01-identidad-autenticacion/) | M01 | Vigente |
 | [`context/modulo02-perfil-configuracion/`](context/modulo02-perfil-configuracion/) | M02 | Vigente |
 | [`context/modulo04-motor-deudas/`](context/modulo04-motor-deudas/) | M04 | **Vigente y el más completo** — ver `motor-m04-en-detalle.md` |
+| [`context/modulo05-presupuesto-vivo/`](context/modulo05-presupuesto-vivo/) | **M05 del cliente** · Presupuesto Vivo | Vigente · sin código todavía |
 | [`context/modulo05-cashflow/`](context/modulo05-cashflow/) | Cashflow (⚠️ **no** el M05 del cliente) | Parcial |
 | [`context/modulo10-monetizacion/`](context/modulo10-monetizacion/) | M10 | Vigente |
 
-M03, M05, M06 y M07 no tienen carpeta todavía. Sus entregables del cliente están en
+M03, M06 y M07 no tienen carpeta todavía. Sus entregables del cliente están en
 `documentacion/`, fuera de este repo.
 
 ## Contexto transversal

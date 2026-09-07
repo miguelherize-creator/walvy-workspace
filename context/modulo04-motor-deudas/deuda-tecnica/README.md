@@ -24,6 +24,13 @@ QA**. Todo usuario cae en el mismo estado.
 archivo. Un adaptador de fixtures detrás de un flag desbloquearía QA sin esperar a la
 entrega de M05. **Sin dueño asignado.**
 
+> ⚠️ **Y el bloqueo no es sólo de calendario.** Revisada la entrega de M05
+> (`documentacion/Módulo05/`, 2026-09-06), su alcance **no incluye** el ingreso canónico
+> ni el headroom que este puerto pide: cero menciones en los ocho documentos del paquete.
+> Escribir el adaptador real no depende de que M05 entregue, sino de que alguien le
+> asigne esos outputs. Es decisión de Producto y del cliente —
+> [`../../modulo05-presupuesto-vivo/deuda-tecnica/README.md`](../../modulo05-presupuesto-vivo/deuda-tecnica/README.md).
+
 ### 2 · Dos tratamientos del contrato sin frame
 
 OD-03 §8.3 define **cuatro** tratamientos: En Control, Atención, Riesgo con gate

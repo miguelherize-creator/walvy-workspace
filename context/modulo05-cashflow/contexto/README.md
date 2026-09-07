@@ -1,3 +1,7 @@
+> ⚠️ **Esto es Cashflow —movimientos e ingesta—, NO el M05 del cliente.** El M05 del
+> cliente es **Presupuesto Vivo**: [`../../modulo05-presupuesto-vivo/`](../../modulo05-presupuesto-vivo/).
+> El nombre de esta carpeta induce al error y está pendiente de renombrar.
+
 # M5 — Cashflow (Catálogos, Ingesta y Movimientos)
 
 Índice del módulo. La info canónica vive en `context/specs/` y `context/db/` (referenciados por el harness); acá se enlaza + se resume el modelo del resultado de cartola.
