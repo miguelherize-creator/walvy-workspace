@@ -1,8 +1,25 @@
 # Spec: Cashflow (Movimientos)
 
-**Estado backend:** ✅ Completo  
-**Estado frontend:** ❌ Pendiente — Sprint 4 (`features/transactions/`)  
+**Estado backend:** ✅ Completo — **16 endpoints en tres controllers**
+**Estado frontend:** ❌ Pendiente · `features/transactions/` no existe y `(tabs)/movimientos.tsx` es un stub de «Próximamente»
 **Módulo NestJS:** `src/cashflow/`
+
+> ⚠️ **Las rutas de abajo no son las reales · corregido el 2026-09-06.** Este documento
+> declara `/cashflow/movements` y derivados; el módulo **no monta nada bajo `/cashflow`**.
+> Las rutas vigentes, verificadas en los controllers:
+>
+> | Controller | Base | Endpoints |
+> |---|---|---|
+> | `transactions.controller.ts` | `/transactions` | `GET` · `GET /:id` · `POST` · `PATCH /:id` · `DELETE /:id` |
+> | `funding-sources.controller.ts` | `/funding-sources` | `GET` · `GET /:id` · `POST` · `PATCH /:id` · `DELETE /:id` |
+> | `categories.controller.ts` | `/categories` | `GET /with-subcategories` · `GET` · `GET /:id` · `POST` · `PATCH /:id` · `DELETE /:id` |
+>
+> El front ya apunta bien: `expo/api/endpoints.ts` tiene `transactions.base = "/transactions"`.
+> Lo que sigue abajo describe el **modelo funcional**, que es útil; los paths, no.
+>
+> **El contrato de categorías lo gobierna M05** —la taxonomía v2.7, 20 maestras y 105
+> subcategorías, en `documentacion/Módulo05/Categorias/`— y lo consumen `front-walvy` y
+> Kread. No se cambia sin coordinar.
 
 ---
 

@@ -1,6 +1,32 @@
-# Suscripciones Walvy — Contexto y pruebas (Flow recurrente)
+# M10 — Monetización · índice del módulo
 
-Estado: **en construcción**. El webhook recurrente (lado consumidor) está implementado, testeado por unit tests y **validado contra Flow sandbox** (2026-06-28, modo payment — ver §6). El productor (checkout → `subscription/create`) **aún no existe**. Este documento es la fuente de verdad mientras se completa.
+**Módulo Nest:** `back-walvy/src/subscriptions/` — 8 endpoints, 2 suites.
+**Front:** `expo/features/subscription/`, 3 pantallas.
+**En la app** la pantalla vive dentro de Perfil/Configuración, pero el dominio es este
+módulo, no [M02](../../modulo02-perfil-configuracion/contexto/README.md).
+
+Estado: **en construcción · reverificado el 2026-09-06.** El webhook recurrente (lado
+consumidor) está implementado, con unit tests y **validado contra Flow sandbox**
+(2026-06-28, modo payment — ver §6). El productor (checkout → `subscription/create`)
+**sigue sin existir**: `flow.service.ts` sólo llama a `payment/create`, y no hay
+`customer/create`, `customer/register` ni `subscription/create` en todo el módulo. Las
+columnas `flow_customer_id` y `flow_subscription_id` de la entity ya están, esperándolo.
+
+## Qué hay en este módulo
+
+| Archivo | Qué es |
+|---|---|
+| Este documento | Contexto, flujo Flow, webhook y cómo probar en sandbox |
+| [`cambios-implementados.md`](cambios-implementados.md) | Changelog de lo construido |
+| [`deeplink.md`](deeplink.md) | Retorno de pago → app vía `walvy://`. Backend ✅, front ⏳ |
+| [`../deuda-tecnica/productor-subscription-create.md`](../deuda-tecnica/productor-subscription-create.md) | El productor que falta, con plan de implementación |
+| [`../deuda-tecnica/gating-m10-dt-02.md`](../deuda-tecnica/gating-m10-dt-02.md) | Acceso premium al vencer los días pagos. Diseño pendiente |
+| [`../utils/flow-sandbox-harness.js`](../utils/flow-sandbox-harness.js) | Harness de prueba contra sandbox — ver §5 |
+| [`../utils/flow-sign-plan.js`](../utils/flow-sign-plan.js) | Firma HMAC de un `plans/create` |
+| [`../utils/flow-subscriptions.postman_collection.json`](../utils/flow-subscriptions.postman_collection.json) | Colección Postman de los endpoints de Flow |
+
+**El contrato de la API está en** `back-walvy/docs/api/subscriptions/`, no acá. La spec
+funcional, en [`../../specs/subscriptions.md`](../../specs/subscriptions.md).
 
 ---
 
@@ -86,7 +112,14 @@ Ordenar params alfabéticamente, concatenar `clave+valor`, `HMAC-SHA256` con `FL
 ## 5. Cómo probar contra sandbox
 
 ### Pre-requisitos (los levantas tú)
-1. **Backend** corriendo con `DB_SYNC=true` (crea las columnas nuevas) y creds de **sandbox** en `back-walvy/.env`.
+1. **Backend** corriendo con creds de **sandbox** en `back-walvy/.env`.
+
+   > ⚠️ **Corregido el 2026-09-06.** Este paso decía «con `DB_SYNC=true` (crea las
+   > columnas nuevas)». Ya no: el proyecto tiene **35 migraciones TypeORM** y el esquema
+   > se aplica con `pnpm run migration:run`. `DB_SYNC` sigue existiendo como flag en
+   > `app.module.ts` y **no debe usarse** para levantar columnas — `data-source.ts` deja
+   > `synchronize: false` a propósito, «la CLI nunca debe alterar el esquema». Las
+   > columnas `flow_customer_id` y `flow_subscription_id` ya vienen en una migración.
 2. **ngrok** apuntando al backend; `FLOW_CONFIRM_URL` = `https://<tu-ngrok>/subscriptions/webhook`.
 3. Un `app_user` con el email de prueba (`migherize@gmai.com` o `miguel.herize@kabeli.cl`).
 
@@ -147,10 +180,6 @@ En **DB**: la fila de `subscriptions` queda `active` con `flow_subscription_id`,
 - ✅ **Deep link return** (back + front + ruta puente Android) — ver [`deeplink.md`](deeplink.md).
 
 ## Referencias
-- [`cambios-implementados.md`](cambios-implementados.md) — changelog de lo construido (webhook, deep link, cancelación)
-- [`productor-subscription-create.md`](../deuda-tecnica/productor-subscription-create.md) — checkout recurrente (`subscription/create`), lo que falta (plan de implementación)
-- [`gating-m10-dt-02.md`](../deuda-tecnica/gating-m10-dt-02.md) — regla de acceso premium al vencer los días pagos (diseño pendiente)
-- [`deeplink.md`](deeplink.md) — retorno de pago Flow → app mobile vía deep link `walvy://` (backend ✅, frontend ⏳)
-- OpenAPI Flow: `~/Downloads/es-openApiFlow.yaml` · https://developers.flow.cl/api
+- OpenAPI Flow: https://developers.flow.cl/api — la referencia anterior apuntaba a `~/Downloads/es-openApiFlow.yaml`, que sólo existía en una máquina
 - Postman: [`../utils/flow-subscriptions.postman_collection.json`](../utils/flow-subscriptions.postman_collection.json)
 - Tarjetas/datos de prueba sandbox: en el OpenAPI (sección "Realizar pruebas en nuestro ambiente Sandbox").

@@ -1,8 +1,17 @@
 # Spec: Presupuestos
 
-**Estado backend:** ⚠️ Schema DB listo — módulo NestJS pendiente  
-**Estado frontend:** ❌ Pendiente — Sprint 5 (`features/budget/`)  
-**Módulo NestJS:** `src/budget/` (por crear)
+**Estado backend:** ⚠️ Sin implementar — verificado el 2026-09-06: `src/budget/` existe y tiene **cero controllers**
+**Estado frontend:** ❌ Pendiente · `(tabs)/presupuesto.tsx` es un stub de «Próximamente»
+**Módulo NestJS:** `src/budget/`
+
+> **Este documento describe un presupuesto por categoría con alertas de límite. No es el
+> modelo del cliente.** El M05 del cliente es **Presupuesto Vivo**, que parte del consumo
+> detectado y no de una planilla vacía, con categorización por certeza, metas
+> operacionales y umbrales 50/80/90/100/110.
+>
+> Antes de implementar, leer
+> [`../modulo05-presupuesto-vivo/contexto/README.md`](../modulo05-presupuesto-vivo/contexto/README.md).
+> Lo de abajo es el diseño interno de junio de 2026, previo al contrato.
 
 ---
 

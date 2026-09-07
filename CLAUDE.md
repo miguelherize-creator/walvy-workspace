@@ -53,7 +53,7 @@ es) y a veces `utils/`.
 | [`context/modulo04-motor-deudas/`](context/modulo04-motor-deudas/) | M04 · Ruta Despeje | ✅ **Organizado y el más completo** — ver `motor-m04-en-detalle.md` |
 | [`context/modulo05-presupuesto-vivo/`](context/modulo05-presupuesto-vivo/) | M05 del cliente · Presupuesto Vivo | Levantado del contrato · sin código |
 | [`context/modulo05-cashflow/`](context/modulo05-cashflow/) | Cashflow (⚠️ **no** el M05 del cliente) | Sin organizar |
-| [`context/modulo10-monetizacion/`](context/modulo10-monetizacion/) | M10 · Monetización | Sin organizar |
+| [`context/modulo10-monetizacion/`](context/modulo10-monetizacion/) | M10 · Monetización | ✅ **Organizado** · estado reverificado contra el código |
 
 **Los tres módulos organizados —M01, M02, M04— siguen la misma forma:** el índice de
 `contexto/README.md` enlaza *todo* lo que existe del módulo, esté donde esté, y el

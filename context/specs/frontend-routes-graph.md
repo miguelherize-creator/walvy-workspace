@@ -1,6 +1,15 @@
 # Mapa de rutas — front-walvy (expo-router)
 
 **Última actualización:** 2026-07-08
+
+> ⚠️ **No es el grafo completo, aunque lo diga abajo · verificado el 2026-09-06.** Le
+> faltan las **diez pantallas de Ruta Despeje** (`(tabs)/debt-route*` y `(tabs)/debts-*`),
+> más `chatbot`, `movimiento`, `movimientos`, `payments` y `presupuesto` —estos cuatro
+> últimos son stubs de «Próximamente»—.
+>
+> Ninguno de los tres documentos de routing que quedan cubre Ruta Despeje. Está registrado
+> como punto 5 en
+> [`../modulo04-motor-deudas/deuda-tecnica/README.md`](../modulo04-motor-deudas/deuda-tecnica/README.md).
 **Fuente:** lectura directa de `front-walvy/expo/app/**` y de los `router.push/replace` en `features/auth`, `features/home`, `features/splash`.
 **Complementa a:** [`auth-navigation-flows.md`](auth-navigation-flows.md) (detalle narrativo de condiciones de login/onboarding). Este doc es el grafo completo, incluyendo `(tabs)`.
 

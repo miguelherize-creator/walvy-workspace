@@ -1,7 +1,14 @@
 # Flujos de Navegación: Splash → Onboarding
 
-**Última actualización:** 2026-06-15  
-**Estado:** ✅ Refleja código actual post-fix biometría doble  
+**Última actualización:** 2026-06-15 · anclas revisadas el 2026-09-06
+**Estado:** ⚠️ Los cuatro archivos que cita existen, pero **el contenido no se
+reverificó** contra el código desde junio. Tratarlo como orientativo.
+
+> Un antecedente relevante: la revisión del bloque de acceso del 2026-08-11 encontró que
+> el `route-map.md` de entonces describía mal la re-autenticación —decía que una sesión
+> restaurada fuerza contraseña, cuando con biometría activa se entra sin escribir nada—.
+> Ese archivo se borró; **este documento cubre el mismo terreno y no se auditó igual.**
+> Ver [`../bitacora/2026-08-11-contexto-revision-auth.md`](../bitacora/2026-08-11-contexto-revision-auth.md).  
 **Archivos clave:**
 - `front-walvy/expo/store/AuthProvider.tsx` — restauración de sesión
 - `front-walvy/expo/features/splash/ui/SplashScreen.tsx` — router principal

@@ -1,8 +1,15 @@
 # Spec: Suscripciones y Pagos
 
-**Estado backend:** ✅ Completo  
-**Estado frontend:** ⚠️ Básico implementado  
+**Estado backend:** ✅ Completo — 8 endpoints, verificado el 2026-09-06
+**Estado frontend:** ⚠️ Básico · `features/subscription/`, 3 pantallas
 **Módulo NestJS:** `src/subscriptions/`
+
+> **Dos endpoints que este documento no lista** y sí existen en el controller:
+> `POST /subscriptions/verify-payment` y `POST /subscriptions/return` —el `return` está
+> montado como `GET` **y** `POST`, porque Flow.cl puede volver por cualquiera de los dos—.
+>
+> Y el punto que no se deduce leyendo el flujo: **los callbacks de Flow no traen firma
+> (`s`)**. La confirmación se resuelve consultando `getStatus`, no validando el body.
 
 ---
 

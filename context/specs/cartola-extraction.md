@@ -2,7 +2,9 @@
 
 **Servicio de extracción:** Kread v2.0.0 (`https://ai.kabeli.cl/kartolas-api`) — servicio FastAPI de Kabeli, código propietario  
 **Motor IA:** Google Gemini 2.5 Flash + reglas deterministas  
-**Docs Kread:** `Kread-Kartolas/kread-kartolas-docs.html` (local) · `https://ai.kabeli.cl/kartolas-api/docs`  
+**Docs Kread:** `https://ai.kabeli.cl/kartolas-api/docs`. El código está en
+`Kread-Kartolas/kread-kartolas-main/`. **El `kread-kartolas-docs.html` local que este
+documento citaba no existe** — corregido el 2026-09-06.  
 **Backend de aplicación:** NestJS (`https://api.sonark.tech/api`)  
 **Cliente:** APK React Native  
 **Versión actual:** V1 implementada · V2 diseñada (pendiente)

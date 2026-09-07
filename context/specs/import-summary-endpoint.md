@@ -1,7 +1,18 @@
 # Requerimiento backend: flujo post-Kread
 
-**Estado:** Parcialmente implementado — pendiente prueba con Kread real + endpoint de ingreso  
-**Última actualización:** 2026-07-05  
+**Estado:** Parcialmente implementado — **reverificado el 2026-09-06 y sigue siendo
+exacto**: falta el endpoint de ingreso.
+**Última actualización:** 2026-07-05 · revisado 2026-09-06
+
+**Lo que existe:** `GET /statement-imports/:id/summary`,
+`PATCH /statement-imports/:id/lines/:lineId/reclassify`, `PATCH /auth/onboarding/step` y
+`PUT /profile/financial`. El módulo `imports` tiene 15 endpoints en total.
+
+**Lo que no:** `POST /users/me/income-declaration`. Cero apariciones de
+`income-declaration` en `back-walvy/src/`. El controller de `users` expone `GET /me`,
+`PATCH /me`, `POST /me/avatar`, `PATCH /profile` y `PATCH /me/password`, y ninguno recibe
+la declaración de ingreso.
+  
 **Módulo principal:** `back-walvy/src/imports/`  
 **Módulo secundario:** `back-walvy/src/users/` (declaración de ingreso)
 
