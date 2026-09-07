@@ -72,12 +72,12 @@ M03, M06 y M07 no tienen carpeta todavía. Sus entregables del cliente están en
 | [`context/decisions.md`](context/decisions.md) | 20 decisiones de diseño con su por qué |
 | [`context/release-workflow.md`](context/release-workflow.md) | Ramas, releases, deploy manual, migraciones TypeORM |
 | [`context/db/`](context/db/) | Schema por módulo — **ojo con la numeración de arriba** |
-| [`context/mvp-scope.csv`](context/mvp-scope.csv) | Alcance MVP, exportado del Excel original. **Una columna en el schema no es una feature del MVP** |
+| [`context/mvp-scope.csv`](context/mvp-scope.csv) | Alcance MVP, exportado del Excel original. **Una columna en el schema no es una feature del MVP.** Es el único documento de alcance: `mvp-scope.md` se borró el 2026-09-06 por repetir la tabla de sprints desactualizada |
+| [`context/visual-design-rules.md`](context/visual-design-rules.md) | Reglas de materialización visual |
+| [`context/ios-adhoc-testing.md`](context/ios-adhoc-testing.md) | Distribución iOS ad hoc con EAS |
 | [`context/specs/`](context/specs/) | Especificaciones por módulo y el material del cliente de M01/M02 |
 | [`context/testing.md`](context/testing.md) | Estrategia de testing y patrones E2E |
 | [`context/qa-audits/`](context/qa-audits/) | 20 reportes pixel-perfect por pantalla, generados por `/walvy-qa-visual` |
-| [`context/ios-adhoc-testing.md`](context/ios-adhoc-testing.md) | Distribución iOS ad hoc (EAS) |
-| [`context/visual-design-rules.md`](context/visual-design-rules.md) | Reglas de materialización visual |
 | [`context/bitacora/`](context/bitacora/) | **Histórico.** Un archivo por jornada o por tema |
 
 `context/architecture.md` y `context/stack.md` están **congelados en junio de 2026** y

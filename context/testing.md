@@ -1,13 +1,22 @@
 # Estrategia de Testing — Walvy
 
-**Estado actual**
+**Estado actual · medido el 2026-09-06 sobre `origin/qa`**
 
-| Categoría | Cantidad | Estado |
-|-----------|----------|--------|
-| E2E backend (Supertest/Jest) | 75 tests | ✅ Activo |
-| Unit tests frontend (RTL) | 37 tests | ✅ Activo |
-| E2E UI (Playwright sobre Expo Web) | 5 suites | ✅ Activo — `e2e/` |
-| Unit tests backend (Jest) | 0 | ❌ Deuda técnica |
+| Categoría | Cantidad | Comando |
+|---|---|---|
+| Backend (Jest · unit + E2E Supertest) | **1013 tests en 85 suites**, todas verdes | `cd back-walvy && npx jest` |
+| Frontend (RTL + jest-expo) | **62 archivos, ~518 tests** | `cd front-walvy/expo && bun run test` |
+| E2E UI (Playwright sobre Expo Web) | **6 suites** | `cd workspace/walvy-workspace/e2e && npm test` |
+
+> **Corregido el 2026-09-06.** Esta tabla decía «75 tests E2E backend · 37 frontend · 5
+> suites Playwright · **0 unit tests backend, deuda técnica**». Los tres números estaban
+> congelados en junio y el cuarto ya no aplica: el backend tiene unit tests por todas
+> partes —sólo `src/debts` aporta 438 en 27 suites, con reglas puras probadas por tabla
+> de casos—. Los números de arriba salen de correr los comandos de la derecha.
+
+El módulo con la cobertura más densa es `src/debts`: sus reglas son funciones puras y sus
+`.spec.ts` son la especificación en prosa. Para entender una regla, leer su spec antes que
+su implementación.
 
 ---
 

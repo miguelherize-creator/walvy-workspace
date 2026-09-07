@@ -1,6 +1,8 @@
 # Wiki: pantalla → endpoints (auth / users / profile)
 
-**Frontend:** `walvy-org/walvy-app-frontend` · rama `main` (`walvy/main`) · SHA `a929a2c`  
+**Frontend:** `KabeliDev/front-walvy` · rama `qa` — **corregido el 2026-09-06**: este
+documento venía anclado a `walvy-org/walvy-app-frontend` en `main` (SHA `a929a2c`), que
+no es el remote donde vive el código que revisamos.  
 **Alcance:** los **14 auth + 5 users + 4 profile** actualizados en backend.  
 **Complementa:** [`frontend-routes-graph.md`](../frontend-routes-graph.md) (navegación) y [`authentication.md`](../authentication.md) (contrato auth).
 

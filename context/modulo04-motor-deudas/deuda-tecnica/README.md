@@ -75,7 +75,27 @@ Son tres números decorativos del frame, no uno, y el contrato los declara sin e
 funcional. **No hay decisión de reglas pendiente.** Lo que queda es de materialización:
 etiquetarlos como referenciales o sacarlos del frame. **Owner: Diseño / Producto.**
 
-### 5 · El front consume una forma que el backend no devuelve
+### 5 · Ninguna documentación de routing conoce Ruta Despeje
+
+Las **diez pantallas** de `(tabs)/debt-route*` y `(tabs)/debts-*` no aparecen en ninguno
+de los tres documentos que describen la navegación del front:
+
+| Documento | Estado |
+|---|---|
+| [`../../specs/frontend-routes-graph.md`](../../specs/frontend-routes-graph.md) | Se declara «el grafo completo, incluyendo `(tabs)`». Es de jul-08 y no las tiene |
+| [`../../specs/wiki/frontend-pantallas-endpoints.md`](../../specs/wiki/frontend-pantallas-endpoints.md) | Mapea pantalla → endpoints. Cubre auth, users y profile; no debts |
+| [`../../wiki-codigo/frontend.md`](../../wiki-codigo/frontend.md) | Routing y Feature-First. Tampoco las nombra |
+
+`route-map.md` era el cuarto y se borró el 2026-09-06: de jun-10, le faltaban dieciséis
+rutas reales.
+
+Los contratos de backend están completos (`back-walvy/docs/api/debts/`) y las pantallas
+existen y tienen tests, pero **quien busque cómo se navega Ruta Despeje no lo encuentra
+en el mapa de rutas**. Es la contraparte front del punto 6.
+
+**Owner: M04 front.**
+
+### 6 · El front consume una forma que el backend no devuelve
 
 `getCurrentRoute()` en `expo/api/debtsService.ts` tipa la respuesta de
 `GET /debts/route/current` como `RouteProgress` —`planId`, `progressPct`,
@@ -85,7 +105,7 @@ review y plan. Ninguno de esos tres campos existe.
 **Seis pantallas de Ruta Despeje** consumen ese tipo. Está anotado en el código
 como trabajo de la etapa 2. **Owner: M04 front.**
 
-### 6 · `transactionId` promete idempotencia y no la tiene
+### 7 · `transactionId` promete idempotencia y no la tiene
 
 El DTO de `POST /debts/:id/payments` describe el campo como «(idempotencia)». No
 hay índice único en `debt_payments.transaction_id` ni chequeo previo: dos POST con
