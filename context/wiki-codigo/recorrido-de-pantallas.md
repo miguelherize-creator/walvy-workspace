@@ -260,7 +260,7 @@ frame nuevo, es el modal / la oferta de RGL-010 en el caso parcial.
 
 ## Lo que no cierra
 
-**El Resultado de M04 tiene cinco lecturas y dos maquetas.** El contrato del cliente
+**El Resultado de M04 tiene cuatro tratamientos, más el no calculable, y dos maquetas.** El contrato del cliente
 (OD-03) define En Control, Atención, Riesgo-con-gate-incompleto, Riesgo-con-gate y
 no-calculable. Figma dibujó verde y ámbar. Los otros tres comparten hoy una card neutra
 provisional que dice «Aún no podemos concluir» — honesta, pero no representa estados que

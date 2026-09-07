@@ -80,7 +80,7 @@ El pipeline ya calcula presión por deuda y la descarta al serializar. Hay que e
 Dos cosas a no hacer:
 
 - **No** construir `GET /debts/result` con `trafficLight`: ese contrato quedó descartado (REQ §3).
-- **No** derivar el **27% de capacidad comprometida** del frame como si fuera regla — el Anexo BDD prohíbe usar indicadores visibles de Figma como fórmula. Requiere que Producto lo declare o se omite.
+- **No** derivar el **27% de capacidad comprometida** del frame como si fuera regla — el Anexo BDD prohíbe usar indicadores visibles de Figma como fórmula. **Cerrado el 2026-09-06:** la entrega ya lo resolvió en §14 («Valores Figma 27/43/58 · visual/referencial · no thresholds financieros») y en `P4-CNT-007`. No requiere declaración de Producto; queda como ajuste de materialización.
 
 **Importante:** publicar `no calculable` **no depende de M05**. Se puede exponer hoy y desbloquea la mitad del fix de #159 de inmediato.
 
@@ -117,7 +117,7 @@ También aquí: hoy `ResultVariant` tiene tres valores y **dos renders** (`sin_p
 | **Qué se pinta en `no calculable`** | Producto | El contrato prohíbe En Control pero no define alternativa. Es el estado real de hoy |
 | **¿M06 es destino del CTA verde antes de existir?** | Producto | El tab `payments` es un stub. ¿Se oculta, deshabilita o cambia de copy? |
 | **Dueño del adaptador de fixtures** | — **sin asignar** | No sale la Fase 0 y nada se verifica |
-| **¿El 27% es una regla?** | Producto | Fase 1 lo omite si no se declara |
+| **¿El 27% es una regla?** | ~~Producto~~ · **cerrado** | No. §14 y `P4-CNT-007` lo declaran visual/referencial. Fase 1 lo omite |
 
 ---
 

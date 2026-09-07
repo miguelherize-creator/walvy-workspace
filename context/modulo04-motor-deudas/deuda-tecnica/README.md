@@ -24,14 +24,24 @@ QA**. Todo usuario cae en el mismo estado.
 archivo. Un adaptador de fixtures detrás de un flag desbloquearía QA sin esperar a la
 entrega de M05. **Sin dueño asignado.**
 
-### 2 · Tres estados del contrato sin frame
+### 2 · Dos tratamientos del contrato sin frame
 
-OD-03 define cinco lecturas del Resultado. Figma dibujó dos. Hoy 🟡 Atención,
-🔴 Riesgo-con-gate-incompleto y ⚪️ No calculable comparten una **card neutra provisional**
-—sin mascota, con los neutros del sistema— que dice «Aún no podemos concluir».
+OD-03 §8.3 define **cuatro** tratamientos: En Control, Atención, Riesgo con gate
+incompleto, y Riesgo con confirmación y suficiencia. Figma dibujó dos. Sin frame quedan
+🟡 **Atención** y 🔴 **Riesgo-con-gate-incompleto**.
 
-Es honesto pero incompleto: la app no puede representar estados que el contrato exige.
-**Bloqueado por Diseño.**
+A ellos se suma ⚪️ **No calculable**, que no es una lectura de OD-03 sino una degradación
+del eje de calidad —`evaluable / parcial / no calculable`— y por eso necesita su propia
+representación aunque el contrato no la enumere entre las lecturas del Resultado.
+
+Los tres comparten hoy una **card neutra provisional** —sin mascota, con los neutros del
+sistema— que dice «Aún no podemos concluir». Es honesto pero incompleto: la app no puede
+representar dos tratamientos que el contrato exige.
+
+**No está bloqueado por Diseño: está sin pedir.** La hoja `06_Ajustes_Materializacion` de
+la Matriz de Trazabilidad lista los ajustes visuales pendientes del cliente, y estos
+frames **no figuran** ahí. No hay nada que esperar; hay que solicitarlos. **Owner del
+pedido: Producto.**
 
 ### 3 · Dos reglas escritas y sin cablear
 
@@ -40,12 +50,23 @@ las llame. No son deuda accidental: son **inversión adelantada** contra el cont
 espera de M05 y de la pantalla de simulación de aporte. Se listan para que nadie las
 crea muertas.
 
-### 4 · El 27% de capacidad comprometida
+### 4 · El 27% del «Resumen del análisis» — ya resuelto, no es deuda de reglas
 
-El frame del «Resumen del análisis» muestra un porcentaje que ninguna regla calcula. El
-Anexo BDD prohíbe «usar porcentajes o indicadores visibles en Figma como fórmula, score o
-threshold funcional», así que **no se derivó**. Necesita que Producto lo declare como
-regla o que salga del diseño.
+> **Corregido el 2026-09-06.** Este punto estaba mal planteado: decía que necesitaba que
+> Producto declarara el porcentaje como regla. **La entrega ya lo cerró**, y en contra de
+> esa lectura.
+
+El frame muestra un porcentaje que ninguna regla calcula, y eso es correcto. La entrega
+`Walvy_M04_Entrega_Kabeli_v1.0` lo resuelve en dos lugares:
+
+- **§14 · Compatibilidad y reglas no vigentes:** «Valores Figma 27/43/58 —
+  visual/referencial — **no thresholds financieros**».
+- **`P4-CNT-007` · PRES-BASE**, en el borde de la regla: «no sumar puntos; **no usar
+  27/43/58 Figma**».
+
+Son tres números decorativos del frame, no uno, y el contrato los declara sin efecto
+funcional. **No hay decisión de reglas pendiente.** Lo que queda es de materialización:
+etiquetarlos como referenciales o sacarlos del frame. **Owner: Diseño / Producto.**
 
 ### 5 · El front consume una forma que el backend no devuelve
 
