@@ -1,6 +1,6 @@
 # Spec: Perfil de Usuario
 
-**Estado backend:** ✅ Completo (perfil básico) · ⚠️ Deuda técnica (perfil financiero)  
+**Estado backend:** ✅ Completo · perfil financiero incluido (`GET`/`PUT /profile/financial`)  
 **Estado frontend:** ✅ Completo (`features/profile/`)  
 **Módulo NestJS:** `src/users/` + `src/profile/`
 
@@ -53,11 +53,26 @@ Montos: validación > 0 (front bloquea vacío; el 0 se rechaza con 400 — confi
 
 ## Endpoints pendientes (deuda técnica)
 
+**Revisado contra el código el 2026-09-06.**
+
 ```
-PATCH  /profile/goals/:id/deactivate → ❌ M2-DT-02 (GET/POST ya implementados)
-GET    /profile/alerts              → ❌ M2-DT-03
-PUT    /profile/alerts              → ❌ M2-DT-03
+PATCH  /profile/goals/:id/deactivate → ❌ M2-DT-02 · sigue abierto (GET/POST existen)
 ```
+
+Los dos de alertas **salieron de este contrato**: se implementaron en el módulo
+`notifications`, no bajo `/profile`.
+
+```
+GET /profile/alerts  ·  PUT /profile/alerts   → ✅ resueltos con otra forma
+```
+
+Lo vigente son siete endpoints de `notifications` —`preferences/sections`,
+`preferences/toggle`, `preferences`, `preferences/defaults`, `pending`, `history`,
+`:id/read`— más `alert-rules.engine.ts`. Lo que sigue faltando es el **transporte de
+push** (`M2-DT-04`): no hay dependencia de FCM ni APNs, así que una notificación
+configurada no sale del teléfono.
+
+Detalle en [`../modulo02-perfil-configuracion/deuda-tecnica/README.md`](../modulo02-perfil-configuracion/deuda-tecnica/README.md).
 
 ## Contratos
 

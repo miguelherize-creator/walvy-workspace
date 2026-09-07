@@ -48,12 +48,17 @@ es) y a veces `utils/`.
 
 | Carpeta | Módulo | Estado del contexto |
 |---|---|---|
-| [`context/modulo01-identidad-autenticacion/`](context/modulo01-identidad-autenticacion/) | M01 | Vigente |
-| [`context/modulo02-perfil-configuracion/`](context/modulo02-perfil-configuracion/) | M02 | Vigente |
-| [`context/modulo04-motor-deudas/`](context/modulo04-motor-deudas/) | M04 | **Vigente y el más completo** — ver `motor-m04-en-detalle.md` |
-| [`context/modulo05-presupuesto-vivo/`](context/modulo05-presupuesto-vivo/) | **M05 del cliente** · Presupuesto Vivo | Vigente · sin código todavía |
-| [`context/modulo05-cashflow/`](context/modulo05-cashflow/) | Cashflow (⚠️ **no** el M05 del cliente) | Parcial |
-| [`context/modulo10-monetizacion/`](context/modulo10-monetizacion/) | M10 | Vigente |
+| [`context/modulo01-identidad-autenticacion/`](context/modulo01-identidad-autenticacion/) | M01 · Identidad, auth y onboarding | ✅ **Organizado** · deuda verificada contra el código |
+| [`context/modulo02-perfil-configuracion/`](context/modulo02-perfil-configuracion/) | M02 · Perfil financiero y configuración | ✅ **Organizado** · deuda verificada contra el código |
+| [`context/modulo04-motor-deudas/`](context/modulo04-motor-deudas/) | M04 · Ruta Despeje | ✅ **Organizado y el más completo** — ver `motor-m04-en-detalle.md` |
+| [`context/modulo05-presupuesto-vivo/`](context/modulo05-presupuesto-vivo/) | M05 del cliente · Presupuesto Vivo | Levantado del contrato · sin código |
+| [`context/modulo05-cashflow/`](context/modulo05-cashflow/) | Cashflow (⚠️ **no** el M05 del cliente) | Sin organizar |
+| [`context/modulo10-monetizacion/`](context/modulo10-monetizacion/) | M10 · Monetización | Sin organizar |
+
+**Los tres módulos organizados —M01, M02, M04— siguen la misma forma:** el índice de
+`contexto/README.md` enlaza *todo* lo que existe del módulo, esté donde esté, y el
+`deuda-tecnica/README.md` da cada punto con el comando que lo comprueba. En esos tres, si
+algo no está enlazado desde su índice, es que no existe.
 
 M03, M06 y M07 no tienen carpeta todavía. Sus entregables del cliente están en
 `documentacion/`, fuera de este repo.

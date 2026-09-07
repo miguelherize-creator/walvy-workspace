@@ -1,8 +1,12 @@
 # M04 — Ruta Despeje · índice del módulo
 
 Punto de entrada del módulo. En producto el feature se llama **Ruta Despeje**; en la
-numeración de carpetas y DB es **M4 — Motor de Deudas** (`db/modulo4.md`). Módulo Nest:
-`back-walvy/src/debts/`.
+numeración de carpetas y DB es **M4 — Motor de Deudas** (`db/modulo4.md`).
+
+**Módulo Nest:** `back-walvy/src/debts/` — 12 endpoints, 16 reglas puras, 27 suites, 438
+tests. **Front:** `expo/features/debts/`, 10 pantallas.
+
+**Auditorías de pantalla:** [`../../qa-audits/debts/`](../../qa-audits/debts/).
 
 ## Empezar por acá
 

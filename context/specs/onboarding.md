@@ -1,10 +1,22 @@
 # Spec: Onboarding
 
-> **Desactualizado.** El contrato vigente es puertas (`currentGate` / `resumeState`), no `currentStep`. El cierre **de producto** es diagnóstico + próxima acción (`M1-RN-ONB-016`, `M1-DP-009`); el del **código** son cuatro flags (`allDone`) y no se alcanza. Ver [`wiki/frontend-pantallas-endpoints.md`](wiki/frontend-pantallas-endpoints.md) § Cierre y `KabeliDev/back-walvy#68`.
+> **Desactualizado · revisado el 2026-09-06.** El contrato vigente es puertas
+> (`currentGate` / `resumeState`), no `currentStep`. Lo de abajo describe el modelo de
+> pasos y no el de puertas.
+>
+> **Lo que cambió desde la versión anterior de este aviso:** decía que el cierre del
+> código eran «cuatro flags (`allDone`) y no se alcanza». Ya no: `user-onboarding.service.ts`
+> cierra en `onboardingStatus === 'completed'` y esa condición de cuatro banderas quedó
+> reemplazada. El cierre **se alcanza**.
+>
+> **Vigente en su lugar:** las seis puertas, un archivo por puerta, en
+> [`wiki/onboarding/requerimiento_por_puerta/`](wiki/onboarding/requerimiento_por_puerta/),
+> y el índice del módulo en
+> [`../modulo01-identidad-autenticacion/contexto/README.md`](../modulo01-identidad-autenticacion/contexto/README.md).
 
-**Estado backend:** ⚠️ Parcialmente implementado — ver M1-DT-04  
-**Estado frontend:** ✅ Completo (flujo básico)  
-**Módulo NestJS:** `src/auth/` (integrado en auth)
+**Estado backend:** ✅ Puertas G0–G5 implementadas, con reglas en `src/health/rules/`
+**Estado frontend:** ✅ Completo
+**Módulos NestJS:** `src/auth/` · `src/health/` · `src/imports/`
 
 ---
 
