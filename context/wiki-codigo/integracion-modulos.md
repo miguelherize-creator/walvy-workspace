@@ -39,8 +39,8 @@ flowchart TD
     M4 -->|escribe evaluación| DEUDAS
 
     PORT{{"PressureInputsPort<br/>hoy devuelve null"}}
-    M5["MÓDULO 05 · Presupuesto<br/>ingreso · headroom · outcome prudencial"] -.->|23 sep| PORT
-    M6["MÓDULO 06 · Pagos<br/>hecho de pago · ciclo · aging"] -.->|30 sep| PORT
+    M5["MÓDULO 05 · Presupuesto<br/>ingreso · headroom · outcome prudencial"] -.-> PORT
+    M6["MÓDULO 06 · Pagos<br/>hecho de pago · ciclo · aging"] -.-> PORT
     PORT --> P4
 
     PERFIL --> HOME([Home y pantallas])
@@ -61,7 +61,7 @@ Casi todo el acoplamiento entre módulos pasa por tres lugares. Si algo se rompe
 | ------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------- |
 | **M01 → M02**       | M01 deja la suficiencia del mes y el CTA dominante en `user_month_diagnosis_summary`. M02 lo lee, no lo recalcula                              |
 | **M04 → M02**       | M04 escribe `route_`* y `debt_health_*` en `user_financial_profile`. La fila es de M02, las columnas las creó M04, y M02 sólo lee y representa |
-| **M05 · M06 → M04** | Por `PressureInputsPort`. M04 consume ingreso, headroom, hecho de pago y aging; no los recalcula                                               |
+| **M05 · M06 → M04** | Por `PressureInputsPort` — [`back-walvy/src/debts/ports/pressure-inputs.port.ts`](../../../../back-walvy/src/debts/ports/pressure-inputs.port.ts). M04 consume ingreso, headroom, hecho de pago y aging; no los recalcula |
 
 
 
@@ -92,10 +92,10 @@ Verificado contra base real con `scripts/e2e-con-base.sh`: registro, verificaci�
 Cambia **una sola clase**. `NullPressureInputsAdapter` se reemplaza por un adaptador que lea sus contratos, y el pipeline no se toca.
 
 
-| Módulo | Entrega | Qué habilita                                                          |
-| ------ | ------- | --------------------------------------------------------------------- |
-| M05    | 15 sep  | ejes C y K de la presión, y el gate prudencial de la simulación       |
-| M06    | 20 sep  | eje D, el aging de la Salud de Deuda y el avance con pagos consumidos |
+| Módulo | Qué habilita                                                          |
+| ------ | --------------------------------------------------------------------- |
+| M05    | ejes C y K de la presión, y el gate prudencial de la simulación       |
+| M06    | eje D, el aging de la Salud de Deuda y el avance con pagos consumidos |
 
 
 La traducción desde `debt_cycle` —la tabla de M06— al hecho de pago que el puerto pide ya está escrita como referencia en `src/debts/ports/debt-cycle.mapper.ts`, para que ese equipo no tenga que deducirla leyendo los CHECK.

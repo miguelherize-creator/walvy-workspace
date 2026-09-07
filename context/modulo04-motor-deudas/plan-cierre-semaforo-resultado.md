@@ -64,7 +64,7 @@ Hoy `NullPressureInputsAdapter` devuelve `ingresoMensualCanonico: null` y `headr
 | 3 y 4 Rojo | C3 (≥50%) | K0 (≤0%) | D0 | `riesgo` |
 | 5 Neutro | — | — | — | `null` (adaptador nulo) |
 
-> El flag es **solo de QA**. En producción sigue el adaptador nulo hasta que M05 (23-sep) y M06 entreguen las entradas reales.
+> El flag es **solo de QA**. En producción sigue el adaptador nulo hasta que M05 y M06 entreguen las entradas reales.
 
 ### Fase 1 · Publicar el contrato — `back-walvy#241`
 

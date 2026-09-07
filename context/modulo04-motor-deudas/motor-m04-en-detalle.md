@@ -1,6 +1,6 @@
 # El motor de M04 · del documento a la Ruta
 
-Contraparte backend de `[integracion-modulos.md](../wiki-codigo/integracion-modulos.md)`. Ese muestra cómo se conectan los módulos; este sigue **una deuda** desde que entra a la base hasta que sale como decisión.
+Contraparte backend de [integracion-modulos.md](../wiki-codigo/integracion-modulos.md). Ese muestra cómo se conectan los módulos; este sigue **una deuda** desde que entra a la base hasta que sale como decisión.
 
 Levantado del código en `origin/qa`
 
@@ -136,7 +136,7 @@ flowchart LR
     G --> H["POST /debts/route/apply<br/><i>«Seguir plan»</i>"]
     H --> I["POST /debts/route/close-debt"]
     I --> G
-    J["POST /debts/:id/payments"] --> G
+    J["POST /debts/:id/payments"] -.->|"no recalcula:<br/>lo ve la llamada siguiente"| G
 
     classDef cap fill:#FFF6F2,stroke:#EE8D78,color:#7A2E1F
     classDef rut fill:#EAF4F4,stroke:#1B6B73,color:#103F43
@@ -153,10 +153,17 @@ flowchart LR
 | `POST /debts/route/apply`      | Lo mismo, más el evento `seguir_plan_rd02`. **El único que activa**                 |
 | `POST /debts/route/close-debt` | Confirma un cierre que ya alcanzó la condición previa, y recalcula                  |
 | `GET /debts/summary`           | Sólo cuenta confirmadas y pendientes. No evalúa                                     |
+| `POST /debts/:id/payments`     | Inserta el abono y baja el saldo. **No recalcula** y **no mueve D**                 |
 
 
 **Ver el plan, navegarlo o simular no activan.** §7.2: «no usar un CTA visible como
 sustituto del evento». Un segundo «Seguir plan» tampoco reactiva.
+
+**El pago se registra, pero no entra al motor.** `POST /debts/:id/payments` escribe
+`debt_payments` y descuenta `current_balance` en transacción; devuelve el pago, no
+el estado. Como `route/current` no cachea, la llamada siguiente ve el saldo nuevo
+—pero el eje **D** no se mueve: la presión y la Salud se alimentan sólo del
+`PressureInputsPort`, y `debt_payments` no lo alimenta. Eso llega con M06.
 
 ---
 
@@ -262,7 +269,7 @@ flowchart LR
 
 
 
-**Riesgo con el gate incompleto no abre Ruta.** Manda a confirmar o completar. Es la distinción que el Figma todavía no refleja — ver `[req-resultado-onboarding-semaforo.md](req-resultado-onboarding-semaforo.md)`.
+**Riesgo con el gate incompleto no abre Ruta.** Manda a confirmar o completar. Es la distinción que el Figma todavía no refleja — ver [req-resultado-onboarding-semaforo.md](req-resultado-onboarding-semaforo.md).
 
 ---
 
@@ -291,10 +298,10 @@ Cada regla lleva su `RULE_VERSION`, que se persiste con el resultado: se puede s
 cd back-walvy && npx jest src/debts
 ```
 
-**451 tests en 28 suites.** Para entender una regla, leer su `.spec.ts` antes que su implementación: los nombres de los tests son la especificación en prosa.
+**438 tests en 27 suites.** Para entender una regla, leer su `.spec.ts` antes que su implementación: los nombres de los tests son la especificación en prosa.
 
 Contrato vivo: `back-walvy/docs/api/debts/route.md` ·
-Deuda abierta: `[deuda-tecnica/README.md](deuda-tecnica/README.md)`
+Deuda abierta: [deuda-tecnica/README.md](deuda-tecnica/README.md)
 
 ---
 
@@ -303,5 +310,5 @@ Deuda abierta: `[deuda-tecnica/README.md](deuda-tecnica/README.md)`
 ## Glosario
 
 - `unknownMinimumPayment` — booleano en `debt.metadata`. `true` = no se confirma (sigue `unconfirmed`). `false` = se puede `confirm`.
-- `PressureInputsPort` — puerta por la que M04 pide lo que no calcula: ingreso y headroom (M05), hecho de pago y atraso (M06). Hoy está el `NullPressureInputsAdapter`: devuelve todo `null`. Por eso presión = `no_calculable` y la card del paso 3 es neutra. No es un bug. Se cambia el adaptador cuando M05/M06 entreguen; el pipeline no se toca.
+- `PressureInputsPort` — [`back-walvy/src/debts/ports/pressure-inputs.port.ts`](../../../../back-walvy/src/debts/ports/pressure-inputs.port.ts). La puerta por la que M04 pide lo que no calcula: ingreso y headroom (M05), hecho de pago y atraso (M06). Hoy está el `NullPressureInputsAdapter`: devuelve todo `null`. Por eso presión = `no_calculable` y la card del paso 3 es neutra. No es un bug. Se cambia el adaptador cuando M05/M06 entreguen; el pipeline no se toca.
 

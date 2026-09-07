@@ -21,8 +21,8 @@ corre pero no concluye: la presión sale `no_calculable` y la salud `sin_datos_s
 QA**. Todo usuario cae en el mismo estado.
 
 **No es que falte el motor.** El motor está completo y cableado. Falta un adaptador — un
-archivo. Un adaptador de fixtures detrás de un flag desbloquearía QA sin esperar a M05
-(entrega 23-sep). **Sin dueño asignado.**
+archivo. Un adaptador de fixtures detrás de un flag desbloquearía QA sin esperar a la
+entrega de M05. **Sin dueño asignado.**
 
 ### 2 · Tres estados del contrato sin frame
 
@@ -47,13 +47,35 @@ Anexo BDD prohíbe «usar porcentajes o indicadores visibles en Figma como fórm
 threshold funcional», así que **no se derivó**. Necesita que Producto lo declare como
 regla o que salga del diseño.
 
+### 5 · El front consume una forma que el backend no devuelve
+
+`getCurrentRoute()` en `expo/api/debtsService.ts` tipa la respuesta de
+`GET /debts/route/current` como `RouteProgress` —`planId`, `progressPct`,
+`recentPayments`—, y el backend devuelve `RouteStatus`: elegibilidad, activación,
+review y plan. Ninguno de esos tres campos existe.
+
+**Seis pantallas de Ruta Despeje** consumen ese tipo. Está anotado en el código
+como trabajo de la etapa 2. **Owner: M04 front.**
+
+### 6 · `transactionId` promete idempotencia y no la tiene
+
+El DTO de `POST /debts/:id/payments` describe el campo como «(idempotencia)». No
+hay índice único en `debt_payments.transaction_id` ni chequeo previo: dos POST con
+el mismo `transactionId` insertan dos abonos y descuentan el saldo dos veces. El
+`COMMENT ON COLUMN` del esquema dice lo correcto —«Movimiento con el que se
+concilió el abono»—; la promesa está sólo en la descripción de Swagger.
+
+Importa ahora porque **M07** es quien va a registrar pagos, y un reintento suyo
+hoy corrompe el saldo. Se cierra con un índice único o borrando la promesa del
+DTO. **Sin dueño asignado.**
+
 ---
 
 ## Lo que dejó de ser deuda
 
 | Antes | Estado |
 |---|---|
-| «Backend de deudas no implementado» | **Falso desde ago-2026.** Módulo completo: 16 reglas, 3 servicios, 10 endpoints, 451 tests |
+| «Backend de deudas no implementado» | **Falso desde ago-2026.** Módulo completo: 16 reglas, 3 servicios, 12 endpoints, 438 tests |
 | «`evaluateDebtSeverity` no existe» | **Falso.** Existía desde jun-2026 — y se **borró** el 2026-09-06 por quedar sin dueño (ver abajo) |
 | `GET /debts/result` ausente | **Descartado**, no pendiente. El contrato no define esa forma; presión y gate se publican en `GET /debts/route/current` |
 | El Resultado afirmaba «En Control» sin evaluar | **Corregido** en `front-walvy#159` |
@@ -77,7 +99,7 @@ los controllers.
 ## Cómo verificar este archivo
 
 ```bash
-cd back-walvy && npx jest src/debts     # 451 tests, 28 suites
+cd back-walvy && npx jest src/debts     # 438 tests, 27 suites
 grep -rn "NullPressureInputsAdapter" src/debts/debts.module.ts
 ```
 
