@@ -16,18 +16,18 @@ pantallas.
 
 | Puerta | Qué resuelve | Documento |
 |---|---|---|
-| G0 | Activación de la cuenta | [`../../specs/wiki/onboarding/requerimiento_por_puerta/G0-activacion.md`](../../specs/wiki/onboarding/requerimiento_por_puerta/G0-activacion.md) |
-| G1 | Foco del Mes | [`G1-foco.md`](../../specs/wiki/onboarding/requerimiento_por_puerta/G1-foco.md) |
-| G2 | Carga documental | [`G2-carga.md`](../../specs/wiki/onboarding/requerimiento_por_puerta/G2-carga.md) |
-| G3 | Análisis | [`G3-analisis.md`](../../specs/wiki/onboarding/requerimiento_por_puerta/G3-analisis.md) |
-| G4 | Revisión de suficiencia | [`G4-revision.md`](../../specs/wiki/onboarding/requerimiento_por_puerta/G4-revision.md) |
-| G5 | Diagnóstico y semáforo | [`G5-diagnostico.md`](../../specs/wiki/onboarding/requerimiento_por_puerta/G5-diagnostico.md) |
+| G0 | Activación de la cuenta | [`../../contratos/specs/wiki/onboarding/requerimiento_por_puerta/G0-activacion.md`](../../contratos/specs/wiki/onboarding/requerimiento_por_puerta/G0-activacion.md) |
+| G1 | Foco del Mes | [`G1-foco.md`](../../contratos/specs/wiki/onboarding/requerimiento_por_puerta/G1-foco.md) |
+| G2 | Carga documental | [`G2-carga.md`](../../contratos/specs/wiki/onboarding/requerimiento_por_puerta/G2-carga.md) |
+| G3 | Análisis | [`G3-analisis.md`](../../contratos/specs/wiki/onboarding/requerimiento_por_puerta/G3-analisis.md) |
+| G4 | Revisión de suficiencia | [`G4-revision.md`](../../contratos/specs/wiki/onboarding/requerimiento_por_puerta/G4-revision.md) |
+| G5 | Diagnóstico y semáforo | [`G5-diagnostico.md`](../../contratos/specs/wiki/onboarding/requerimiento_por_puerta/G5-diagnostico.md) |
 
 Y además:
 
-- [`flujo-documento-kread-g5.md`](../../specs/wiki/onboarding/requerimiento_por_puerta/flujo-documento-kread-g5.md) — el recorrido del documento desde la carga hasta el diagnóstico.
-- [`diagramas-g0-g5.md`](../../specs/wiki/onboarding/diagramas-g0-g5.md) — los diagramas de las seis puertas.
-- [`../../bitacora/2026-08-19-diagramas-g2-g5.md`](../../bitacora/2026-08-19-diagramas-g2-g5.md) — cómo se levantaron.
+- [`flujo-documento-kread-g5.md`](../../contratos/specs/wiki/onboarding/requerimiento_por_puerta/flujo-documento-kread-g5.md) — el recorrido del documento desde la carga hasta el diagnóstico.
+- [`diagramas-g0-g5.md`](../../contratos/specs/wiki/onboarding/diagramas-g0-g5.md) — los diagramas de las seis puertas.
+- [`../../historico/bitacora/2026-08-19-diagramas-g2-g5.md`](../../historico/bitacora/2026-08-19-diagramas-g2-g5.md) — cómo se levantaron.
 
 **En el código** las reglas de las puertas viven en `back-walvy/src/health/rules/`:
 `sufficiency-gate.rule.ts`, `g5-month-signals.rule.ts`, `dominant-pressure.rule.ts` y
@@ -37,15 +37,15 @@ Y además:
 
 | Tema | Documento |
 |---|---|
-| Autenticación: registro, OTP, JWT, biometría | [`../../specs/authentication.md`](../../specs/authentication.md) |
-| Navegación Splash → Onboarding | [`../../specs/auth-navigation-flows.md`](../../specs/auth-navigation-flows.md) |
-| Onboarding / enrolment | [`../../specs/onboarding.md`](../../specs/onboarding.md) |
+| Autenticación: registro, OTP, JWT, biometría | [`../../contratos/specs/authentication.md`](../../contratos/specs/authentication.md) |
+| Navegación Splash → Onboarding | [`../../contratos/specs/auth-navigation-flows.md`](../../contratos/specs/auth-navigation-flows.md) |
+| Onboarding / enrolment | [`../../contratos/specs/onboarding.md`](../../contratos/specs/onboarding.md) |
 | Pantalla de análisis en curso | [`onboarding-analyzing-flow.md`](onboarding-analyzing-flow.md) |
 | Integración onboarding ↔ backend | [`../utils/integracion-onboarding-backend.md`](../utils/integracion-onboarding-backend.md) |
 | Perfil financiero y recurrentes vistos desde M01 | [`perfil-financiero-y-recurrentes.md`](perfil-financiero-y-recurrentes.md) |
 | Contrato de auth Walvy ↔ Kread | [`contrato-walvy-kread-auth.md`](contrato-walvy-kread-auth.md) |
 | El registro paso a paso, en árbol | [`../../qa-audits/auth/flujo_mod_1.txt`](../../qa-audits/auth/flujo_mod_1.txt) |
-| Schema | [`../../db/modulo1.md`](../../db/modulo1.md) — ojo: documentación de diseño, ante discrepancia gana el código |
+| Schema | [`../../contratos/db/modulo1.md`](../../contratos/db/modulo1.md) — ojo: documentación de diseño, ante discrepancia gana el código |
 
 **Correo vs. usuario como identificador de acceso** —la lectura de negocio— está en
 [`flujos-identificador-acceso-cliente.md`](flujos-identificador-acceso-cliente.md). El
@@ -55,7 +55,7 @@ se regeneran, no se editan.
 
 ## 3 · Pantallas
 
-Especificación por pantalla en [`../../specs/wiki/pantallas/`](../../specs/wiki/pantallas/):
+Especificación por pantalla en [`../../contratos/specs/wiki/pantallas/`](../../contratos/specs/wiki/pantallas/):
 `splash` · `login` · `register` · `verify-code` · `confirm-account` · `choose-alias` ·
 `biometric-setup` · `forgot-password` · `reset-password` · `onboarding` ·
 `onboarding-foco` · `onboarding-doc` · `onboarding-analyzing` · `onboarding-analysis` ·
@@ -75,21 +75,21 @@ Integración con Kread: [`../deuda-tecnica/KREAD-INTEGRATION.md`](../deuda-tecni
 ## 5 · Producto
 
 - [`DudasModulo1.md`](DudasModulo1.md) — duda abierta con el PM: los 15 minutos de expiración del código de verificación.
-- [`../../specs/wiki/onboarding/requerimientos_PM/`](../../specs/wiki/onboarding/requerimientos_PM/) — los requerimientos que llegaron de PM, en HTML.
-- [`../../specs/wiki/onboarding/indice-documentacion-drive.md`](../../specs/wiki/onboarding/indice-documentacion-drive.md) — qué hay en Drive y qué está bajado.
+- [`../../contratos/specs/wiki/onboarding/requerimientos_PM/`](../../contratos/specs/wiki/onboarding/requerimientos_PM/) — los requerimientos que llegaron de PM, en HTML.
+- [`../../contratos/specs/wiki/onboarding/indice-documentacion-drive.md`](../../contratos/specs/wiki/onboarding/indice-documentacion-drive.md) — qué hay en Drive y qué está bajado.
 
 ## 6 · Entregables del cliente
 
-`../../specs/wiki/onboarding/1. Entregables Walvy_Módulo 1/` — la Matriz de Trazabilidad
+`../../contratos/specs/wiki/onboarding/1. Entregables Walvy_Módulo 1/` — la Matriz de Trazabilidad
 v2.6, la de Variantes de Validación y el PDF de la entrega. Los `.docx` y `.pdf` de M01 y
-M02 están en `../../specs/wiki/onboarding/Modulo 1 y 2/`.
+M02 están en `../../contratos/specs/wiki/onboarding/Modulo 1 y 2/`.
 
 > Los entregables de M04 a M07 viven en `documentacion/`, **fuera** de este repo. Los de
 > M01 y M02 quedaron adentro por razones históricas; es una incoherencia conocida.
 
 ## 7 · Histórico
 
-En [`../../bitacora/`](../../bitacora/): el diagnóstico de onboarding (12-ago), las
+En [`../../historico/bitacora/`](../../historico/bitacora/): el diagnóstico de onboarding (12-ago), las
 puertas fuera del modelo (13-ago), el checklist pre-QA (21-ago), el refactor del
 `AuthService`, el plan de onboarding del dev nuevo (29-ago) y el flujo G0 → perfil
 financiero (30-ago). **Es histórico: describe lo que era cierto ese día.**

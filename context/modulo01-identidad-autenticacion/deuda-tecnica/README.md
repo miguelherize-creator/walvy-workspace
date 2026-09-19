@@ -46,7 +46,7 @@ implementado (`GET`/`PUT /profile/financial`). El cierre del onboarding funciona
 servicio resuelve por estado con las puertas G0 a G5, y la condición de cuatro banderas
 que tenía antes quedó reemplazada.
 
-Referencia: [`../../bitacora/2026-08-29-plan-onboarding-dev-nuevo.md`](../../bitacora/2026-08-29-plan-onboarding-dev-nuevo.md),
+Referencia: [`../../historico/bitacora/2026-08-29-plan-onboarding-dev-nuevo.md`](../../historico/bitacora/2026-08-29-plan-onboarding-dev-nuevo.md),
 que ya lo daba por resuelto.
 
 ---

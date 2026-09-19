@@ -82,8 +82,8 @@ de los tres documentos que describen la navegación del front:
 
 | Documento | Estado |
 |---|---|
-| [`../../specs/frontend-routes-graph.md`](../../specs/frontend-routes-graph.md) | Se declara «el grafo completo, incluyendo `(tabs)`». Es de jul-08 y no las tiene |
-| [`../../specs/wiki/frontend-pantallas-endpoints.md`](../../specs/wiki/frontend-pantallas-endpoints.md) | Mapea pantalla → endpoints. Cubre auth, users y profile; no debts |
+| [`../../contratos/specs/frontend-routes-graph.md`](../../contratos/specs/frontend-routes-graph.md) | Se declara «el grafo completo, incluyendo `(tabs)`». Es de jul-08 y no las tiene |
+| [`../../contratos/specs/wiki/frontend-pantallas-endpoints.md`](../../contratos/specs/wiki/frontend-pantallas-endpoints.md) | Mapea pantalla → endpoints. Cubre auth, users y profile; no debts |
 | [`../../wiki-codigo/frontend.md`](../../wiki-codigo/frontend.md) | Routing y Feature-First. Tampoco las nombra |
 
 `route-map.md` era el cuarto y se borró el 2026-09-06: de jun-10, le faltaban dieciséis

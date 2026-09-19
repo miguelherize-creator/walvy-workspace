@@ -1,0 +1,15 @@
+---
+description: Dos numeraciones de módulo. Usar siempre la del cliente.
+alwaysApply: true
+---
+
+Usá siempre la numeración del cliente. `context/contratos/db/` usa otra, corrida desde M05.
+
+| Cliente | Es | En `contratos/db/` |
+|---|---|---|
+| M05 | Presupuesto Vivo | `modulo6.md` |
+| M06 | Pagos | `modulo7.md` |
+| M07 | Agente IA | `modulo8.md` |
+
+`contratos/db/modulo5.md` y `context/cashflow/` son Cashflow, no el M05.
+Mapa completo en `CLAUDE.md`.

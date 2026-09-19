@@ -26,7 +26,7 @@ columnas `flow_customer_id` y `flow_subscription_id` de la entity ya están, esp
 | [`../utils/flow-subscriptions.postman_collection.json`](../utils/flow-subscriptions.postman_collection.json) | Colección Postman de los endpoints de Flow |
 
 **El contrato de la API está en** `back-walvy/docs/api/subscriptions/`, no acá. La spec
-funcional, en [`../../specs/subscriptions.md`](../../specs/subscriptions.md).
+funcional, en [`../../contratos/specs/subscriptions.md`](../../contratos/specs/subscriptions.md).
 
 ---
 

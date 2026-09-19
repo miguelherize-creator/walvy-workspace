@@ -84,7 +84,7 @@ fijar la vigente antes de que alguien implemente contra la v2.6.
 El Anexo BDD marca todas sus entidades y campos (`EF-001`…) como **funcionales
 candidatos**, «a validar por BBDD, arquitectura o consultora antes de implementación». No
 es deuda: es el estado declarado del paquete. Se lista para que nadie los tome por schema
-aprobado — y el precedente de M04 vale acá: `context/db/modulo6.md` es documentación de
+aprobado — y el precedente de M04 vale acá: `context/contratos/db/modulo6.md` es documentación de
 diseño, y ante discrepancia gana el código.
 
 ---

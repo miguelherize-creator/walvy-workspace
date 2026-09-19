@@ -56,7 +56,7 @@ El último cierra el rol de `debt-severity.rule.ts`: el aging pertenece a **Salu
 | **Deuda técnica M04** [`deuda-tecnica/README.md`](deuda-tecnica/README.md) | Era **falso en ambas mitades**. **Reescrito** el 2026-09-06. |
 | **Preguntas abiertas** [`preguntas-abiertas-producto.md`](preguntas-abiertas-producto.md) §3 — «se construyó sin frame» | **Cierto históricamente, ya no vigente como bloqueo.** OD-03 es el frame funcional. Actualizar. |
 | **API M04-A** `back-walvy/docs/api/debts/route.md` | **Vigente pero incompleto.** Describe elegibilidad; no publica presión, que es lo que esta pantalla necesita (§5c). |
-| **G5 (M01)** [`G5-diagnostico.md`](../specs/wiki/onboarding/requerimiento_por_puerta/G5-diagnostico.md) | **Confirmado como otro producto.** Salud del mes ≠ presión de deuda. El copy y las mascotas se reutilizaron; la señal no. |
+| **G5 (M01)** [`G5-diagnostico.md`](../contratos/specs/wiki/onboarding/requerimiento_por_puerta/G5-diagnostico.md) | **Confirmado como otro producto.** Salud del mes ≠ presión de deuda. El copy y las mascotas se reutilizaron; la señal no. |
 
 ---
 

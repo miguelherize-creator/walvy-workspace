@@ -2,7 +2,7 @@
 
 > **Foto tomada de `origin/qa` @ `4d6c9c4` (2026-08-28).**
 > `qa` es hoy la rama de integración en revisión del cliente: `main` no tiene nada que `qa` no tenga, y `qa` va **21 commits adelante** de `main`.
-> Cuando este documento y `context/architecture.md` / `context/stack.md` se contradigan, **gana este** — los otros dos están congelados en junio y hablan de NestJS 10, npm y "sin carpeta migrations".
+> Cuando este documento y `context/historico/congelado/architecture.md` / `context/historico/congelado/stack.md` se contradigan, **gana este** — los otros dos están congelados en junio y hablan de NestJS 10, npm y "sin carpeta migrations".
 
 ---
 
@@ -21,7 +21,7 @@ Una API REST en **NestJS 11** sobre **PostgreSQL** con **TypeORM**, que expone t
 | Auth | Passport-JWT + bcrypt |
 | Docs | Swagger en `/api`, contrato en `/api-json` |
 
-> ⚠️ **`npm install` acá es un error.** El lockfile es `pnpm-lock.yaml` y el CI corre `pnpm install --frozen-lockfile`. Si `context/stack.md` dice npm, `stack.md` está mal.
+> ⚠️ **`npm install` acá es un error.** El lockfile es `pnpm-lock.yaml` y el CI corre `pnpm install --frozen-lockfile`. Si `context/historico/congelado/stack.md` dice npm, `stack.md` está mal.
 
 ### Servicios externos de los que depende
 
@@ -186,7 +186,7 @@ Cada uno tiene su `.spec.ts` al lado. **Si vas a tocar un umbral o una prioridad
 
 ## 7. Datos
 
-- **Entidades TypeORM = fuente de verdad del esquema.** Los `.md` de `context/db/` están desactualizados en varios nombres de tabla. Ante la duda, gana la entidad.
+- **Entidades TypeORM = fuente de verdad del esquema.** Los `.md` de `context/contratos/db/` están desactualizados en varios nombres de tabla. Ante la duda, gana la entidad.
 - Columnas en `snake_case` vía `@Column({ name: '...' })`; clases en `PascalCase`.
 - **33 migraciones** en `src/migrations/`, ordenadas por timestamp en el nombre. Las `1786000001000`–`1786000014000` son el *baseline* (esquema completo + seed de catálogos); de ahí en adelante son cambios incrementales.
 - Los `COMMENT ON COLUMN` del esquema **documentan el modelo previsto**: léelos antes de proponer una migración. Un `CHECK` que estorba se migra como último recurso, no como primero.
@@ -268,7 +268,7 @@ Los demás workflows (`repository-checker`, `container-image-check`, `release-de
 4. **Guard JWT olvidado = endpoint público.** No hay red de seguridad global.
 5. **Dos remotes.** `origin` = `KabeliDev/back-walvy` (ahí van los PR) · `walvy` = `walvy-org/walvy-app-backend` (espejo del cliente). Empujar al remote equivocado es el error más caro posible.
 6. **En los commits se cita la regla del cliente** (`M1-RN-*`, `M2-V65`), nunca `#NN`.
-7. **La documentación miente en los nombres de tabla.** `context/db/modulo5.md` dice `financial_movement`, `file_upload`, `user_financial_instrument`; el código usa `transactions`, `statement_imports`, `funding_sources`. Gana el código.
+7. **La documentación miente en los nombres de tabla.** `context/contratos/db/modulo5.md` dice `financial_movement`, `file_upload`, `user_financial_instrument`; el código usa `transactions`, `statement_imports`, `funding_sources`. Gana el código.
 8. **`DB_SYNC=true` solo en local.** En cualquier otro lado, migraciones.
 9. **Sin DELETE físico** de `app_user`, movimientos ni deudas: soft delete y supresión de cuenta por fases.
 10. **Nunca loguear** `accessToken`, `refreshToken` ni `passwordHash` — hay un `log-redaction.util.ts` para eso.

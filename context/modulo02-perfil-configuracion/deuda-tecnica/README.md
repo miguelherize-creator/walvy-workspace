@@ -44,7 +44,7 @@ PATCH /notifications/:id/read
 Y el motor de reglas es `src/notifications/services/alert-rules.engine.ts`.
 
 Quien busque «las alertas de M02» por `profile/alerts` no las encuentra. Queda anotado
-acá por eso — y `../../specs/user-profile.md` sigue listando los dos endpoints viejos
+acá por eso — y `../../contratos/specs/user-profile.md` sigue listando los dos endpoints viejos
 como pendientes, que es un desvío a corregir en esa spec.
 
 ## M2-DT-04 · No hay transporte de push

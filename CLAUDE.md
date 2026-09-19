@@ -1,179 +1,75 @@
-# Walvy — Agent Harness
+# Walvy — índice operativo
 
-**Proyecto:** Walvy — app de finanzas personales para Chile
-**Stack:** NestJS 11 + React Native (Expo 54) + PostgreSQL 16 · TypeORM, 36 migraciones
-**Rama de referencia:** `origin/qa` — back `dd713df`, front `f64c1a5`, ambos del 2026-09-06
+**App de finanzas personales para Chile.** NestJS 11 + Expo 54 + PostgreSQL 16.
+**Código de referencia:** `origin/qa`. **Este repo no se despliega:** es la memoria compartida.
 
-> **Antes de leer cualquier otra cosa, dos trampas de este repo.**
->
-> **1 · Hay dos numeraciones de módulo y desde M05 están corridas.** La del cliente
-> (los entregables `Walvy_MNN_*`) y la interna de `context/db/`:
->
-> | Cliente | Es | En `context/db/` |
-> |---|---|---|
-> | M01 | Identidad y onboarding | `modulo1.md` |
-> | M02 | Perfil y Foco del Mes | `modulo2.md` |
-> | M03 | Home | `modulo3.md` |
-> | M04 | Ruta Despeje · deudas | `modulo4.md` |
-> | **M05** | **Presupuesto Vivo** | `modulo6.md` ⚠️ |
-> | **M06** | **Pagos** | `modulo7.md` ⚠️ |
-> | **M07** | **Agente IA** | `modulo8.md` ⚠️ |
-> | M10 | Monetización | `modulo10.md` |
->
-> `context/db/modulo5.md` es **Cashflow**, que no es el M05 del cliente. Y la carpeta
-> `context/modulo05-cashflow/` arrastra el mismo error en el nombre. Al citar un módulo,
-> decir de qué numeración se habla.
->
-> **2 · `context/` tiene dos clases de archivo que no se leen igual.**
-> Lo de `bitacora/` es **registro histórico**: describe lo que era cierto ese día y no se
-> actualiza. Todo lo demás debe estar vigente. Un dato de bitácora nunca es fuente para
-> decidir hoy.
+Leé [`context/README.md`](context/README.md) si no sabés en qué capa está un archivo.
 
 ---
 
-## Por dónde entrar
+## Dos trampas (antes de citar un módulo)
 
-| Si vas a… | Leé |
-|---|---|
-| Entender el código por primera vez | [`context/wiki-codigo/`](context/wiki-codigo/) — **la puerta de entrada** |
-| Tocar un módulo concreto | su carpeta `context/moduloNN-*/` (abajo) |
-| Saber cómo se conectan los módulos | [`context/wiki-codigo/integracion-modulos.md`](context/wiki-codigo/integracion-modulos.md) |
-| Ver el contrato de un endpoint | `back-walvy/docs/api/` — **vive en el repo del back, no acá** |
-| Buscar por qué se decidió algo | [`context/decisions.md`](context/decisions.md) (20 decisiones) · [`context/bitacora/`](context/bitacora/) |
+**1 · Dos numeraciones, corridas desde M05.** Usá siempre la del cliente. `context/contratos/db/` usa otra:
 
-## Carpetas por módulo
-
-Cada una tiene `contexto/` (cómo funciona), `deuda-tecnica/` (qué está abierto y de quién
-es) y a veces `utils/`.
-
-| Carpeta | Módulo | Estado del contexto |
+| Cliente | Es | En `contratos/db/` |
 |---|---|---|
-| [`context/modulo01-identidad-autenticacion/`](context/modulo01-identidad-autenticacion/) | M01 · Identidad, auth y onboarding | ✅ **Organizado** · deuda verificada contra el código |
-| [`context/modulo02-perfil-configuracion/`](context/modulo02-perfil-configuracion/) | M02 · Perfil financiero y configuración | ✅ **Organizado** · deuda verificada contra el código |
-| [`context/modulo04-motor-deudas/`](context/modulo04-motor-deudas/) | M04 · Ruta Despeje | ✅ **Organizado y el más completo** — ver `motor-m04-en-detalle.md` |
-| [`context/modulo05-presupuesto-vivo/`](context/modulo05-presupuesto-vivo/) | M05 del cliente · Presupuesto Vivo | Levantado del contrato · sin código |
-| [`context/modulo05-cashflow/`](context/modulo05-cashflow/) | Cashflow (⚠️ **no** el M05 del cliente) | Sin organizar |
-| [`context/modulo10-monetizacion/`](context/modulo10-monetizacion/) | M10 · Monetización | ✅ **Organizado** · estado reverificado contra el código |
+| M01 | Identidad y onboarding | `modulo1.md` |
+| M02 | Perfil y Foco del Mes | `modulo2.md` |
+| M03 | Home | `modulo3.md` |
+| M04 | Ruta Despeje | `modulo4.md` |
+| **M05** | **Presupuesto Vivo** | `modulo6.md` |
+| **M06** | **Pagos** | `modulo7.md` |
+| **M07** | **Agente IA** | `modulo8.md` |
+| M10 | Monetización | `modulo10.md` |
 
-**Los tres módulos organizados —M01, M02, M04— siguen la misma forma:** el índice de
-`contexto/README.md` enlaza *todo* lo que existe del módulo, esté donde esté, y el
-`deuda-tecnica/README.md` da cada punto con el comando que lo comprueba. En esos tres, si
-algo no está enlazado desde su índice, es que no existe.
+`contratos/db/modulo5.md` y `context/cashflow/` son **Cashflow**, no el M05 del cliente.
 
-M03, M06 y M07 no tienen carpeta todavía. Sus entregables del cliente están en
-`documentacion/`, fuera de este repo.
+**2 · Histórico ≠ vigente.** `context/historico/` describe lo que era cierto ese día. No se actualiza y **nunca es fuente para decidir hoy**.
 
-## Contexto transversal
+---
 
-| Archivo | Contenido |
+## Si vas a…
+
+| Rol / tarea | Entrá por |
 |---|---|
-| [`context/wiki-codigo/`](context/wiki-codigo/) | Backend, frontend, integración entre módulos y arquitectura del motor de reglas, sobre `origin/qa` |
-| [`context/conventions.md`](context/conventions.md) | Naming, patrones de código, seguridad |
-| [`context/decisions.md`](context/decisions.md) | 20 decisiones de diseño con su por qué |
-| [`context/release-workflow.md`](context/release-workflow.md) | Ramas, releases, deploy manual, migraciones TypeORM |
-| [`context/db/`](context/db/) | Schema por módulo — **ojo con la numeración de arriba** |
-| [`context/mvp-scope.csv`](context/mvp-scope.csv) | Alcance MVP, exportado del Excel original. **Una columna en el schema no es una feature del MVP.** Es el único documento de alcance: `mvp-scope.md` se borró el 2026-09-06 por repetir la tabla de sprints desactualizada |
-| [`context/visual-design-rules.md`](context/visual-design-rules.md) | Reglas de materialización visual |
-| [`context/ios-adhoc-testing.md`](context/ios-adhoc-testing.md) | Distribución iOS ad hoc con EAS |
-| [`context/specs/`](context/specs/) | Especificaciones por módulo y el material del cliente de M01/M02 |
-| [`context/testing.md`](context/testing.md) | Estrategia de testing y patrones E2E |
-| [`context/qa-audits/`](context/qa-audits/) | 20 reportes pixel-perfect por pantalla, generados por `/walvy-qa-visual` |
-| [`context/bitacora/`](context/bitacora/) | **Histórico.** Un archivo por jornada o por tema |
+| DEV, primer día | [`context/wiki-codigo/`](context/wiki-codigo/) |
+| Tocar un módulo | su `context/moduloNN-*/contexto/README.md` |
+| PM / contrato del cliente | [`context/contratos/`](context/contratos/) |
+| PMO / por qué se decidió | [`context/decisions.md`](context/decisions.md) |
+| QA visual | [`context/qa-audits/`](context/qa-audits/) |
+| Cierre de jornada | [`context/historico/bitacora/`](context/historico/bitacora/) |
+| Contrato de un endpoint | `back-walvy/docs/api/` — vive en el back, no acá |
 
-`context/architecture.md` y `context/stack.md` están **congelados en junio de 2026** y
-los reemplaza `wiki-codigo/`. Llevan el aviso arriba.
+## Módulos (numeración del cliente)
 
----
-
-## Estado real, verificado contra `origin/qa` el 2026-09-06
-
-Backend, por endpoints expuestos y suites de test:
-
-| Módulo Nest | Endpoints | Suites | Notas |
-|---|---|---|---|
-| `auth` | 14 | 7 | |
-| `debts` | 12 | 27 | **438 tests.** Motor P4 cableado; espera entradas de M05/M06 |
-| `imports` | 15 | — | Pipeline de cartolas vía Kread |
-| `cashflow` | 16 | — | |
-| `subscriptions` | 8 | 2 | Flow.cl |
-| `notifications` | 7 | — | |
-| `users` | 5 | 8 | |
-| `profile` | 4 | 2 | |
-| `catalog` · `legal` · `health` · `dev` | 7 | — | |
-
-Frontend, por pantallas: `auth` 15 · `debts` 10 · `profile` 6 · `subscription` 3 ·
-`splash` 1. `home` no tiene pantalla propia todavía.
-
-Existen además como módulos Nest sin endpoints todavía: `admin`, `ai`, `budget`,
-`gamification`, `payments`, `storage`, `mail`.
-
-> No poner acá una tabla de «sprints». La anterior decía que las deudas eran «⚠️ Schema,
-> frontend ❌» cuando el módulo tenía 438 tests y diez pantallas, y desorientó a todo el
-> que arrancó por este archivo. Si un estado no se puede verificar con un comando, no va.
-
----
-
-## Agentes
-
-Los `/walvy-*` viven en `~/.claude/skills/` (nivel usuario). Los de este repo están en
-[`skills/`](skills/) y hay que **leerlos**, no invocarlos.
-
-| Comando | Modelo | Cuándo |
+| Carpeta | Qué es | Contexto |
 |---|---|---|
-| `/walvy-find` | Haiku | Lookup: archivo, endpoint, tabla, símbolo |
-| `/walvy-backend` | Sonnet | NestJS: módulos, DTOs, entities, endpoints |
-| `/walvy-db` | Sonnet | Schema, migraciones, entities TypeORM |
-| `/walvy-frontend` | Sonnet | React Native, features, hooks, Expo Router |
-| `/walvy-design` | Sonnet | UI pixel-perfect, Figma → RN |
-| `/walvy-qa` | Sonnet | Tests y criterios de aceptación |
-| `/walvy-arch` | Opus | Decisiones cross-cutting |
-| `/walvy-ai` | Opus | Módulo de asistente IA |
-| `/walvy-think` | Opus | Analizar un requerimiento antes de implementar |
-| `/walvy-kora` | Sonnet | Cierre de jornada → entradas de bitácora |
+| [`modulo01-identidad-autenticacion/`](context/modulo01-identidad-autenticacion/) | M01 · auth y onboarding | Organizado |
+| [`modulo02-perfil-configuracion/`](context/modulo02-perfil-configuracion/) | M02 · perfil y Foco del Mes | Organizado |
+| [`modulo04-motor-deudas/`](context/modulo04-motor-deudas/) | M04 · Ruta Despeje | El más completo |
+| [`modulo05-presupuesto-vivo/`](context/modulo05-presupuesto-vivo/) | M05 · Presupuesto Vivo | Contrato, sin código |
+| [`cashflow/`](context/cashflow/) | Cashflow (no es M05) | Inventario de código |
+| [`modulo10-monetizacion/`](context/modulo10-monetizacion/) | M10 · Flow / suscripciones | Organizado |
 
-En `skills/`, para leer:
+M03, M06 y M07 no tienen carpeta. Sus entregables están en `documentacion/`, fuera de este repo.
 
-| Archivo | Para qué |
-|---|---|
-| [`skills/walvy-audit.md`](skills/walvy-audit.md) | Auditar cambios en staged: front + back + correos + comentarios + commits |
-| [`skills/walvy-backend-auditor.md`](skills/walvy-backend-auditor.md) | Auditoría de backend |
-| [`skills/ui-visual-qa-reviewer.md`](skills/ui-visual-qa-reviewer.md) | Auditoría pixel-perfect contra Figma. No genera código |
-| [`skills/senior-react-native-engineer.md`](skills/senior-react-native-engineer.md) | Criterio de RN/Expo |
+En M01, M02 y M04: si no está enlazado desde el índice del módulo, no existe.
 
----
+## Repos
 
-## Repositorios y rutas
-
-| Repo | GitHub | Ruta local |
+| Repo | GitHub | Ruta |
 |---|---|---|
 | Backend | `KabeliDev/back-walvy` | `back-walvy/` |
-| Frontend | `KabeliDev/front-walvy` | `front-walvy/` |
+| Frontend | `KabeliDev/front-walvy` | `front-walvy/expo/` |
 | Infra | `KabeliDev/walvy-platform-infra` | `walvy-platform-infra/` |
-| Este workspace | `miguelherize-creator/walvy-workspace` | `workspace/walvy-workspace/` |
+| Esta memoria | `miguelherize-creator/walvy-workspace` | `workspace/walvy-workspace/` |
 
-> `walvy-org/walvy-workspace` es **otro repo** —el sitio Docusaurus de infraestructura— y
-> está clonado en `walvy-workspace/` en la raíz. Mismo nombre, contenido distinto. No
-> confundirlos.
-
-| Área | Ruta |
-|---|---|
-| Backend src | `back-walvy/src/` |
-| Contratos de API | `back-walvy/docs/api/` |
-| Frontend | `front-walvy/expo/` |
-| Design tokens | `front-walvy/expo/constants/colors.ts` + `theme.ts` |
-| E2E Playwright | `workspace/walvy-workspace/e2e/` |
-| Entregables del cliente M04–M07 | `documentacion/` |
-
-## Comandos
+`walvy-org/walvy-workspace` es **otro repo** (Docusaurus de infra). No confundir.
 
 ```bash
-# Backend
-cd back-walvy && npm run start:dev
-npx jest src/debts              # 438 tests del motor M04
-
-# Frontend
+cd back-walvy && pnpm run start:dev
 cd front-walvy/expo && bun run start
-
-# E2E de UI (modo mock)
 cd workspace/walvy-workspace/e2e && npm test
 ```
+
+Harness: [`.claude/`](.claude/). Commands `/walvy-find` · `/walvy-backend` · `/walvy-frontend` · `/walvy-db` · `/walvy-qa` · `/walvy-design` · `/walvy-think` · `/walvy-arch` · `/walvy-ai` · `/walvy-kora` (escribe en `context/historico/bitacora/`).

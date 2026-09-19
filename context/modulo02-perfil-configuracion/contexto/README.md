@@ -18,14 +18,14 @@ el repo sin figurar en ningún índice.
 |---|---|
 | Perfil financiero: el modelo y sus reglas | [`perfil-financiero.md`](perfil-financiero.md) |
 | Perfil financiero: código vs. especificación | [`alineacion-perfil-financiero-vs-spec.md`](alineacion-perfil-financiero-vs-spec.md) |
-| Perfil de usuario: endpoints y flujos | [`../../specs/user-profile.md`](../../specs/user-profile.md) |
+| Perfil de usuario: endpoints y flujos | [`../../contratos/specs/user-profile.md`](../../contratos/specs/user-profile.md) |
 | Notificaciones push: requerimiento | [`req-push-notifications.md`](req-push-notifications.md) |
-| Schema | [`../../db/modulo2.md`](../../db/modulo2.md) — documentación de diseño; ante discrepancia gana el código |
+| Schema | [`../../contratos/db/modulo2.md`](../../contratos/db/modulo2.md) — documentación de diseño; ante discrepancia gana el código |
 
 Reglas de alineación del perfil financiero enviadas por el cliente:
 [`../Walvy_Perfil_Financiero_Reglas_Alineacion_v1_0.docx`](../Walvy_Perfil_Financiero_Reglas_Alineacion_v1_0.docx).
 La especificación UX consolidada está en
-`../../specs/wiki/onboarding/Modulo 1 y 2/Walvy_Especificacion_UX_Perfil_Financiero_v1.0_consolidado.pdf`.
+`../../contratos/specs/wiki/onboarding/Modulo 1 y 2/Walvy_Especificacion_UX_Perfil_Financiero_v1.0_consolidado.pdf`.
 
 ## 2 · Lo que M02 lee y no calcula
 
@@ -49,9 +49,9 @@ y el contrato de lo que M04 publica en
 ## 3 · Foco del Mes
 
 Se elige en M02 y lo consume M01 en la puerta G1. El requerimiento de estados está en
-[`../../specs/wiki/onboarding/requerimientos_PM/REQ_G1_Regla_Estados_Foco_del_Mes_Walvy_v1.0.html`](../../specs/wiki/onboarding/requerimientos_PM/REQ_G1_Regla_Estados_Foco_del_Mes_Walvy_v1.0.html),
+[`../../contratos/specs/wiki/onboarding/requerimientos_PM/REQ_G1_Regla_Estados_Foco_del_Mes_Walvy_v1.0.html`](../../contratos/specs/wiki/onboarding/requerimientos_PM/REQ_G1_Regla_Estados_Foco_del_Mes_Walvy_v1.0.html),
 la regla de priorización del CTA en
-`../../specs/wiki/onboarding/Modulo 1 y 2/Walvy_Regla_Priorizacion_CTA_por_Foco_Mes_v1_0.docx`,
+`../../contratos/specs/wiki/onboarding/Modulo 1 y 2/Walvy_Regla_Priorizacion_CTA_por_Foco_Mes_v1_0.docx`,
 y el «Léeme» del cliente en el mismo directorio.
 
 Auditoría de la pantalla: [`../../qa-audits/profile/mi-foco-del-mes.md`](../../qa-audits/profile/mi-foco-del-mes.md).
@@ -70,5 +70,5 @@ Plan de alineación del perfil financiero: [`../deuda-tecnica/plan-alineacion-pe
 
 ## 6 · Histórico
 
-En [`../../bitacora/`](../../bitacora/): la revisión del router de profile (14-ago) y el
+En [`../../historico/bitacora/`](../../historico/bitacora/): la revisión del router de profile (14-ago) y el
 flujo G0 → perfil financiero (30-ago). Es histórico y no se actualiza.

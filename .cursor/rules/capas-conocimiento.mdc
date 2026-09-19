@@ -1,0 +1,13 @@
+---
+description: Vigente vs contrato vs histórico. La bitácora no decide.
+alwaysApply: true
+---
+
+Tres capas. Mapa en `context/README.md`.
+
+- **Vigente** (`wiki-codigo/`, `moduloNN-*/`, `cashflow/`): se actualiza con el código.
+- **Contrato** (`context/contratos/`): se versiona, no se reescribe.
+- **Histórico** (`context/historico/`): append-only. Nunca es fuente para decidir hoy.
+
+Ante discrepancia: código > índice del módulo > contrato > histórico.
+El esquema lo ganan las entidades TypeORM.

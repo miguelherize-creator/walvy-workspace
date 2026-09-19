@@ -1,7 +1,4 @@
-# Bitácora diaria
+# Movido
 
-Registro de actividad por día para el sistema Kora.
-
-- Un archivo por día: `YYYY-MM-DD.md`
-- Generado automáticamente con `/walvy-kora`
-- Incluye reuniones, commits y las dos entradas Kora listas para copiar
+La bitácora está en [`../historico/bitacora/`](../historico/bitacora/).
+Es histórico: no se usa para decidir hoy.

@@ -5,6 +5,12 @@ Frontend/
 # Editor
 .vscode/
 .idea/
+.claude/settings.local.json
+.claude/worktrees/
+CLAUDE.local.md
+.context-mode/
+*.db-shm
+*.db-wal
 
 # OS
 .DS_Store

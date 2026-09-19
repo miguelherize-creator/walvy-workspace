@@ -13,7 +13,7 @@ Cómo está construido el código hoy y cómo trabajamos sobre él. Pensado para
 2026-09-06. M04 ya está en `qa`: el motor, sus 438 tests y los contratos de
 `back-walvy/docs/api/debts/` se levantaron de ahí.
 
-> Estos dos documentos **reemplazan** a `context/architecture.md` y `context/stack.md` en todo lo que se contradigan: esos dos están congelados en junio y describen NestJS 10, npm y un proyecto sin migraciones. Nada de eso es cierto hoy.
+> Estos dos documentos **reemplazan** a `context/historico/congelado/architecture.md` y `context/historico/congelado/stack.md` en todo lo que se contradigan: esos dos están congelados en junio y describen NestJS 10, npm y un proyecto sin migraciones. Nada de eso es cierto hoy.
 
 ---
 
@@ -99,9 +99,9 @@ Regla estricta: **el comentario explica el *porqué*, nunca el *qué*.** Nada de
 
 ### Documentación
 
-- La **fuente de verdad del esquema son las entidades TypeORM**, no los `.md` de `context/db/`.
+- La **fuente de verdad del esquema son las entidades TypeORM**, no los `.md` de `context/contratos/db/`.
 - Los `COMMENT ON COLUMN` del esquema documentan el modelo previsto: se leen antes de proponer una migración.
-- `context/specs/` es el contrato de producto por módulo; `back-walvy/docs/api/` es el contrato técnico por endpoint.
+- `context/contratos/specs/` es el contrato de producto por módulo; `back-walvy/docs/api/` es el contrato técnico por endpoint.
 
 ---
 

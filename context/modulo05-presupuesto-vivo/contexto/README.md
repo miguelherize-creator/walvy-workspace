@@ -4,8 +4,8 @@ Levantado de la entrega del cliente en `documentacion/Módulo05/`, paquete
 `Walvy_Modulo5_Presupuesto_Vivo_*_v1_0` (Fase 1 a 5 + Anexo BDD + Consolidado Final) y
 `Categorias/Walvy_Modulo5_BBDD_Categorias_MVP_v2.7.xlsx`.
 
-> **Este es el M05 del cliente.** No confundir con [`../../modulo05-cashflow/`](../../modulo05-cashflow/),
-> que es Cashflow —movimientos e ingesta— y en la numeración interna de `context/db/` es
+> **Este es el M05 del cliente.** No confundir con [`../../cashflow/`](../../cashflow/),
+> que es Cashflow —movimientos e ingesta— y en la numeración interna de `context/contratos/db/` es
 > `modulo5.md`. El schema de este módulo es `db/modulo6.md`. El mapa de las dos
 > numeraciones está en [`../../../CLAUDE.md`](../../../CLAUDE.md).
 
