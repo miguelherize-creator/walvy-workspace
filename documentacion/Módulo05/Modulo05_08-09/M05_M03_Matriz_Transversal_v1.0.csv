@@ -1,0 +1,10 @@
+﻿Objeto_canonico_M05,Rol,Prioridad_local,Proyeccion_in_app_consumidores,Elegibilidad_externa_actual,Tratamiento_en_matriz_transversal,Dedupe_trazabilidad
+F1,Familia,P1/P2,OBLIGATORIA,CONDICIONADA por variante previa,Crear fila familia; mantener AVI 001/002/013 como trazabilidad; no heredar canal más permisivo,F1+contexto
+F2,Familia,P1/P2,OBLIGATORIA,CONDICIONADA por pending/temporalidad,Crear fila familia; agregar pendings; preservar reglas de variante,F2+objeto/movimiento
+F3,Familia,P1/P2,OBLIGATORIA,CONDICIONADA; matrix decide email/device,Crear fila familia; estados U03-U06b como reason/variant,F3+categoría/periodo
+F4,Familia,P2,OBLIGATORIA,CONDICIONADA; no habilitar por recurrencia sola,Crear fila familia única D08; absorber AVI-M05-010/011,F4+pattern_key+periodo
+F5,Familia,P1/P2,OBLIGATORIA,CONDICIONADA; no por recovery_eligible solo,Crear fila familia; plan activo como state,F5+contexto de recuperación
+F6,Familia,P2,OBLIGATORIA,BLOQUEADA hasta clasificación explícita,AGREGAR fila nueva LT_3M; M3/M6 updates; no AVI anterior,F6+periodo/base_reserva
+Outputs positivos,state/output,P3/no candidato,OBLIGATORIA cuando surface aplique,NO CANDIDATA por defecto,Mantener fuera de competencia; consumir como contexto,output+periodo/contexto
+AVI-M05-017,owner M06,M06,DERIVACIÓN,Según M06/matriz,No competir como M05,dedupe compromiso/pago
+AVI-M05-018,owner M04,M04,DERIVACIÓN,Según M04/matriz,No competir como M05,dedupe deuda/mora
