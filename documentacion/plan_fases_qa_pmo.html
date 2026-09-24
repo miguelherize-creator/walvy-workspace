@@ -1,0 +1,581 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Plan de Entregas QA · M04/M05/M06 — Consulta PMO</title>
+<style>
+  *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+  :root {
+    --ink:    #1A2035;
+    --muted:  #5A6480;
+    --light:  #8592B0;
+    --bg:     #F7F8FB;
+    --white:  #FFFFFF;
+    --border: #DDE2EE;
+    --m04:    #6D28D9; --m04-bg: #F5F3FF;
+    --m05:    #0369A1; --m05-bg: #EFF6FF;
+    --m06:    #047857; --m06-bg: #ECFDF5;
+    --f1: #0369A1; --f2: #047857; --f3: #7C3AED; --f4: #B45309; --f5: #B91C1C;
+    --ask: #92400E; --ask-bg: #FFFBEB; --ask-border: #FCD34D;
+  }
+  body {
+    font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', system-ui, sans-serif;
+    font-size: 15px;
+    line-height: 1.6;
+    color: var(--ink);
+    background: var(--bg);
+    padding: 32px 20px 64px;
+  }
+  .doc {
+    max-width: 820px;
+    margin: 0 auto;
+    background: var(--white);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    overflow: hidden;
+  }
+
+  /* ── Header ── */
+  .doc-header {
+    padding: 32px 40px 28px;
+    border-bottom: 1px solid var(--border);
+  }
+  .eyebrow {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .1em;
+    text-transform: uppercase;
+    color: var(--light);
+    margin-bottom: 10px;
+  }
+  h1 {
+    font-size: 24px;
+    font-weight: 700;
+    letter-spacing: -.4px;
+    color: var(--ink);
+    margin-bottom: 8px;
+    line-height: 1.2;
+  }
+  .subtitle { font-size: 15px; color: var(--muted); }
+  .meta {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+    margin-top: 18px;
+    padding-top: 18px;
+    border-top: 1px solid var(--border);
+    font-size: 13px;
+    color: var(--muted);
+  }
+  .meta-item strong { color: var(--ink); }
+
+  /* ── Body ── */
+  .doc-body { padding: 36px 40px; }
+  @media (max-width: 600px) {
+    .doc-header, .doc-body { padding-inline: 20px; }
+  }
+
+  h2 {
+    font-size: 17px;
+    font-weight: 700;
+    color: var(--ink);
+    margin-bottom: 12px;
+    margin-top: 36px;
+    padding-bottom: 8px;
+    border-bottom: 1px solid var(--border);
+  }
+  h2:first-child { margin-top: 0; }
+  p { margin-bottom: 12px; color: var(--muted); }
+  p strong { color: var(--ink); }
+
+  /* ── Ask box ── */
+  .ask-box {
+    background: var(--ask-bg);
+    border: 1px solid var(--ask-border);
+    border-left: 4px solid var(--ask);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-bottom: 28px;
+  }
+  .ask-box .ask-label {
+    font-size: 11px;
+    font-weight: 700;
+    letter-spacing: .08em;
+    text-transform: uppercase;
+    color: var(--ask);
+    margin-bottom: 6px;
+  }
+  .ask-box p { color: var(--ink); margin: 0; }
+
+  /* ── Context ── */
+  .context-grid {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+  @media (max-width: 540px) { .context-grid { grid-template-columns: 1fr; } }
+  .ctx-card {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px;
+    border-top: 3px solid var(--cc);
+  }
+  .ctx-label { font-size: 10px; font-weight: 700; letter-spacing: .08em; text-transform: uppercase; color: var(--cc); margin-bottom: 4px; }
+  .ctx-name  { font-size: 14px; font-weight: 700; margin-bottom: 2px; }
+  .ctx-nums  { display: flex; gap: 12px; margin-top: 8px; }
+  .ctx-num-val { font-size: 20px; font-weight: 700; color: var(--cc); line-height: 1; }
+  .ctx-num-lbl { font-size: 11px; color: var(--muted); }
+
+  /* ── Principle ── */
+  .principle {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 16px 20px;
+    margin-bottom: 24px;
+  }
+  .principle-title { font-size: 13px; font-weight: 700; color: var(--ink); margin-bottom: 4px; }
+  .principle p { margin: 0; font-size: 13px; }
+
+  /* ── Phase table ── */
+  .phase-list { display: flex; flex-direction: column; gap: 0; border: 1px solid var(--border); border-radius: 10px; overflow: hidden; margin-bottom: 28px; }
+  .phase-row {
+    display: grid;
+    grid-template-columns: 90px 1fr auto;
+    gap: 0;
+    border-bottom: 1px solid var(--border);
+    align-items: stretch;
+  }
+  .phase-row:last-child { border-bottom: none; }
+  .ph-tag {
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    padding: 14px 10px;
+    background: var(--pc);
+    font-size: 12px;
+    font-weight: 700;
+    color: white;
+    text-align: center;
+    line-height: 1.3;
+  }
+  .ph-body {
+    padding: 14px 16px;
+    border-left: 1px solid var(--border);
+    border-right: 1px solid var(--border);
+  }
+  .ph-name { font-size: 14px; font-weight: 700; color: var(--ink); margin-bottom: 2px; }
+  .ph-desc { font-size: 12px; color: var(--muted); }
+  .ph-modules { display: flex; gap: 5px; flex-wrap: wrap; margin-top: 6px; }
+  .ph-mod { font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 10px; }
+  .ph-count { padding: 14px 16px; display: flex; align-items: center; }
+  .ph-count-val { font-size: 20px; font-weight: 700; color: var(--pc); line-height: 1; }
+  .ph-count-lbl { font-size: 11px; color: var(--muted); }
+
+  /* ── F1 detail ── */
+  .swimlanes {
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  @media (max-width: 600px) { .swimlanes { grid-template-columns: 1fr; } }
+  .lane {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    overflow: hidden;
+  }
+  .lane-head {
+    padding: 10px 12px;
+    background: var(--lbg);
+    border-bottom: 1px solid var(--border);
+    display: flex;
+    align-items: center;
+    gap: 7px;
+  }
+  .lane-dot { width: 8px; height: 8px; border-radius: 50%; background: var(--lc); flex-shrink: 0; }
+  .lane-name { font-size: 13px; font-weight: 700; color: var(--lc); }
+  .lane-count { margin-left: auto; font-size: 11px; font-weight: 700; color: var(--lc); background: white; padding: 2px 8px; border-radius: 10px; border: 1px solid var(--lc); opacity: .7; }
+  .lane-body { padding: 10px 12px; }
+  .lane-group { margin-bottom: 8px; }
+  .lane-group:last-child { margin-bottom: 0; }
+  .lg-title { font-size: 11px; font-weight: 700; color: var(--ink); margin-bottom: 3px; }
+  .lg-ids { font-size: 11px; color: var(--muted); font-family: 'Courier New', monospace; line-height: 1.7; }
+
+  /* ── Rationale ── */
+  .rationale-grid {
+    display: grid;
+    grid-template-columns: repeat(2, 1fr);
+    gap: 12px;
+    margin-bottom: 24px;
+  }
+  @media (max-width: 540px) { .rationale-grid { grid-template-columns: 1fr; } }
+  .rat {
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 14px 16px;
+  }
+  .rat-title { font-size: 12px; font-weight: 700; color: var(--ink); margin-bottom: 5px; }
+  .rat-body  { font-size: 12px; color: var(--muted); }
+
+  /* ── Exclusions table ── */
+  .tbl-wrap { overflow-x: auto; border-radius: 8px; border: 1px solid var(--border); margin-bottom: 24px; }
+  table { width: 100%; border-collapse: collapse; font-size: 13px; }
+  thead th { background: var(--bg); padding: 9px 12px; text-align: left; font-size: 11px; font-weight: 700; text-transform: uppercase; letter-spacing: .05em; color: var(--muted); border-bottom: 1px solid var(--border); white-space: nowrap; }
+  tbody tr { border-bottom: 1px solid var(--border); }
+  tbody tr:last-child { border-bottom: none; }
+  td { padding: 9px 12px; vertical-align: top; color: var(--muted); }
+  td:first-child { color: var(--ink); font-weight: 600; font-family: 'Courier New', monospace; font-size: 12px; }
+  td:nth-child(2) { color: var(--ink); }
+
+  /* ── Questions ── */
+  .questions { display: flex; flex-direction: column; gap: 10px; margin-bottom: 24px; }
+  .q { border: 1px solid var(--border); border-radius: 8px; padding: 14px 16px; counter-increment: q; display: flex; gap: 12px; }
+  .q-num { font-size: 12px; font-weight: 700; color: var(--light); flex-shrink: 0; width: 20px; margin-top: 1px; }
+  .q-text { font-size: 14px; color: var(--ink); }
+
+  /* ── Footer ── */
+  .doc-footer {
+    padding: 18px 40px;
+    border-top: 1px solid var(--border);
+    background: var(--bg);
+    font-size: 12px;
+    color: var(--light);
+    display: flex;
+    gap: 16px;
+    flex-wrap: wrap;
+    justify-content: space-between;
+    align-items: center;
+  }
+  @media (max-width: 600px) { .doc-footer { padding-inline: 20px; } }
+  code { font-family: 'Courier New', monospace; font-size: 11px; background: var(--bg); padding: 1px 5px; border-radius: 3px; border: 1px solid var(--border); color: var(--muted); }
+</style>
+</head>
+<body>
+<div class="doc">
+
+  <!-- ── Header ── -->
+  <div class="doc-header">
+    <div class="eyebrow">Walvy · Consulta PMO · 2026-09-21</div>
+    <h1>Plan de entregas QA por fases — M04 / M05 / M06</h1>
+    <p class="subtitle">Propuesta de releases controlados para que QA certifique sin quedar con "cumple parcial" en ninguna fase.</p>
+    <div class="meta">
+      <span class="meta-item"><strong>De:</strong> Equipo Dev / Kabeli</span>
+      <span class="meta-item"><strong>Para:</strong> PMO</span>
+      <span class="meta-item"><strong>Módulos:</strong> M04 Ruta Despeje · M05 Presupuesto Vivo · M06 Pagos</span>
+      <span class="meta-item"><strong>Total variantes:</strong> 152</span>
+    </div>
+  </div>
+
+  <div class="doc-body">
+
+    <!-- ── Ask ── -->
+    <div class="ask-box">
+      <div class="ask-label">Pedido de validación PMO</div>
+      <p>¿Las variantes asignadas a <strong>Fase 1</strong> son correctas desde tu óptica? Necesitamos confirmar que el criterio de corte (sin dependencias cruzadas entre módulos) coincide con la prioridad contractual y con lo que QA necesita para poder emitir un resultado limpio sin esperar otros módulos.</p>
+    </div>
+
+    <!-- ── Context ── -->
+    <h2>Contexto · tres módulos, tres matrices</h2>
+    <div class="context-grid">
+      <div class="ctx-card" style="--cc:var(--m04)">
+        <div class="ctx-label">M04</div>
+        <div class="ctx-name">Ruta Despeje</div>
+        <div class="ctx-nums">
+          <div><div class="ctx-num-val">93</div><div class="ctx-num-lbl">total</div></div>
+          <div><div class="ctx-num-val" style="color:var(--f1)">27</div><div class="ctx-num-lbl">Fase 1</div></div>
+        </div>
+      </div>
+      <div class="ctx-card" style="--cc:var(--m05)">
+        <div class="ctx-label">M05</div>
+        <div class="ctx-name">Presupuesto Vivo</div>
+        <div class="ctx-nums">
+          <div><div class="ctx-num-val">34</div><div class="ctx-num-lbl">total</div></div>
+          <div><div class="ctx-num-val" style="color:var(--f1)">25</div><div class="ctx-num-lbl">Fase 1</div></div>
+        </div>
+      </div>
+      <div class="ctx-card" style="--cc:var(--m06)">
+        <div class="ctx-label">M06</div>
+        <div class="ctx-name">Pagos</div>
+        <div class="ctx-nums">
+          <div><div class="ctx-num-val">59</div><div class="ctx-num-lbl">total</div></div>
+          <div><div class="ctx-num-val" style="color:var(--f1)">38</div><div class="ctx-num-lbl">Fase 1</div></div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Principle ── -->
+    <div class="principle">
+      <div class="principle-title">Principio de corte de cada fase</div>
+      <p>Una variante entra a una fase <strong>solo si todos sus datos de entrada ya están certificados en fases anteriores</strong>. La señal que <em>produce</em> no cuenta como dependencia; solo importa lo que <em>consume</em>. Esto garantiza que QA puede emitir Aprobado/Ajustar sin quedar bloqueado esperando otro módulo.</p>
+    </div>
+
+    <!-- ── Phase plan ── -->
+    <h2>Las 5 fases propuestas</h2>
+    <div class="phase-list">
+      <div class="phase-row">
+        <div class="ph-tag" style="--pc:var(--f1)">Fase 1</div>
+        <div class="ph-body">
+          <div class="ph-name">Núcleo independiente — carga, cálculo base y guardrails propios</div>
+          <div class="ph-desc">Solo variantes sin dependencias externas. Los tres módulos se pueden certificar en paralelo.</div>
+          <div class="ph-modules">
+            <span class="ph-mod" style="background:var(--m04-bg); color:var(--m04)">M04: M4-V05–V29 + V87–V88</span>
+            <span class="ph-mod" style="background:var(--m05-bg); color:var(--m05)">M05: 25 variantes core</span>
+            <span class="ph-mod" style="background:var(--m06-bg); color:var(--m06)">M06: V01–V33 + V53–V58</span>
+          </div>
+        </div>
+        <div class="ph-count">
+          <div>
+            <div class="ph-count-val" style="--pc:var(--f1)">90</div>
+            <div class="ph-count-lbl">variantes<br>59% del total</div>
+          </div>
+        </div>
+      </div>
+      <div class="phase-row">
+        <div class="ph-tag" style="--pc:var(--f2)">Fase 2</div>
+        <div class="ph-body">
+          <div class="ph-name">Ciclo propio completo — patrones, detección y presión</div>
+          <div class="ph-desc">Necesita datos propios de F1 cargados, pero no señales de otro módulo. Familias de Mis Avisos propias.</div>
+          <div class="ph-modules">
+            <span class="ph-mod" style="background:var(--m04-bg); color:var(--m04)">M04: F5–F7 Mis Avisos</span>
+            <span class="ph-mod" style="background:var(--m05-bg); color:var(--m05)">M05: D08/D09, Reserva, ELEGIBLE</span>
+            <span class="ph-mod" style="background:var(--m06-bg); color:var(--m06)">M06: Recurrencia + Presión 50–100%</span>
+          </div>
+        </div>
+        <div class="ph-count">
+          <div>
+            <div class="ph-count-val" style="--pc:var(--f2)">22</div>
+            <div class="ph-count-lbl">variantes<br>+14 pp</div>
+          </div>
+        </div>
+      </div>
+      <div class="phase-row">
+        <div class="ph-tag" style="--pc:var(--f3)">Fase 3</div>
+        <div class="ph-body">
+          <div class="ph-name">Canal M02 · Surface Home M03 · Alertas</div>
+          <div class="ph-desc">Prerequisito: M02 con al menos un canal activo y M03 disponible en el ambiente QA.</div>
+          <div class="ph-modules">
+            <span class="ph-mod" style="background:var(--m04-bg); color:var(--m04)">M04: Mis Avisos con canal</span>
+            <span class="ph-mod" style="background:var(--m05-bg); color:var(--m05)">M05: F4 Rec + F5 Rec + Home</span>
+            <span class="ph-mod" style="background:var(--m06-bg); color:var(--m06)">M06: V34–V41 alertas+Home</span>
+          </div>
+        </div>
+        <div class="ph-count">
+          <div>
+            <div class="ph-count-val" style="--pc:var(--f3)">17</div>
+            <div class="ph-count-lbl">variantes<br>+11 pp</div>
+          </div>
+        </div>
+      </div>
+      <div class="phase-row">
+        <div class="ph-tag" style="--pc:var(--f4)">Fase 4</div>
+        <div class="ph-body">
+          <div class="ph-name">Señales cruzadas M04 ↔ M05 ↔ M06 · OD-03 Resultado</div>
+          <div class="ph-desc">Primera fase donde QA necesita datos certificados de OTRO módulo. OD-03 consume presupuesto M05 y presión M06.</div>
+          <div class="ph-modules">
+            <span class="ph-mod" style="background:var(--m04-bg); color:var(--m04)">M04: OD-03 + Perfil Productor</span>
+            <span class="ph-mod" style="background:var(--m05-bg); color:var(--m05)">M05: señales recibidas M06</span>
+            <span class="ph-mod" style="background:var(--m06-bg); color:var(--m06)">M06: V42–V52 señales cruzadas</span>
+          </div>
+        </div>
+        <div class="ph-count">
+          <div>
+            <div class="ph-count-val" style="--pc:var(--f4)">17</div>
+            <div class="ph-count-lbl">variantes<br>+11 pp</div>
+          </div>
+        </div>
+      </div>
+      <div class="phase-row">
+        <div class="ph-tag" style="--pc:var(--f5)">Fase 5</div>
+        <div class="ph-body">
+          <div class="ph-name">Ruta Despeje activa · Simulación RD-02 · Cierre completo</div>
+          <div class="ph-desc">Solo certificable con <code>route_eligibility_status = elegible</code> confirmado. RD-02 requiere política prudencial definida.</div>
+          <div class="ph-modules">
+            <span class="ph-mod" style="background:var(--m04-bg); color:var(--m04)">M04: V50–V88 Ruta activa</span>
+            <span class="ph-mod" style="background:var(--m05-bg); color:var(--m05)">M05: ajuste por aporte Ruta</span>
+            <span class="ph-mod" style="background:var(--m06-bg); color:var(--m06)">M06: V59 (decisión UX pend.)</span>
+          </div>
+        </div>
+        <div class="ph-count">
+          <div>
+            <div class="ph-count-val" style="--pc:var(--f5)">13</div>
+            <div class="ph-count-lbl">variantes<br>100% acum.</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── F1 detail ── -->
+    <h2>Detalle Fase 1 · las 90 variantes</h2>
+    <p>Estas 90 variantes no requieren ningún dato de otro módulo para ser ejecutadas. QA puede correr los tres módulos <strong>en paralelo</strong>.</p>
+
+    <div class="swimlanes">
+      <div class="lane" style="--lc:var(--m04); --lbg:var(--m04-bg)">
+        <div class="lane-head">
+          <span class="lane-dot"></span>
+          <span class="lane-name">M04 · Ruta Despeje</span>
+          <span class="lane-count">27</span>
+        </div>
+        <div class="lane-body">
+          <div class="lane-group">
+            <div class="lg-title">OD-01 · Carga documental</div>
+            <div class="lg-ids">M4-V05, V06, V07<br>M4-V08, V09, V10 · Registro manual<br>M4-V11, V12, V13, V14 · Doc protegido<br>M4-V15 · Doc no procesable</div>
+          </div>
+          <div class="lane-group">
+            <div class="lg-title">OD-02 · Revisión y validación</div>
+            <div class="lg-ids">M4-V16 a M4-V26 (11 variantes)</div>
+          </div>
+          <div class="lane-group">
+            <div class="lg-title">OD-02→OD-03 · Evaluación</div>
+            <div class="lg-ids">M4-V27, V28, V29</div>
+          </div>
+          <div class="lane-group">
+            <div class="lg-title">Entrada directa / reingreso</div>
+            <div class="lg-ids">M4-V87, V88</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="lane" style="--lc:var(--m05); --lbg:var(--m05-bg)">
+        <div class="lane-head">
+          <span class="lane-dot"></span>
+          <span class="lane-name">M05 · Presupuesto Vivo</span>
+          <span class="lane-count">25</span>
+        </div>
+        <div class="lane-body">
+          <div class="lane-group">
+            <div class="lg-title">Resumen PV + Categorías</div>
+            <div class="lg-ids">M5-V01, V02, V03<br>M5-V04, V05, V06, V07</div>
+          </div>
+          <div class="lane-group">
+            <div class="lg-title">Movimientos + Validación + Histórico</div>
+            <div class="lg-ids">M5-V08, V09, V10</div>
+          </div>
+          <div class="lane-group">
+            <div class="lg-title">Ingesta asistida</div>
+            <div class="lg-ids">M5-V13, V14, V16, V17</div>
+          </div>
+          <div class="lane-group">
+            <div class="lg-title">Umbrales (50%–110%)</div>
+            <div class="lg-ids">M5-V21, V22, V23, V24, V25, V26</div>
+          </div>
+          <div class="lane-group">
+            <div class="lg-title">Margen estimado</div>
+            <div class="lg-ids">M5-V28, V29, V30, V31, V32</div>
+          </div>
+        </div>
+      </div>
+
+      <div class="lane" style="--lc:var(--m06); --lbg:var(--m06-bg)">
+        <div class="lane-head">
+          <span class="lane-dot"></span>
+          <span class="lane-name">M06 · Pagos</span>
+          <span class="lane-count">38</span>
+        </div>
+        <div class="lane-body">
+          <div class="lane-group">
+            <div class="lg-title">Hub + Alta manual + Candidato</div>
+            <div class="lg-ids">M6-V01–V03, V04–V06, V07–V11</div>
+          </div>
+          <div class="lane-group">
+            <div class="lg-title">Vencimiento (Próximo + Vencido)</div>
+            <div class="lg-ids">M6-V12–V17</div>
+          </div>
+          <div class="lane-group">
+            <div class="lg-title">Pago realizado + Origen + Duplicidad</div>
+            <div class="lg-ids">M6-V18, V20, V21, V22–V26, V27–V29</div>
+          </div>
+          <div class="lane-group">
+            <div class="lg-title">Recurrencia</div>
+            <div class="lg-ids">M6-V30–V33</div>
+          </div>
+          <div class="lane-group">
+            <div class="lg-title">Guardrails transversales</div>
+            <div class="lg-ids">M6-V53–V58</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- ── Exclusions ── -->
+    <h2>Variantes que NO entran en Fase 1 (y por qué)</h2>
+    <p>Estas variantes están asignadas a fases posteriores porque consumen señales de otro módulo o requieren un canal externo habilitado.</p>
+    <div class="tbl-wrap">
+      <table>
+        <thead>
+          <tr><th>ID</th><th>Variante</th><th>Bloqueante</th><th>Va a</th></tr>
+        </thead>
+        <tbody>
+          <tr><td>M4-V01–V04</td><td>Entrada contextual desde Home/Perfil</td><td>Requiere Home M03 operativo</td><td>Fase 3</td></tr>
+          <tr><td>M4-V30–V49</td><td>OD-03 Resultado completo</td><td>Consume presupuesto M05 + presión M06</td><td>Fase 4</td></tr>
+          <tr><td>M4-V50–V88</td><td>Ruta Despeje activa (RD-01/02/03)</td><td>Requiere elegibilidad confirmada</td><td>Fase 5</td></tr>
+          <tr><td>M5-V11</td><td>Alerta presupuestaria en Home</td><td>Requiere M03 Home</td><td>Fase 3</td></tr>
+          <tr><td>M5-V12</td><td>Recomendación activa</td><td>Requiere canal M02</td><td>Fase 3</td></tr>
+          <tr><td>M5-V15</td><td>Extracción pendiente de confirmación</td><td>Casi solo (datos propios cargados)</td><td>Fase 2</td></tr>
+          <tr><td>M5-V18</td><td>Plan de recuperación</td><td>Casi solo (historial propio)</td><td>Fase 2</td></tr>
+          <tr><td>M5-V19</td><td>Derivación Ruta Despeje</td><td>Consume M04 Ruta activa</td><td>Fase 4/5</td></tr>
+          <tr><td>M5-V20</td><td>Sugerencia foco del mes</td><td>Casi solo (historial Foco previo)</td><td>Fase 2</td></tr>
+          <tr><td>M5-V27</td><td>Patrones de gasto</td><td>Casi solo (patrón multi-mes)</td><td>Fase 2</td></tr>
+          <tr><td>M5-V33</td><td>Perfil Financiero consume calidad</td><td>Casi solo (calidad acumulada)</td><td>Fase 2</td></tr>
+          <tr><td>M5-V34</td><td>Alertas</td><td>Requiere canal M02</td><td>Fase 3</td></tr>
+          <tr><td>M6-V19</td><td>Pago probable por ingesta</td><td>Casi solo (ingesta confirmada)</td><td>Fase 2</td></tr>
+          <tr><td>M6-V34–V41</td><td>Alertas y señales Home</td><td>Requiere M02 canal + M03 Home</td><td>Fase 3</td></tr>
+          <tr><td>M6-V42–V52</td><td>Señales a M05/M04 + presión alta</td><td>Consume módulos certificados</td><td>Fase 4</td></tr>
+          <tr><td>M6-V59</td><td>Pantalla Pagos vs superficie equivalente</td><td>Decisión UX pendiente (PD-M6-02)</td><td>Fase 5</td></tr>
+        </tbody>
+      </table>
+    </div>
+
+    <!-- ── Questions ── -->
+    <h2>Preguntas concretas para PMO</h2>
+    <div class="questions">
+      <div class="q">
+        <div class="q-num">1</div>
+        <div class="q-text">¿El criterio de corte (solo entra lo que no consume señal de otro módulo) está alineado con la prioridad contractual de M04/M05/M06 tal como la entiende el cliente?</div>
+      </div>
+      <div class="q">
+        <div class="q-num">2</div>
+        <div class="q-text">Las 9 variantes de M05 excluidas de F1 (V11, V12, V15, V18, V19, V20, V27, V33, V34) — ¿alguna de ellas debería subir a F1 por prioridad contractual aunque tenga dependencias técnicas?</div>
+      </div>
+      <div class="q">
+        <div class="q-num">3</div>
+        <div class="q-text">OD-03 Resultado de M04 queda en Fase 4 porque consume datos de M05 y M06. ¿Eso tiene riesgo de entrar en conflicto con alguna fecha comprometida de entrega de M04 al cliente?</div>
+      </div>
+      <div class="q">
+        <div class="q-num">4</div>
+        <div class="q-text">¿Hay alguna variante de Fase 5 (Ruta activa / RD-02 simulación) que deba anticiparse a una fase anterior por un compromiso puntual?</div>
+      </div>
+    </div>
+
+    <!-- ── Rationale ── -->
+    <h2>Por qué este orden (para PMO)</h2>
+    <div class="rationale-grid">
+      <div class="rat">
+        <div class="rat-title">Sin "cumple parcial"</div>
+        <div class="rat-body">Si QA intenta certificar OD-03 sin que M05 y M06 estén listos, el resultado queda en "cumple parcial" — bloqueante en la matriz. Este plan evita eso: cada fase tiene todo lo que necesita.</div>
+      </div>
+      <div class="rat">
+        <div class="rat-title">Ruta Despeje no depende de sí misma para OD-01/OD-02</div>
+        <div class="rat-body">27 variantes de M04 (carga + revisión) son completamente independientes y se pueden certificar hoy, sin esperar M05 ni M06. Es el bloque más robusto del plan.</div>
+      </div>
+      <div class="rat">
+        <div class="rat-title">M06 tiene el mayor porcentaje independiente</div>
+        <div class="rat-body">38 de 59 variantes de Pagos (64%) no necesitan ningún otro módulo. QA puede avanzar fuertemente en M06 desde el día 1.</div>
+      </div>
+      <div class="rat">
+        <div class="rat-title">Ruta Despeje activa es la última frontera</div>
+        <div class="rat-body">Las variantes RD-01/RD-02/RD-03 requieren elegibilidad confirmada y política prudencial definida. Bloquearlas en F5 es correcto: no dependen del código sino de una decisión de Producto.</div>
+      </div>
+    </div>
+
+  </div><!-- doc-body -->
+
+  <div class="doc-footer">
+    <span>Walvy · Kabeli Dev · <code>matriz_fase01.csv</code> adjunto con detalle de variantes</span>
+    <span>2026-09-21 · v1.0</span>
+  </div>
+</div>
+</body>
+</html>
